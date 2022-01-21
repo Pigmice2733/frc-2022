@@ -1,6 +1,6 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2021.1.2"
+    id "edu.wpi.first.GradleRIO" version "2021.3.1"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -53,6 +53,7 @@ dependencies {
     nativeDesktopZip wpi.deps.vendor.jni(wpi.platforms.desktop)
 
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:4.2.0'
 
     // Enable simulation gui support. Must check the box in vscode to enable support
     // upon debugging

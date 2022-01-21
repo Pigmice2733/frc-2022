@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.testmode.Testable;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -18,6 +19,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
+  private boolean testsRun = false;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -87,9 +89,19 @@ public class Robot extends TimedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+    testsRun = false;
+    for (Testable testable: m_robotContainer.getTestables()) {
+      testable.resetTests();
+    }  
   }
 
-  /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    if (!testsRun) {
+      for (Testable testable: m_robotContainer.getTestables()) {
+        testable.runTests();
+      }  
+      testsRun = true;
+    }
+  }
 }
