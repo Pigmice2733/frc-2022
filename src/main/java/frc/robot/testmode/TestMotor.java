@@ -5,14 +5,12 @@ import edu.wpi.first.wpilibj.SpeedController;
 
 public class TestMotor extends TestBase {
 
-  private final SpeedController forwardMotor;
-  private final SpeedController reverseMotor;
+  private final SpeedController motor;
   private final Encoder encoder;
   private final boolean positiveIsForward;
 
-  public TestMotor(SpeedController lowerWheelMotor, SpeedController upperWheelMotor, Encoder encoder, boolean positiveIsForward) {
-    this.forwardMotor = lowerWheelMotor;
-    this.reverseMotor = upperWheelMotor;
+  public TestMotor(SpeedController motor, Encoder encoder, boolean positiveIsForward) {
+    this.motor = motor;
     this.encoder = encoder;
     this.positiveIsForward = positiveIsForward;
   }
@@ -25,13 +23,13 @@ public class TestMotor extends TestBase {
     if (!positiveIsForward) {
       speed*=-1;
     }
-    forwardMotor.set(speed);
+    motor.set(speed);
     try {
       Thread.sleep(200);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    forwardMotor.set(0.0);
+    motor.set(0.0);
     int stopEncoder = encoder.get();
     if (forward) {
       return stopEncoder > startEncoder;
