@@ -1,10 +1,12 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 import java.sql.Time;
+import java.util.spi.ToolProvider;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -16,10 +18,23 @@ public class Shooter extends SubsystemBase {
     TalonSRX topShooterMotor;
     TalonSRX bottomShooterMotor;
 
-    // Constructor
+    Encoder topEncoder;
+    Encoder bottomEncoder;
+
+
+    // Create a new Shooter
     public Shooter() {
         topShooterMotor = new TalonSRX(Constants.ShooterConfig.topMotorPort);
         bottomShooterMotor = new TalonSRX(Constants.ShooterConfig.bottomMotorPort);
+
+        topEncoder = new Encoder(0, 0);
+        bottomEncoder = new Encoder(0, 0);
+
+        topEncoder.reset();
+        bottomEncoder.reset();
+        
+        topEncoder.setDistancePerPulse(1./256.);
+        bottomEncoder.setDistancePerPulse(1./256.);
     }
 
     public void setEnabled(boolean enabled) {
@@ -32,12 +47,10 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        //SmartDashboard.putString("Shooter.periodic", "test");
-        //System.out.println("Shooter periodic called");
         double bottomOutput = Constants.ShooterConfig.bottomMotorSpeed;
-        double topOutput = bottomOutput*.9;
+        double topOutput = bottomOutput*.85;
         if (enabled) {
-            System.out.println("Bottom output: " + bottomOutput + "; Top Output: " + topOutput);
+            System.out.println("Bottom encoder: " + topEncoder.getDistance() + "; Top encoder: " + bottomEncoder.getDistance());
             topShooterMotor.set(ControlMode.PercentOutput, -topOutput);
             bottomShooterMotor.set(ControlMode.PercentOutput, bottomOutput);
         }

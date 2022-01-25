@@ -17,7 +17,7 @@ public final class Constants {
         public static int topMotorPort = 8;
         public static int bottomMotorPort = 7;
 
-        public static double topMotorSpeed = 0.57;
-        public static double bottomMotorSpeed = 0.57;
+        public static double topMotorSpeed = 0.62;
+        public static double bottomMotorSpeed = 0.62;
     }
 }
