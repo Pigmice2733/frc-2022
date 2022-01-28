@@ -27,14 +27,14 @@ public class Shooter extends SubsystemBase {
         topShooterMotor = new TalonSRX(Constants.ShooterConfig.topMotorPort);
         bottomShooterMotor = new TalonSRX(Constants.ShooterConfig.bottomMotorPort);
 
-        topEncoder = new Encoder(0, 0);
-        bottomEncoder = new Encoder(0, 0);
+        //topEncoder = new Encoder(0, 0);
+        //bottomEncoder = new Encoder(0, 0);
 
-        topEncoder.reset();
-        bottomEncoder.reset();
+        //topEncoder.reset();
+        //bottomEncoder.reset();
         
-        topEncoder.setDistancePerPulse(1./256.);
-        bottomEncoder.setDistancePerPulse(1./256.);
+        //topEncoder.setDistancePerPulse(1./256.);
+        //bottomEncoder.setDistancePerPulse(1./256.);
     }
 
     public void setEnabled(boolean enabled) {
@@ -48,9 +48,9 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         double bottomOutput = Constants.ShooterConfig.bottomMotorSpeed;
-        double topOutput = bottomOutput*.85;
+        double topOutput = Constants.ShooterConfig.topMotorSpeed;
         if (enabled) {
-            System.out.println("Bottom encoder: " + topEncoder.getDistance() + "; Top encoder: " + bottomEncoder.getDistance());
+            //System.out.println("Bottom encoder: " + topEncoder.getDistance() + "; Top encoder: " + bottomEncoder.getDistance());
             topShooterMotor.set(ControlMode.PercentOutput, -topOutput);
             bottomShooterMotor.set(ControlMode.PercentOutput, bottomOutput);
         }
