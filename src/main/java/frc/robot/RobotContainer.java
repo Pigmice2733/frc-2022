@@ -4,14 +4,20 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.TestMotorCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Lights;
+import frc.robot.subsystems.RandomMotor;
 import frc.robot.subsystems.Shooter;
-import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.testmode.Testable;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -30,6 +36,9 @@ public class RobotContainer {
   private final Climber climber = new Climber();
   private final Lights lights = new Lights();
 
+  //TODO remove this
+  private final RandomMotor motorTest = new RandomMotor();
+
   // private final ExampleCommand m_autoCommand = new
   // ExampleCommand(m_exampleSubsystem);
 
@@ -39,6 +48,7 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+    this.motorTest.setDefaultCommand(new TestMotorCommand(this.motorTest));
   }
 
   /**
@@ -62,4 +72,10 @@ public class RobotContainer {
     // return m_autoCommand;
     return null;
   }
+
+  public List<Testable> getTestables() {
+    List<Testable> result = new ArrayList<>();
+    return result;
+  }
+
 }
