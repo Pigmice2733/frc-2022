@@ -1,11 +1,8 @@
-package frc.robot.testmode;
+package com.pigmice.frc.robot.testmode;
 
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-
-import com.pigmice.frc.robot.testmode.TestMotor;
-
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Assert;
 import org.junit.Test;

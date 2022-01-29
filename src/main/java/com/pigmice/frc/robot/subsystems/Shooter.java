@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.pigmice.frc.robot.Constants;
+import com.pigmice.frc.robot.Utils;
 import com.pigmice.frc.robot.Constants.ShooterConfig;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -37,13 +38,15 @@ public class Shooter extends SubsystemBase {
     private final NetworkTableEntry actualTopRPM;
     private final NetworkTableEntry actualBottomRPM;
 
+    private final FeedbackDevice feedbackDevice = FeedbackDevice.CTRE_MagEncoder_Absolute;
+
     // Create a new Shooter
     public Shooter() {
         topShooterMotor = new TalonSRX(Constants.ShooterConfig.topMotorPort);
         bottomShooterMotor = new TalonSRX(Constants.ShooterConfig.bottomMotorPort);
 
-        topShooterMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
-        bottomShooterMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
+        topShooterMotor.configSelectedFeedbackSensor(feedbackDevice);
+        bottomShooterMotor.configSelectedFeedbackSensor(feedbackDevice);
 
         topShooterMotor.setSensorPhase(true);
         bottomShooterMotor.setSensorPhase(true);
@@ -67,14 +70,6 @@ public class Shooter extends SubsystemBase {
         this.shooterTab.add(topPID);
     }
 
-    private double calculateRPM(double raw) {
-        return ((raw * 600) / Constants.SENSOR_UNITS_PER_ROTATION);
-    }
-
-    private double calculatePower(double RPM) {
-        return RPM / 180D;
-    }
-
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
@@ -88,8 +83,8 @@ public class Shooter extends SubsystemBase {
         double topRPM = this.topRPMEntry.getDouble(ShooterConfig.topMotorSpeed);
         double botRPM = this.bottomRPMEntry.getDouble(ShooterConfig.bottomMotorSpeed);
 
-        double topTicksPerDs = rpmToTicksPerDs(topRPM);
-        double botTicksPerDs = rpmToTicksPerDs(botRPM);
+        double topTicksPerDs = Utils.calculateTicksPerDs(topRPM, feedbackDevice);
+        double botTicksPerDs = Utils.calculateTicksPerDs(botRPM, feedbackDevice);
 
         double topVelocity = topShooterMotor.getSelectedSensorVelocity();
         double botVelocity = bottomShooterMotor.getSelectedSensorVelocity();
@@ -103,17 +98,13 @@ public class Shooter extends SubsystemBase {
         double topFFNormalized = topFFVolts / 12;
         double botFFNormalized = botFFVolts / 12;
 
-        this.actualTopRPM.setDouble(calculateRPM(topVelocity));// calculateRPM(topShooterMotor.getSelectedSensorVelocity()));
-        this.actualBottomRPM.setDouble(calculateRPM(botVelocity));// calculateRPM(bottomShooterMotor.getSelectedSensorVelocity()));
-
-        // this.shooterTab.add("Top Velocity",
-        // topShooterMotor.getSelectedSensorVelocity());
+        this.actualTopRPM.setDouble(Utils.calculateRPM(topVelocity, feedbackDevice));
+        this.actualBottomRPM.setDouble(Utils.calculateRPM(botVelocity, feedbackDevice));
 
         if (enabled) {
             topShooterMotor.set(ControlMode.Velocity, topTicksPerDs, DemandType.ArbitraryFeedForward, topFFNormalized);
             bottomShooterMotor.set(ControlMode.Velocity, botTicksPerDs, DemandType.ArbitraryFeedForward,
                     botFFNormalized);
-            // bottomShooterMotor.set(ControlMode.PercentOutput, bottomOutput);
         }
     }
 
@@ -121,19 +112,4 @@ public class Shooter extends SubsystemBase {
     public void simulationPeriodic() {
         periodic();
     }
-
-    public double rpmToTicksPerDs(int rpm) {
-        double ticksPerMinute = rpm * ShooterConfig.TICKS_PER_ROTATION;
-        double ticksPerS = ticksPerMinute / 60d;
-        double ticksPerDs = ticksPerS / 10d;
-        return ticksPerDs;
-    }
-
-    public double rpmToTicksPerDs(double rpm) {
-        double ticksPerMinute = rpm * ShooterConfig.TICKS_PER_ROTATION;
-        double ticksPerS = ticksPerMinute / 60d;
-        double ticksPerDs = ticksPerS / 10d;
-        return ticksPerDs;
-    }
-
 }
