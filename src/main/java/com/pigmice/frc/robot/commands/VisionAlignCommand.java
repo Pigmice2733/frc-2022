@@ -1,9 +1,10 @@
-package frc.robot.commands;
+package com.pigmice.frc.robot.commands;
+
+import com.pigmice.frc.robot.Vision;
+import com.pigmice.frc.robot.subsystems.Drivetrain;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Vision;
-import frc.robot.subsystems.Drivetrain;
 
 public class VisionAlignCommand extends CommandBase {
     private final Drivetrain drivetrain;

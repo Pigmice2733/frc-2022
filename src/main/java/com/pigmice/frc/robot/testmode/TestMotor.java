@@ -1,4 +1,4 @@
-package frc.robot.testmode;
+package com.pigmice.frc.robot.testmode;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SpeedController;
@@ -19,9 +19,9 @@ public class TestMotor extends TestBase {
     encoder.reset();
     int startEncoder = encoder.get();
 
-    double speed = forward?0.1:-0.1;
+    double speed = forward ? 0.1 : -0.1;
     if (!positiveIsForward) {
-      speed*=-1;
+      speed *= -1;
     }
     motor.set(speed);
     try {
@@ -36,7 +36,8 @@ public class TestMotor extends TestBase {
     } else {
       return stopEncoder < startEncoder;
     }
-  } 
+  }
+
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public boolean runTests() {

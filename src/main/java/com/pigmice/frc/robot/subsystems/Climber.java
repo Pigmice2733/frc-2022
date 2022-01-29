@@ -1,11 +1,11 @@
-package frc.robot.subsystems;
+package com.pigmice.frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Intake extends SubsystemBase {
+public class Climber extends SubsystemBase {
 
-    /** Creates a new Intake. */
-    public Intake() {
+    /** Creates a new Climber. */
+    public Climber() {
     }
 
     @Override
