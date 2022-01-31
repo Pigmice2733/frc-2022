@@ -4,12 +4,10 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.pigmice.frc.robot.Constants;
 import com.pigmice.frc.robot.Constants.ShooterConfig;
 import com.pigmice.frc.robot.Utils;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -18,8 +16,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Shooter extends SubsystemBase {
     private boolean enabled = true;
 
-    private TalonSRX topShooterMotor;
-    private TalonSRX bottomShooterMotor;
+    private TalonSRX topMotor;
+    private TalonSRX botMotor;
 
     private final double SHOOTER_KP = .04D;
 
@@ -43,27 +41,30 @@ public class Shooter extends SubsystemBase {
     private double topTargetRPM = RPM_NOT_SET;
     private double botTargetRPM = RPM_NOT_SET;
 
+    private static final double MAX_RPM_775 = 18700;
+    private static final double MAX_RPS_775 = MAX_RPM_775 / 60;
+
     // tune this
     private static final double VELOCITY_THRESHOLD = 10;
 
     // Create a new Shooter
     public Shooter() {
-        topShooterMotor = new TalonSRX(Constants.ShooterConfig.topMotorPort);
-        bottomShooterMotor = new TalonSRX(Constants.ShooterConfig.bottomMotorPort);
+        this.topMotor = new TalonSRX(ShooterConfig.topMotorPort);
+        this.botMotor = new TalonSRX(ShooterConfig.bottomMotorPort);
 
-        topShooterMotor.configSelectedFeedbackSensor(feedbackDevice);
-        bottomShooterMotor.configSelectedFeedbackSensor(feedbackDevice);
+        topMotor.configSelectedFeedbackSensor(feedbackDevice);
+        botMotor.configSelectedFeedbackSensor(feedbackDevice);
 
-        topShooterMotor.setSensorPhase(true);
-        bottomShooterMotor.setSensorPhase(true);
+        topMotor.setSensorPhase(true);
+        botMotor.setSensorPhase(true);
 
-        topShooterMotor.config_kP(0, SHOOTER_KP);
-        topShooterMotor.config_kI(0, 0);
-        topShooterMotor.config_kD(0, 0);
+        topMotor.config_kP(0, SHOOTER_KP);
+        topMotor.config_kI(0, 0);
+        topMotor.config_kD(0, 0);
 
-        bottomShooterMotor.config_kP(0, SHOOTER_KP);
-        bottomShooterMotor.config_kI(0, 0);
-        bottomShooterMotor.config_kD(0, 0);
+        botMotor.config_kP(0, SHOOTER_KP);
+        botMotor.config_kI(0, 0);
+        botMotor.config_kD(0, 0);
 
         this.shooterTab = Shuffleboard.getTab("Shooter");
 
@@ -95,23 +96,23 @@ public class Shooter extends SubsystemBase {
         double topTicksPerDs = Utils.calculateTicksPerDs(topRPM, feedbackDevice);
         double botTicksPerDs = Utils.calculateTicksPerDs(botRPM, feedbackDevice);
 
-        double topVelocity = topShooterMotor.getSelectedSensorVelocity();
-        double botVelocity = bottomShooterMotor.getSelectedSensorVelocity();
+        double topVelocity = topMotor.getSelectedSensorVelocity();
+        double botVelocity = botMotor.getSelectedSensorVelocity();
 
         double topRPS = topRPM / 60;
         double botRPS = botRPM / 60;
 
-        double topFFVolts = feedforward.calculate(topRPS);
-        double botFFVolts = feedforward.calculate(botRPS);
+        double topFFRPS = feedforward.calculate(topRPS);
+        double botFFRPS = feedforward.calculate(botRPS);
 
-        double topFFNormalized = topFFVolts / 12;
-        double botFFNormalized = botFFVolts / 12;
+        double topFFNormalized = topFFRPS / MAX_RPS_775;
+        double botFFNormalized = botFFRPS / MAX_RPS_775;
 
         this.actualTopRPM.setDouble(Utils.calculateRPM(topVelocity, feedbackDevice));
         this.actualBottomRPM.setDouble(Utils.calculateRPM(botVelocity, feedbackDevice));
 
-        topShooterMotor.set(ControlMode.Velocity, topTicksPerDs, DemandType.ArbitraryFeedForward, topFFNormalized);
-        bottomShooterMotor.set(ControlMode.Velocity, botTicksPerDs, DemandType.ArbitraryFeedForward,
+        topMotor.set(ControlMode.Velocity, topTicksPerDs, DemandType.ArbitraryFeedForward, topFFNormalized);
+        botMotor.set(ControlMode.Velocity, botTicksPerDs, DemandType.ArbitraryFeedForward,
                 botFFNormalized);
     }
 
@@ -138,8 +139,8 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean isAtTargetVelocity() {
-        return this.topShooterMotor.getClosedLoopError() <= VELOCITY_THRESHOLD
-                && this.bottomShooterMotor.getClosedLoopError() <= VELOCITY_THRESHOLD;
+        return this.topMotor.getClosedLoopError() <= VELOCITY_THRESHOLD
+                && this.botMotor.getClosedLoopError() <= VELOCITY_THRESHOLD;
     }
 
     @Override
