@@ -5,8 +5,8 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.pigmice.frc.robot.Constants;
-import com.pigmice.frc.robot.Utils;
 import com.pigmice.frc.robot.Constants.ShooterConfig;
+import com.pigmice.frc.robot.Utils;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.controller.PIDController;
@@ -23,8 +23,6 @@ public class Shooter extends SubsystemBase {
 
     private final double SHOOTER_KP = .04D;
 
-    private final PIDController topPID = new PIDController(SHOOTER_KP, 0, 0);
-
     private final double SHOOTER_KS = 0;
     private final double SHOOTER_KV = .5;
 
@@ -39,6 +37,14 @@ public class Shooter extends SubsystemBase {
     private final NetworkTableEntry actualBottomRPM;
 
     private final FeedbackDevice feedbackDevice = FeedbackDevice.CTRE_MagEncoder_Absolute;
+
+    private static final double RPM_NOT_SET = -1;
+
+    private double topTargetRPM = RPM_NOT_SET;
+    private double botTargetRPM = RPM_NOT_SET;
+
+    // tune this
+    private static final double VELOCITY_THRESHOLD = 10;
 
     // Create a new Shooter
     public Shooter() {
@@ -66,8 +72,6 @@ public class Shooter extends SubsystemBase {
 
         this.actualTopRPM = shooterTab.add("Actual Top RPM", 1).getEntry();
         this.actualBottomRPM = shooterTab.add("Actual Bottom RPM", 1).getEntry();
-
-        this.shooterTab.add(topPID);
     }
 
     public void setEnabled(boolean enabled) {
@@ -80,8 +84,13 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        double topRPM = this.topRPMEntry.getDouble(ShooterConfig.topMotorSpeed);
-        double botRPM = this.bottomRPMEntry.getDouble(ShooterConfig.bottomMotorSpeed);
+        if (!enabled)
+            return;
+
+        double topRPM = this.topTargetRPM == RPM_NOT_SET ? this.topRPMEntry.getDouble(ShooterConfig.topMotorSpeed)
+                : this.topTargetRPM;
+        double botRPM = this.botTargetRPM == RPM_NOT_SET ? this.bottomRPMEntry.getDouble(ShooterConfig.bottomMotorSpeed)
+                : this.botTargetRPM;
 
         double topTicksPerDs = Utils.calculateTicksPerDs(topRPM, feedbackDevice);
         double botTicksPerDs = Utils.calculateTicksPerDs(botRPM, feedbackDevice);
@@ -101,11 +110,36 @@ public class Shooter extends SubsystemBase {
         this.actualTopRPM.setDouble(Utils.calculateRPM(topVelocity, feedbackDevice));
         this.actualBottomRPM.setDouble(Utils.calculateRPM(botVelocity, feedbackDevice));
 
-        if (enabled) {
-            topShooterMotor.set(ControlMode.Velocity, topTicksPerDs, DemandType.ArbitraryFeedForward, topFFNormalized);
-            bottomShooterMotor.set(ControlMode.Velocity, botTicksPerDs, DemandType.ArbitraryFeedForward,
-                    botFFNormalized);
-        }
+        topShooterMotor.set(ControlMode.Velocity, topTicksPerDs, DemandType.ArbitraryFeedForward, topFFNormalized);
+        bottomShooterMotor.set(ControlMode.Velocity, botTicksPerDs, DemandType.ArbitraryFeedForward,
+                botFFNormalized);
+    }
+
+    /**
+     * Sets the target RPMs of the top and bottom shooter motors.
+     * 
+     * @param top    Target RPM of top motor
+     * @param bottom Target RPM of bottom motor
+     */
+    public void setTargetSpeeds(double top, double bottom) {
+        this.topTargetRPM = top;
+        this.botTargetRPM = bottom;
+    }
+
+    /**
+     * Unsets motor target RPMs so they use the ones set in Shuffleboard.
+     */
+    public void useShuffleboardSpeeds() {
+        this.topTargetRPM = this.botTargetRPM = RPM_NOT_SET;
+    }
+
+    public void stopMotors() {
+        this.topTargetRPM = this.botTargetRPM = 0;
+    }
+
+    public boolean isAtTargetVelocity() {
+        return this.topShooterMotor.getClosedLoopError() <= VELOCITY_THRESHOLD
+                && this.bottomShooterMotor.getClosedLoopError() <= VELOCITY_THRESHOLD;
     }
 
     @Override
