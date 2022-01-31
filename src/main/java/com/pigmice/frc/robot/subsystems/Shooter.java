@@ -112,8 +112,7 @@ public class Shooter extends SubsystemBase {
         this.actualBottomRPM.setDouble(Utils.calculateRPM(botVelocity, feedbackDevice));
 
         topMotor.set(ControlMode.Velocity, topTicksPerDs, DemandType.ArbitraryFeedForward, topFFNormalized);
-        botMotor.set(ControlMode.Velocity, botTicksPerDs, DemandType.ArbitraryFeedForward,
-                botFFNormalized);
+        botMotor.set(ControlMode.Velocity, botTicksPerDs, DemandType.ArbitraryFeedForward, botFFNormalized);
     }
 
     /**

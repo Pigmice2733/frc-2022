@@ -40,8 +40,8 @@ public class Utils {
      * @param rpm Motor RPM
      * @return Encoder ticks in 100ms
      */
-    public static double calculateTicksPerDs(double rpm, FeedbackDevice device) {
-        int sensorUnitsPerRotation = getSensorUnitsPerRotation(device);
+    public static double calculateTicksPerDs(double rpm, FeedbackDevice encoder) {
+        int sensorUnitsPerRotation = getSensorUnitsPerRotation(encoder);
         return rpm * sensorUnitsPerRotation / DECISECONDS_PER_MINUTE;
     }
 }
