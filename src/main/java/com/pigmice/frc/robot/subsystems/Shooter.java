@@ -8,7 +8,8 @@ import com.pigmice.frc.robot.Constants.ShooterConfig;
 import com.pigmice.frc.robot.Utils;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -26,6 +27,9 @@ public class Shooter extends SubsystemBase {
 
     private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(SHOOTER_KS, SHOOTER_KV);
 
+    private final PIDController topPIDController = new PIDController(0.5,0,0);
+    private final PIDController bottomPIDController = new PIDController(0.5,0,0);
+
     private final ShuffleboardTab shooterTab;
 
     private final NetworkTableEntry topRPMEntry;
@@ -34,9 +38,15 @@ public class Shooter extends SubsystemBase {
     private final NetworkTableEntry actualTopRPM;
     private final NetworkTableEntry actualBottomRPM;
 
+    private final NetworkTableEntry currentBottomMotorTargetVelocity;
+    private final NetworkTableEntry currentTopMotorTargetVelocity;
+
     private final FeedbackDevice feedbackDevice = FeedbackDevice.CTRE_MagEncoder_Absolute;
 
     private static final double RPM_NOT_SET = -1;
+
+    private double currentTopMotorVelocitySetting = 0.0;
+    private double currentBottomMotorVelocitySetting = 0.0;
 
     private double topTargetRPM = RPM_NOT_SET;
     private double botTargetRPM = RPM_NOT_SET;
@@ -73,6 +83,12 @@ public class Shooter extends SubsystemBase {
 
         this.actualTopRPM = shooterTab.add("Actual Top RPM", 1).getEntry();
         this.actualBottomRPM = shooterTab.add("Actual Bottom RPM", 1).getEntry();
+
+        currentTopMotorTargetVelocity = shooterTab.add("Top Motor Velocity", 1).getEntry();
+        currentBottomMotorTargetVelocity = shooterTab.add("Bottom Motor Velocity", 1).getEntry();
+    
+        currentTopMotorVelocitySetting = 0;
+        currentBottomMotorVelocitySetting = 0;
     }
 
     public void setEnabled(boolean enabled) {
@@ -99,20 +115,14 @@ public class Shooter extends SubsystemBase {
         double topVelocity = topMotor.getSelectedSensorVelocity();
         double botVelocity = botMotor.getSelectedSensorVelocity();
 
-        double topRPS = topRPM / 60;
-        double botRPS = botRPM / 60;
-
-        double topFFRPS = feedforward.calculate(topRPS);
-        double botFFRPS = feedforward.calculate(botRPS);
-
-        double topFFNormalized = topFFRPS / MAX_RPS_775;
-        double botFFNormalized = botFFRPS / MAX_RPS_775;
-
         this.actualTopRPM.setDouble(Utils.calculateRPM(topVelocity, feedbackDevice));
         this.actualBottomRPM.setDouble(Utils.calculateRPM(botVelocity, feedbackDevice));
 
-        topMotor.set(ControlMode.Velocity, topTicksPerDs, DemandType.ArbitraryFeedForward, topFFNormalized);
-        botMotor.set(ControlMode.Velocity, botTicksPerDs, DemandType.ArbitraryFeedForward, botFFNormalized);
+        currentTopMotorTargetVelocity.setDouble(currentTopMotorVelocitySetting);
+        currentBottomMotorTargetVelocity.setDouble(currentBottomMotorVelocitySetting);
+    
+        topMotor.set(ControlMode.Velocity, topTicksPerDs, DemandType.Neutral, 0);
+        botMotor.set(ControlMode.Velocity, botTicksPerDs, DemandType.Neutral, 0);
     }
 
     /**
@@ -135,6 +145,8 @@ public class Shooter extends SubsystemBase {
 
     public void stopMotors() {
         this.topTargetRPM = this.botTargetRPM = 0;
+        currentTopMotorVelocitySetting = 0;
+        currentBottomMotorVelocitySetting = 0;
     }
 
     public boolean isAtTargetVelocity() {
