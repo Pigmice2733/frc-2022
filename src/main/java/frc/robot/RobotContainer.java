@@ -6,6 +6,11 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.TestMotorCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
@@ -30,6 +35,11 @@ public class RobotContainer {
   private final Climber climber = new Climber();
   private final Lights lights = new Lights();
 
+  private Controls controls;
+
+  //TODO remove this
+  private final RandomMotor motorTest = new RandomMotor();
+
   // private final ExampleCommand m_autoCommand = new
   // ExampleCommand(m_exampleSubsystem);
 
@@ -37,8 +47,12 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    XboxController driver = new XboxController(0);
+    controls = new Controls(driver);
+
     // Configure the button bindings
-    configureButtonBindings();
+    configureButtonBindings(driver);
+    this.motorTest.setDefaultCommand(new TestMotorCommand(this.motorTest));
   }
 
   /**
@@ -49,7 +63,13 @@ public class RobotContainer {
    * it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {
+  private void configureButtonBindings(XboxController driver) {
+    // Toggle Shooter with A Button
+    new JoystickButton(driver, Button.kA.value)
+      .whenPressed(new InstantCommand(() -> {
+        System.out.print("A Button Pressed");
+        this.shooter.toggleEnabled();
+      }));
   }
 
   /**
