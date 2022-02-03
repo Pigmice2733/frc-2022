@@ -24,4 +24,16 @@ public final class Constants {
         public static double topMotorSpeed = 0.62;
         public static double bottomMotorSpeed = 0.62;
     }
+    
+    public static class ClimberConfig {
+        public static int liftLeadPort = 0;
+        public static int liftFollowPort = 0;
+        public static int rotateLeadPort = 0;
+        public static int rotateFollowPort = 0;
+
+        public static double liftMotorSpeed = 0.5;
+        public static double rotateMotorSpeed = 0.5;
+
+        public static double liftLength = 2d; // * radius of gear in contact with moving arm
+    }
 }
