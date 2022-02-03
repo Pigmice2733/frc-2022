@@ -1,4 +1,4 @@
-package frc.robot;
+package com.pigmice.frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -11,7 +11,7 @@ public class Controls {
     }
 
     // Joystick Test
-    double JoystickTest() {
+    public double JoystickTest() {
         return driver.getRawAxis(0);
     }
 }
