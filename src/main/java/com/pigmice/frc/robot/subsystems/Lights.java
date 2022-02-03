@@ -1,11 +1,11 @@
-package frc.robot.subsystems;
+package com.pigmice.frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Drivetrain extends SubsystemBase {
+public class Lights extends SubsystemBase {
 
-    /** Creates a new Drivetrain. */
-    public Drivetrain() {
+    /** Creates a new Lights. */
+    public Lights() {
     }
 
     @Override

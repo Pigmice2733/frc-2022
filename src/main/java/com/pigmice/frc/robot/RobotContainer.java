@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package com.pigmice.frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -10,12 +10,18 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.TestMotorCommand;
-import frc.robot.subsystems.Climber;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Lights;
-import frc.robot.subsystems.Shooter;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.pigmice.frc.robot.subsystems.Climber;
+import com.pigmice.frc.robot.subsystems.Drivetrain;
+import com.pigmice.frc.robot.subsystems.Intake;
+import com.pigmice.frc.robot.subsystems.Lights;
+import com.pigmice.frc.robot.subsystems.Shooter;
+import com.pigmice.frc.robot.testmode.Testable;
+//import com.pigmice.frc.robot.Controls;
+
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
@@ -37,9 +43,6 @@ public class RobotContainer {
 
   private Controls controls;
 
-  //TODO remove this
-  private final RandomMotor motorTest = new RandomMotor();
-
   // private final ExampleCommand m_autoCommand = new
   // ExampleCommand(m_exampleSubsystem);
 
@@ -52,7 +55,6 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings(driver);
-    this.motorTest.setDefaultCommand(new TestMotorCommand(this.motorTest));
   }
 
   /**
@@ -81,5 +83,10 @@ public class RobotContainer {
     // An ExampleCommand will run in autonomous
     // return m_autoCommand;
     return null;
+  }
+
+  public List<Testable> getTestables() {
+    List<Testable> result = new ArrayList<>();
+    return result;
   }
 }

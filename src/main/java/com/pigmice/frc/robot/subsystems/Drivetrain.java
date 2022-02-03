@@ -1,11 +1,11 @@
-package frc.robot.subsystems;
+package com.pigmice.frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Shooter extends SubsystemBase {
+public class Drivetrain extends SubsystemBase {
 
-    /** Creates a new Shooter. */
-    public Shooter() {
+    /** Creates a new Drivetrain. */
+    public Drivetrain() {
     }
 
     @Override
@@ -16,5 +16,9 @@ public class Shooter extends SubsystemBase {
     @Override
     public void simulationPeriodic() {
         // This method will be called once per scheduler run during simulation
+    }
+
+    public void arcadeDrive(double forward, double rotation) {
+
     }
 }
