@@ -1,6 +1,7 @@
 package com.pigmice.frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
+import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 
 public class Controls {
     XboxController driver;
@@ -10,8 +11,11 @@ public class Controls {
         this.driver = driver;
     }
 
-    // Joystick Test
-    public double JoystickTest() {
-        return driver.getRawAxis(0);
+    public double getDriveSpeed() {
+        return driver.getRawAxis(1) * DrivetrainConfig.driveSpeed;
+    }
+
+    public double getTurnSpeed() {
+        return driver.getRawAxis(0) * DrivetrainConfig.turnSpeed;
     }
 }

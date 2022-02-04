@@ -18,10 +18,15 @@ package com.pigmice.frc.robot;
  */
 public final class Constants {
     public static class ShooterConfig {
-        public static int topMotorPort = 8;
-        public static int bottomMotorPort = 7;
+        public static final int topMotorPort = 8;
+        public static final int bottomMotorPort = 7;
 
-        public static double topMotorSpeed = 0.62;
-        public static double bottomMotorSpeed = 0.62;
+        public static final double topMotorSpeed = 0.62;
+        public static final double bottomMotorSpeed = 0.62;
+    }
+
+    public static class DrivetrainConfig {
+        public static final double driveSpeed = 1;
+        public static final double turnSpeed = 1; 
     }
 }

@@ -22,7 +22,6 @@ import com.pigmice.frc.robot.subsystems.Shooter;
 import com.pigmice.frc.robot.testmode.Testable;
 //import com.pigmice.frc.robot.Controls;
 
-import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -54,7 +53,11 @@ public class RobotContainer {
     controls = new Controls(driver);
 
     // Configure the button bindings
-    configureButtonBindings(driver);
+    try {
+      configureButtonBindings(driver);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -66,10 +69,12 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings(XboxController driver) {
+    System.out.println("Config Buttons Called");
+
     // Toggle Shooter with A Button
     new JoystickButton(driver, Button.kA.value)
       .whenPressed(new InstantCommand(() -> {
-        System.out.print("A Button Pressed");
+        System.out.println("A Button Pressed");
         this.shooter.toggleEnabled();
       }));
   }
