@@ -5,13 +5,13 @@ import com.pigmice.frc.robot.subsystems.Climber;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class LiftOut extends CommandBase {
+public class LiftIn extends CommandBase {
     private Climber climber;
     private double revolutions;
     private double distance; // in inches
     private double countRevo;
 
-    public LiftOut(Climber climber, double distance) {
+    public LiftIn(Climber climber, double distance) {
         this.climber = climber;
         this.distance = distance;
 
@@ -26,7 +26,7 @@ public class LiftOut extends CommandBase {
 
     @Override
     public void execute() {
-        climber.liftForward();
+        climber.liftReverse();
         countRevo += ClimberConfig.liftMotorSpeed / 3000;
     }
 

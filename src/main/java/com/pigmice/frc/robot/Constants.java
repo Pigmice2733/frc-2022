@@ -31,9 +31,16 @@ public final class Constants {
         public static int rotateLeadPort = 0;
         public static int rotateFollowPort = 0;
 
-        public static double liftMotorSpeed = 0.5;
-        public static double rotateMotorSpeed = 0.5;
+        // both of these in rpm
+        public static double liftMotorSpeed = 600;
+        public static double rotateMotorSpeed = 600;
 
-        public static double liftLength = 2d; // * radius of gear in contact with moving arm
+        public static double liftMotorRadius = 0.5; // radius of gear in contact with motor and lifting arm, in inches
+        
+        // both of these in inches
+        public static double liftArmHeight = 52; // height of base of lift arms
+        public static double rotateArmLength = 8.25; // at straight vertical, height above liftArmHeight
+
+        public static double horizDistBtwnRungs = Math.sqrt(21735/64); // (in inches)
     }
 }
