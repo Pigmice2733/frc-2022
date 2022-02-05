@@ -20,16 +20,21 @@ public class RotateBack extends CommandBase {
     @Override
     public void initialize() {
         countAngle = 0d;
+        climber.setRotateSpeed(1);
     }
 
     @Override
     public void execute() {
-        climber.rotateForward();
-        countAngle += ClimberConfig.rotateMotorSpeed * 360 / 3000;
+        countAngle += ClimberConfig.defaultRotateMotorSpeed * 360 / 3000;
     }
 
     @Override
     public boolean isFinished() {
         return (countAngle >= angle);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        climber.setRotateSpeed(0);
     }
 }

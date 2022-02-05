@@ -8,9 +8,7 @@ import com.pigmice.frc.robot.Constants.ClimberConfig;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Climber extends SubsystemBase {
-    private boolean enabled = false;
-    
+public class Climber extends SubsystemBase {    
     private TalonSRX liftLead;
     private TalonSRX liftFollow;
     private TalonSRX rotateLead;
@@ -32,24 +30,8 @@ public class Climber extends SubsystemBase {
         this.rotateSpeed = 0;
     }
 
-    public void on() {
-        this.enabled = true;
-    }
-
-    public void off() {
-        this.enabled = false;
-        liftLead.set(ControlMode.Velocity, 0);
-        rotateLead.set(ControlMode.Velocity, 0);
-    }
-
-    public void toggleEnabled() {
-        this.enabled = enabled ? false : true;
-    }
-
     @Override
     public void periodic() {
-        if (!enabled) return;
-
         liftFollow.follow(liftLead);
         rotateFollow.follow(rotateLead);
 
@@ -66,10 +48,13 @@ public class Climber extends SubsystemBase {
         this.periodic();
     }
 
-    public void liftForward() {liftSpeed = ClimberConfig.liftMotorSpeed;} // lift arms up or robot down
-    public void liftReverse() {liftSpeed = -ClimberConfig.liftMotorSpeed;} // lift arms down or robot up
-    public void liftOff() {liftSpeed = 0;}
-    public void rotateForward() {rotateSpeed = ClimberConfig.rotateMotorSpeed;} // rotate arms forwards or robot backwards
-    public void rotateReverse() {rotateSpeed = -ClimberConfig.rotateMotorSpeed;} // rotate arms backwards or robot forwards
-    public void rotateOff() {rotateSpeed = 0;}
+    /** Moves lift arms up or down, thus moving the robot down or up, or stop the lift motors.
+     * @param kV The factor applied to the default speed.
+     */
+    public void setLiftSpeed(double kV) {liftSpeed = kV * ClimberConfig.defaultLiftMotorSpeed;}
+
+    /** Rotates rotate arms, thus turning the robot about the attached motors, or stop the lift motors.
+     * @param kV The factor applied to the default speed.
+     */
+    public void setRotateSpeed(double kV) {rotateSpeed = kV * ClimberConfig.defaultRotateMotorSpeed;}
 }

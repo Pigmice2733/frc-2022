@@ -22,16 +22,21 @@ public class LiftOut extends CommandBase {
     public void initialize() {
         revolutions = distance / (ClimberConfig.liftMotorRadius * 2 * Math.PI);
         countRevo = 0d;
+        climber.setLiftSpeed(1);
     }
 
     @Override
     public void execute() {
-        climber.liftForward();
-        countRevo += ClimberConfig.liftMotorSpeed / 3000;
+        countRevo += ClimberConfig.defaultLiftMotorSpeed / 3000;
     }
 
     @Override
     public boolean isFinished() {
         return (countRevo >= revolutions);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        climber.setLiftSpeed(0);
     }
 }
