@@ -40,6 +40,8 @@ public final class Constants {
         public static double liftArmHeight = 52; // height of base of lift arms
         public static double rotateArmLength = 8.25; // at straight vertical, height above liftArmHeight
 
-        public static double horizDistBtwnRungs = Math.sqrt(21735/64); // (in inches)
+        // both of these in inches
+        public static double horizDistBtwnRungs = 24;
+        public static double vertDistBtwnRungs = 15.375;
     }
 }
