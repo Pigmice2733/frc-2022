@@ -48,12 +48,14 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    XboxController driver = new XboxController(0);
-    controls = new Controls(driver);
+    XboxController driver = new XboxController(Constants.driverControllerPort);
+    XboxController operator = new XboxController(Constants.operatorControllerPort);
+
+    controls = new Controls(driver, operator);
 
     // Configure the button bindings
     try {
-      configureButtonBindings(driver);
+      configureButtonBindings(driver, operator);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -67,7 +69,7 @@ public class RobotContainer {
    * it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings(XboxController driver) {
+  private void configureButtonBindings(XboxController driver, XboxController operator) {
     System.out.println("Config Buttons Called");
 
     // Toggle Shooter with A Button
