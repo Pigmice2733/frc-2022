@@ -4,6 +4,7 @@
 
 package com.pigmice.frc.robot;
 
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SPI.Port;
 
 /**
@@ -36,7 +37,12 @@ public final class Constants {
 
         public static final double driveSpeed = 1;
         public static final double turnSpeed = 1;
-        public static Port navxPort; 
+        public static final SPI.Port navxPort = SPI.Port.kMXP;
+
+        public static final double rotationToDistanceConversion = 16.13;
+        public static final double wheelBase = 0.603;
+
+        public static final int navXRotationalOffsetDegrees = 0;
     }
 
     public static final int driverControllerPort = 0;

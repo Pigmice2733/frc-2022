@@ -3,9 +3,10 @@ package com.pigmice.frc.robot;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
-
+@Ignore
 public class RPMPControllerTest {
 
     private abstract static class MotorEncoderSim {

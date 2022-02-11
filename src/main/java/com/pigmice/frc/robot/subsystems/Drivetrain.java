@@ -1,32 +1,26 @@
 package com.pigmice.frc.robot.subsystems;
 
-import javax.imageio.event.IIOWriteWarningListener;
-
 import com.kauailabs.navx.frc.AHRS;
-import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import org.opencv.core.Point;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import com.pigmice.frc.lib.utils.Odometry;
+import com.pigmice.frc.lib.utils.Point;
+import com.pigmice.frc.lib.utils.Utils;
+import com.pigmice.frc.lib.utils.Odometry.Pose;
+import com.pigmice.frc.robot.Dashboard;
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 
 public class Drivetrain extends SubsystemBase {
-/*
     private final CANSparkMax leftDrive, rightDrive, rightFollower, leftFollower;
-    private final CANEncoder leftEncoder, rightEncoder;
 
     private double leftDemand, rightDemand;
     private double leftPosition, rightPosition, heading;
@@ -45,7 +39,8 @@ public class Drivetrain extends SubsystemBase {
 
     private Point initialPosition = Point.origin();
 
-    public Drivetrain() {        
+    public Drivetrain() { 
+        
         rightDrive = new CANSparkMax(DrivetrainConfig.frontRightMotorPort, MotorType.kBrushless);
         rightFollower = new CANSparkMax(DrivetrainConfig.backRightMotorPort, MotorType.kBrushless);
         leftDrive = new CANSparkMax(DrivetrainConfig.frontLeftMotorPort, MotorType.kBrushless);
@@ -64,11 +59,8 @@ public class Drivetrain extends SubsystemBase {
 
         navxReport = testReportLayout.add("NavX", false).getEntry();
 
-        leftEncoder = leftDrive.getEncoder();
-        rightEncoder = rightDrive.getEncoder();
-
-        leftEncoder.setPositionConversionFactor(1.0 / DrivetrainConfig.rotationToDistanceConversion);
-        rightEncoder.setPositionConversionFactor(1.0 / DrivetrainConfig.rotationToDistanceConversion);
+        leftDrive.getEncoder().setPositionConversionFactor(1.0 / DrivetrainConfig.rotationToDistanceConversion);
+        rightDrive.getEncoder().setPositionConversionFactor(1.0 / DrivetrainConfig.rotationToDistanceConversion);
 
         ShuffleboardLayout odometryLayout = Shuffleboard.getTab(Dashboard.developmentTabName)
                 .getLayout("Odometry", BuiltInLayouts.kList).withSize(2, 5)
@@ -88,8 +80,8 @@ public class Drivetrain extends SubsystemBase {
         heading = 0.0;// 0.5 * Math.PI;
         zeroHeading();
 
-        leftEncoder.setPosition(0.0);
-        rightEncoder.setPosition(0.0);
+        leftDrive.getEncoder().setPosition(0.0);
+        rightDrive.getEncoder().setPosition(0.0);
 
         odometry.set(new Pose(0.0, 0.0, heading), leftPosition, rightPosition);
 
@@ -102,8 +94,8 @@ public class Drivetrain extends SubsystemBase {
     @Override
     public void periodic() {
         // from updateInputs
-        leftPosition = leftEncoder.getPosition();
-        rightPosition = rightEncoder.getPosition();
+        leftPosition = leftDrive.getEncoder().getPosition();
+        rightPosition = rightDrive.getEncoder().getPosition();
 
         updateHeading();
 
@@ -252,5 +244,5 @@ public class Drivetrain extends SubsystemBase {
     public boolean isCalibrating() {
         return this.navx.isCalibrating();
     }
-    */
+    
 }
