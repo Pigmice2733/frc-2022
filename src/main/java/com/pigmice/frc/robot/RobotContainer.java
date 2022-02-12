@@ -72,12 +72,17 @@ public class RobotContainer {
   private void configureButtonBindings(XboxController driver, XboxController operator) {
     System.out.println("Config Buttons Called");
 
+    // Both of these controls should be moved to operator controller later
     // Toggle Shooter with A Button
     new JoystickButton(driver, Button.kA.value)
         .whenPressed(new InstantCommand(() -> {
           System.out.println("A Button Pressed");
           this.shooter.toggleEnabled();
         }));
+    // later make this shoot button, run a shooting subroutine that will use
+    // VisionAlignCommand
+    new JoystickButton(driver, Button.kY.value)
+        .whenPressed(new InstantCommand(Vision::toggleAlign));
   }
 
   /**
