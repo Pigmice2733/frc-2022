@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Vision {
     // TODO change these
-    private final static double CAMERA_HEIGHT_METERS = 0.0;
-    private final static double TARGET_HEIGHT_METERS = Units.inchesToMeters(104); // 8'8"
+    private final static double CAMERA_HEIGHT_METERS = 0.8;
+    private final static double TARGET_HEIGHT_METERS = 2.38;// Units.inchesToMeters(104); // 8'8"
     private final static double CAMERA_PITCH_RADIANS = 0;
 
     private final static double GOAL_RANGE_METERS = 0.0;
@@ -43,6 +43,7 @@ public class Vision {
     private static NetworkTableEntry yawEntry;
     private static NetworkTableEntry hasTargetEntry;
     private static NetworkTableEntry directionEntry;
+    private static NetworkTableEntry distanceEntry;
 
     public static void init() {
         SmartDashboard.putBoolean("Vision Initialized", true);
@@ -50,6 +51,7 @@ public class Vision {
         yawEntry = visionTab.add("Yaw Output", 0.0d).getEntry();
         hasTargetEntry = visionTab.add("Has Target", false).getEntry();
         directionEntry = visionTab.add("Direction", "N/A").getEntry();
+        distanceEntry = visionTab.add("Distance", -1.0).getEntry();
         currentlyAligning = false;
 
         camera = new PhotonCamera("gloworm");
@@ -72,6 +74,9 @@ public class Vision {
 
         yawEntry.setDouble(angle);
         directionEntry.setString(angle < 0 ? "LEFT" : angle > 0 ? "RIGHT" : "STRAIGHT");
+
+        double distance = getDistanceFromTarget(target);
+        distanceEntry.setDouble(distance);
 
         rotationOutput = -rotationController.calculate(angle, 0.0);
     }
