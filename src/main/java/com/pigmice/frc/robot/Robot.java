@@ -1,4 +1,4 @@
-  // Copyright (c) FIRST and other WPILib contributors.
+// Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
@@ -6,6 +6,8 @@ package com.pigmice.frc.robot;
 
 import com.pigmice.frc.robot.testmode.Testable;
 
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -25,6 +27,9 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   private boolean testsRun = false;
 
+  private AddressableLED m_led;
+  private AddressableLEDBuffer m_ledBuffer;
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -36,6 +41,19 @@ public class Robot extends TimedRobot {
     // and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    Vision.init();
+
+    // m_led = new AddressableLED(9);
+
+    // m_ledBuffer = new AddressableLEDBuffer(10);
+    // m_led.setLength(m_ledBuffer.getLength());
+
+    // for (int i = 0; i < m_ledBuffer.getLength(); i++) {
+    // m_ledBuffer.setRGB(i, 255, 255, 255);
+    // }
+
+    // m_led.setData(m_ledBuffer);
+    // m_led.start();
   }
 
   /**
@@ -104,7 +122,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-
+    Vision.update();
   }
 
   @Override

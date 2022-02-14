@@ -19,12 +19,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     private TalonSRX topMotor;
     private TalonSRX botMotor;
 
-    private final double SHOOTER_KP = .005D;
+    private final double SHOOTER_KP = .01D;
 
     private final double SHOOTER_KS = 0;
     private final double SHOOTER_KV = .5;

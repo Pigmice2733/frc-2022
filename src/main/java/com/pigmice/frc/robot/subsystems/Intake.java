@@ -1,12 +1,11 @@
 package com.pigmice.frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
-    
-    //TalonSRX talon0 = new TalonSRX(0);
-    //TalonSRX talon1 = new TalonSRX(1);
-
 
     /** Creates a new Intake. */
     public Intake() {

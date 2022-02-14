@@ -40,7 +40,7 @@ public class VisionAlignCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        Vision.stop();
+        Vision.stopAligning();
         drivetrain.arcadeDrive(0.0, 0.0);
     }
 }
