@@ -5,7 +5,7 @@ import java.util.Queue;
 
 //this here class is to find where yo ballz at
 public class BallTracker{
-
+/*
     Queue<BallColor> balls = new LinkedList<>();
     
     //set the first position to a color and shift everything else up
@@ -32,5 +32,5 @@ public class BallTracker{
 
     enum BallColor {
         RED,BLUE,NONE
-    }
+    }*/
 }

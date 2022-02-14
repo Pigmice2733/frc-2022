@@ -33,7 +33,7 @@ import com.pigmice.frc.robot.Controls;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final Drivetrain drivetrain = new Drivetrain();
+  //private final Drivetrain drivetrain = new Drivetrain();
   private final Intake intake = new Intake();
   private final Shooter shooter = new Shooter();
   private final Climber climber = new Climber();

@@ -19,7 +19,9 @@ public class RPMPController {
     }
 
     public double update(double currentRPM) {
-        if (motorOutputSetting == 0 || Math.abs(currentRPM) < 1) {
+        if (targetRPM == 0) {
+            motorOutputSetting = 0;
+        } else if (motorOutputSetting == 0 || Math.abs(currentRPM) < 1) {
             motorOutputSetting = startupMotorOutput;
         } else {
             double delta = pidController.calculate(currentRPM);
