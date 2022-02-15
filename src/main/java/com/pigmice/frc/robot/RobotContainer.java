@@ -21,6 +21,7 @@ import com.pigmice.frc.robot.subsystems.Lights;
 import com.pigmice.frc.robot.subsystems.Shooter;
 import com.pigmice.frc.robot.testmode.Testable;
 import com.pigmice.frc.robot.Controls;
+import com.pigmice.frc.robot.commands.ArcadeDrive;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -38,6 +39,7 @@ public class RobotContainer {
   private final Shooter shooter = new Shooter();
   private final Climber climber = new Climber();
   private final Lights lights = new Lights();
+  private final Drivetrain drivetrain = new Drivetrain();
 
   private Controls controls;
 
@@ -48,6 +50,8 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain, controls::getDriveSpeed, controls::getTurnSpeed));
+
     XboxController driver = new XboxController(Constants.driverControllerPort);
     XboxController operator = new XboxController(Constants.operatorControllerPort);
 
