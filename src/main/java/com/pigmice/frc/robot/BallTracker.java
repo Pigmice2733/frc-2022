@@ -36,33 +36,43 @@ public class BallTracker {
         RED, BLUE, NONE
     }
 
-    Colors[] balls = { Colors.NONE, Colors.NONE };
+    Colors[] balls = {Colors.NONE, Colors.NONE};
 
     public boolean isEmpty() {
-        if (balls[0] == Colors.NONE && balls[1] == Colors.NONE) {
+        if (balls[0] == Colors.NONE) {
             return true;
         }
-        return false;
+        else {return false;}
     }
 
     public boolean isFull() {
-        if (balls[0] == Colors.NONE || balls[1] == Colors.NONE) {
+        if (balls[1] == Colors.NONE) {
             return false;
         }
-        return true;
+        else {return true;}
+    }
+
+    public int numBalls() {
+        if (isEmpty()) {return 0;}
+        if (isFull()) {return 2;}
+        else return 1;
     }
 
     public void newBall(Colors color) {
-        if (isEmpty()) {
-            balls[0] = color;
-        } else {
-            balls[1] = color;
-        }
+        balls[1] = color;
+        updateArray();
     }
 
     public void ballLaunched() {
-        balls[0] = balls[1];
-        balls[1] = Colors.NONE;
+        balls[0] = Colors.NONE;
+        updateArray();
+    }
+
+    public void updateArray() {
+        if (balls[0] == Colors.NONE) {
+            balls[0] = balls[1];
+            balls[1] = Colors.NONE;
+        }
     }
 
     public Colors getColor(int spot) {
