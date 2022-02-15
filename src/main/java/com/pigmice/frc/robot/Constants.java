@@ -13,6 +13,9 @@ import edu.wpi.first.wpilibj.SPI.Port;
  * purpose. All constants should be declared globally (i.e., public static). Do
  * not put anything functional in this class.
  * 
+ * purpose. All constants should be declared globally (i.e. public static). Do
+ * not put anything functional in this class.
+ *
  * <p>
  * It is advised to statically import this class (or one of its inner classes)
  * wherever the constants are needed, to reduce verbosity.
@@ -62,6 +65,13 @@ public final class Constants {
         public static final double wheelBase = 0.603;
 
         public static final int navXRotationalOffsetDegrees = 0;
+    }
+
+    public static class IntakeConfig {
+        public static final int intakeBottomPort = 0;
+        public static final int intakeTopPort = 1;
+
+        public static final double intakeSpeed = 0.75;
     }
 
     public static final int driverControllerPort = 0;
