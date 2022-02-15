@@ -1,6 +1,8 @@
 import org.gradle.internal.os.OperatingSystem
 
 pluginManagement {
+    rootProject.name = 'frc-2022'
+    include 'robolib'
     repositories {
         mavenLocal()
         gradlePluginPortal()
