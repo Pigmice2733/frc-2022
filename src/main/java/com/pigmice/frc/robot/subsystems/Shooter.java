@@ -1,20 +1,15 @@
 package com.pigmice.frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.pigmice.frc.robot.Constants.ShooterConfig;
 import com.pigmice.frc.robot.RPMPController;
 import com.pigmice.frc.robot.Utils;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -69,8 +64,8 @@ public class Shooter extends SubsystemBase {
         topMotor.setSensorPhase(true);
         botMotor.setSensorPhase(true);
 
-        //topMotor.setNeutralMode(NeutralMode.Coast);
-        //botMotor.setNeutralMode(NeutralMode.Coast);
+        // topMotor.setNeutralMode(NeutralMode.Coast);
+        // botMotor.setNeutralMode(NeutralMode.Coast);
 
         this.shooterTab = Shuffleboard.getTab("Shooter");
 
@@ -99,16 +94,19 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         if (!enabled)
-        this.setTargetSpeeds(0, 0);   
-else         this.setTargetSpeeds(2000, 1750);
-
+            this.setTargetSpeeds(0, 0);
+        else
+            this.setTargetSpeeds(2000, 1750);
 
         double topRPM = this.topTargetRPM == RPM_NOT_SET ? this.topRPMEntry.getDouble(ShooterConfig.topMotorSpeed)
                 : this.topTargetRPM;
         double botRPM = this.botTargetRPM == RPM_NOT_SET ? this.bottomRPMEntry.getDouble(ShooterConfig.bottomMotorSpeed)
                 : this.botTargetRPM;
-
-
+        // from tarmac edge
+        // this.setTargetSpeeds(1600, 1800);
+        // from fender
+        // this.setTargetSpeeds(900, 2400);
+        this.setTargetSpeeds(900, 0);
         double topVelocity = topMotor.getSelectedSensorVelocity();
         double botVelocity = botMotor.getSelectedSensorVelocity();
 

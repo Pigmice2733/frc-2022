@@ -34,12 +34,11 @@ import com.pigmice.frc.robot.commands.ArcadeDrive;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  //private final Drivetrain drivetrain = new Drivetrain();
-  private final Intake intake = new Intake();
-  private final Shooter shooter = new Shooter();
-  private final Climber climber = new Climber();
-  private final Lights lights = new Lights();
-  private final Drivetrain drivetrain = new Drivetrain();
+  private final Drivetrain drivetrain;
+  private final Intake intake;
+  private final Shooter shooter;
+  private final Climber climber;
+  private final Lights lights;
 
   private Controls controls;
 
@@ -50,7 +49,11 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain, controls::getDriveSpeed, controls::getTurnSpeed));
+    drivetrain = new Drivetrain();
+    intake = new Intake();
+    shooter = new Shooter();
+    climber = new Climber();
+    lights = new Lights();
 
     XboxController driver = new XboxController(Constants.driverControllerPort);
     XboxController operator = new XboxController(Constants.operatorControllerPort);
