@@ -1,34 +1,43 @@
 package com.pigmice.frc.robot;
 
 import java.util.LinkedList;
-import java.util.Queue;
 
-//this here class is to find where yo ballz at
+// this here class is to find where yo ballz at
 public class BallTracker {
 
-    Queue<BallColor> balls = new LinkedList<>();
+    private static final int SIZE = 2;
 
-    // set the first position to a color and shift everything else up
-    public void newBallStored(BallColor color) {
-        balls.add(color);
-    }
+    LinkedList<BallType> balls = new LinkedList<>();
 
-    // get rid of the second position and shift everything else up
-    public void ballLaunched() {
-        balls.remove();
-    }
-
-    // return the color of ball in a spot. 0 is the next one to be shot, 1 is the
-    // second one to be shot
-    public BallColor getCompartment(int spotNumber) {
-        if (spotNumber == 0) {
-            return balls.peek();
-        } else {
-            return balls.element();
+    /**
+     * Adds a ball to the queue. Used when a ball has been collected.
+     */
+    public void newBallStored(BallType color) {
+        if (!isFull()) {
+            balls.add(color);
         }
     }
 
-    enum BallColor {
+    /**
+     * Removes the ball at the head of the queue. Used when a ball is shot.
+     */
+    public BallType ballLaunched() {
+        return balls.isEmpty() ? BallType.NONE : balls.poll();
+    }
+
+    /**
+     * Returns the ball in a specific position in the indexer.
+     */
+    public BallType getBallInPosition(int slot) {
+        // BallType.NONE should never be in the queue
+        return balls.size() > slot ? BallType.NONE : balls.get(slot);
+    }
+
+    public boolean isFull() {
+        return balls.size() >= SIZE;
+    }
+
+    enum BallType {
         RED, BLUE, NONE
     }
 }
