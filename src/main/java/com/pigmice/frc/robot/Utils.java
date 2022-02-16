@@ -34,6 +34,14 @@ public class Utils {
         return ((raw * DECISECONDS_PER_MINUTE) / sensorUnitsPerRotation);
     }
 
+    public static boolean almostEquals(double a, double b) {
+        return almostEquals(a, b, 1e-6);
+    }
+
+    public static boolean almostEquals(double a, double b, double epsilon) {
+        return Math.abs(a - b) < epsilon;
+    }
+
     /**
      * Converts motor RPM to encoder ticks per 100ms.
      * 

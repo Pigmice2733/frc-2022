@@ -69,8 +69,8 @@ public class Shooter extends SubsystemBase {
         topMotor.setSensorPhase(true);
         botMotor.setSensorPhase(true);
 
-        topMotor.setNeutralMode(NeutralMode.Coast);
-        botMotor.setNeutralMode(NeutralMode.Coast);
+        //topMotor.setNeutralMode(NeutralMode.Coast);
+        //botMotor.setNeutralMode(NeutralMode.Coast);
 
         this.shooterTab = Shuffleboard.getTab("Shooter");
 
@@ -92,22 +92,23 @@ public class Shooter extends SubsystemBase {
     }
 
     public void toggleEnabled() {
+        System.out.println("Shooter Enabled Set to " + !enabled);
         setEnabled(!enabled);
     }
 
     @Override
     public void periodic() {
         if (!enabled)
-            return;
+        this.setTargetSpeeds(0, 0);   
+else         this.setTargetSpeeds(2000, 1750);
+
 
         double topRPM = this.topTargetRPM == RPM_NOT_SET ? this.topRPMEntry.getDouble(ShooterConfig.topMotorSpeed)
                 : this.topTargetRPM;
         double botRPM = this.botTargetRPM == RPM_NOT_SET ? this.bottomRPMEntry.getDouble(ShooterConfig.bottomMotorSpeed)
                 : this.botTargetRPM;
-        // from tarmac edge
-        // this.setTargetSpeeds(1600, 1800);
-        // from fender
-        this.setTargetSpeeds(900, 2400);
+
+
         double topVelocity = topMotor.getSelectedSensorVelocity();
         double botVelocity = botMotor.getSelectedSensorVelocity();
 
