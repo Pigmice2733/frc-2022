@@ -1,4 +1,4 @@
-package com.pigmice.frc.robot.commands;
+package com.pigmice.frc.robot.commands.drivetrain;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.PIDCommand;

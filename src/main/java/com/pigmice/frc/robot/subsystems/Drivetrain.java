@@ -50,7 +50,7 @@ public class Drivetrain extends SubsystemBase {
         leftFollower = new CANSparkMax(DrivetrainConfig.backLeftMotorPort,
             MotorType.kBrushless);
 
-        rightDrive.setInverted(true);
+        leftDrive.setInverted(true);
         leftFollower.follow(leftDrive);
         rightFollower.follow(rightDrive);
 
@@ -195,6 +195,9 @@ public class Drivetrain extends SubsystemBase {
     public void updateOutputs() {
         leftDrive.set(leftDemand);
         rightDrive.set(rightDemand);
+
+        SmartDashboard.putNumber("LeftSpeed", leftDemand);
+        SmartDashboard.putNumber("RightSpeed", rightDemand);
 
         leftDemand = 0.0;
         rightDemand = 0.0;

@@ -1,4 +1,4 @@
-package com.pigmice.frc.robot.commands;
+package com.pigmice.frc.robot.commands.shooter;
 
 import com.pigmice.frc.robot.subsystems.Shooter;
 

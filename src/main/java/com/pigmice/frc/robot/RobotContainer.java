@@ -14,14 +14,15 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pigmice.frc.robot.subsystems.Climber;
+// import com.pigmice.frc.robot.subsystems.Climber;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
-import com.pigmice.frc.robot.subsystems.Intake;
-import com.pigmice.frc.robot.subsystems.Lights;
-import com.pigmice.frc.robot.subsystems.Shooter;
+// import com.pigmice.frc.robot.subsystems.Intake;
+// import com.pigmice.frc.robot.subsystems.Lights;
+// import com.pigmice.frc.robot.subsystems.Shooter;
 import com.pigmice.frc.robot.testmode.Testable;
 import com.pigmice.frc.robot.Controls;
-import com.pigmice.frc.robot.commands.ArcadeDrive;
+// import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
+import com.pigmice.frc.robot.commands.drivetrain.TankDrive;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -35,10 +36,10 @@ import com.pigmice.frc.robot.commands.ArcadeDrive;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Drivetrain drivetrain;
-  private final Intake intake;
-  private final Shooter shooter;
-  private final Climber climber;
-  private final Lights lights;
+  // private final Intake intake;
+  // private final Shooter shooter;
+  // private final Climber climber;
+  // private final Lights lights;
 
   private Controls controls;
 
@@ -50,15 +51,17 @@ public class RobotContainer {
    */
   public RobotContainer() {
     drivetrain = new Drivetrain();
-    intake = new Intake();
-    shooter = new Shooter();
-    climber = new Climber();
-    lights = new Lights();
+    // intake = new Intake();
+    // shooter = new Shooter();
+    //climber = new Climber();
+    // lights = new Lights();
 
     XboxController driver = new XboxController(Constants.driverControllerPort);
     XboxController operator = new XboxController(Constants.operatorControllerPort);
 
     controls = new Controls(driver, operator);
+
+    drivetrain.setDefaultCommand(new TankDrive(drivetrain, controls::getLeftYAxis, controls::getRightYAxis));
 
     // Configure the button bindings
     try {
@@ -84,7 +87,7 @@ public class RobotContainer {
     new JoystickButton(driver, Button.kA.value)
         .whenPressed(new InstantCommand(() -> {
           System.out.println("A Button Pressed");
-          this.shooter.toggleEnabled();
+          //this.shooter.toggleEnabled();
         }));
     // later make this shoot button, run a shooting subroutine that will use
     // VisionAlignCommand

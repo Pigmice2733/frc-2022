@@ -52,13 +52,13 @@ public final class Constants {
     }
 
     public static class DrivetrainConfig {
-        public static final int frontRightMotorPort = 0;
-        public static final int frontLeftMotorPort = 0;
-        public static final int backRightMotorPort = 0;
-        public static final int backLeftMotorPort = 0;
+        public static final int frontRightMotorPort = 2;
+        public static final int frontLeftMotorPort = 3;
+        public static final int backRightMotorPort = 1;
+        public static final int backLeftMotorPort = 4;
 
-        public static final double driveSpeed = 1;
-        public static final double turnSpeed = 1;
+        public static final double driveSpeed = 0.8;
+        public static final double turnSpeed = 0.4;
         public static final SPI.Port navxPort = SPI.Port.kMXP;
 
         public static final double rotationToDistanceConversion = 16.13;

@@ -1,7 +1,8 @@
-package com.pigmice.frc.robot.commands;
+package com.pigmice.frc.robot.commands.drivetrain;
 
 import java.util.function.DoubleSupplier;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 
@@ -14,6 +15,8 @@ public class ArcadeDrive extends CommandBase {
         this.drivetrain = drivetrain;
         this.forward = forward;
         this.rotation = rotation;
+
+        addRequirements(drivetrain);
     }
 
     @Override

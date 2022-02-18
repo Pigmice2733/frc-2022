@@ -14,6 +14,8 @@ public class TankDrive extends CommandBase {
         this.drivetrain = drivetrain;
         this.left = left;
         this.right = right;
+
+        this.addRequirements(drivetrain);
     }
 
     @Override
