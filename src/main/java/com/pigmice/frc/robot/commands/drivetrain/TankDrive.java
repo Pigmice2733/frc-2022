@@ -1,4 +1,4 @@
-package com.pigmice.frc.robot.commands;
+package com.pigmice.frc.robot.commands.drivetrain;
 
 import java.util.function.DoubleSupplier;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
@@ -18,6 +18,6 @@ public class TankDrive extends CommandBase {
 
     @Override
     public void execute() {
-        drivetrain.arcadeDrive(left.getAsDouble(), right.getAsDouble());
+        drivetrain.tankDrive(left.getAsDouble(), right.getAsDouble());
     }
 }

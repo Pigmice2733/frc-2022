@@ -45,8 +45,8 @@ public class Shooter extends SubsystemBase {
     private double topTargetRPM = RPM_NOT_SET;
     private double botTargetRPM = RPM_NOT_SET;
 
-    private static final double MAX_RPM_775 = 18700;
-    private static final double MAX_RPS_775 = MAX_RPM_775 / 60;
+    // private static final double MAX_RPM_775 = 18700;
+    // private static final double MAX_RPS_775 = MAX_RPM_775 / 60;
 
     // tune this
     private static final double VELOCITY_THRESHOLD = 10;

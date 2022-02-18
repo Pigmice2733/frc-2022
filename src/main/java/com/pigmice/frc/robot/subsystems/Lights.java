@@ -10,7 +10,7 @@ public class Lights extends SubsystemBase {
     private AddressableLEDBuffer buffer;
     private static final int NUM_LEDS = 10;
     private static final int FADE_RANGE = 4;
-    private int center = 0;
+    // private int center = 0;
 
     /** Creates a new Lights. */
     public Lights() {

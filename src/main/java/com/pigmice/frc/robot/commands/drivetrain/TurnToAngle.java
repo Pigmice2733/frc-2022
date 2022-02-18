@@ -1,4 +1,4 @@
-package com.pigmice.frc.robot.commands;
+package com.pigmice.frc.robot.commands.drivetrain;
 
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.math.controller.PIDController;
@@ -18,7 +18,8 @@ public class TurnToAngle extends PIDCommand {
                 drivetrain::getHeading,
                 absolute ? targetHeading : targetHeading + drivetrain.getHeading(),
                 output -> drivetrain.arcadeDrive(0, output),
-                drivetrain);
+                drivetrain
+            );
 
         getController().enableContinuousInput(-Math.PI, Math.PI);
 
