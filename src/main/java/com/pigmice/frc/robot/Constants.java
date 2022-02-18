@@ -5,7 +5,6 @@
 package com.pigmice.frc.robot;
 
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.SPI.Port;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -65,6 +64,8 @@ public final class Constants {
         public static final double wheelBase = 0.603;
 
         public static final int navXRotationalOffsetDegrees = 0;
+
+        public static final double driveEpsilon = 0.2;
     }
 
     public static class IntakeConfig {

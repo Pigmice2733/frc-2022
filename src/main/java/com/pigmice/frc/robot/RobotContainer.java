@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -49,8 +50,8 @@ public class RobotContainer {
     // lights = new Lights();
 
     XboxController driver = new XboxController(Constants.driverControllerPort);
-
     XboxController operator = new XboxController(Constants.operatorControllerPort);
+    GenericHID pad = new GenericHID(Constants.operatorControllerPort);
 
     controls = new Controls(driver, operator);
 
@@ -58,7 +59,7 @@ public class RobotContainer {
 
     // Configure the button bindings
     try {
-      configureButtonBindings(driver, operator);
+      configureButtonBindings(driver, operator, pad);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -70,12 +71,11 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
    * it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings(XboxController driver, XboxController operator) {
+  private void configureButtonBindings(XboxController driver, XboxController operator, GenericHID pad) {
     System.out.println("Config Buttons Called");
 
-    // Both of these controls should be moved to operator controller later
-    // Toggle Shooter with A Button
-    new JoystickButton(driver, Button.kA.value)
+    // toggle Shooter with pad-up button
+    new JoystickButton(pad, pad.getPOV())
         .whenPressed(new InstantCommand(() -> {
           System.out.println("A Button Pressed");
           // this.shooter.toggleEnabled();

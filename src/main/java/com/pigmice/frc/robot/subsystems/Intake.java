@@ -19,25 +19,13 @@ public class Intake extends SubsystemBase {
         motorSpeed = Constants.IntakeConfig.intakeSpeed;
     }
 
-    public void enable() {
-        setEnabled(true);
-    }
-
-    public void disable() {
-        setEnabled(false);
-    }
-
-    public void toggle() {
-        this.setEnabled(!this.enabled);
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+    public void enable() {setEnabled(true);}
+    public void disable() {setEnabled(false);}
+    public void toggle() {this.setEnabled(!this.enabled);}
+    public void setEnabled(boolean enabled) {this.enabled = enabled;}
 
     @Override
     public void periodic() {
-
         // This method will be called once per scheduler run
 
         // Checks if the motor has been enabled and sets the speed (bottom motor)

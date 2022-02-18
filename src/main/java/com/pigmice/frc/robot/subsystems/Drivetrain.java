@@ -123,9 +123,7 @@ public class Drivetrain extends SubsystemBase {
         rightEncoderDisplay.setNumber(rightPosition);
     }
 
-    public void updateDashboard() {
-
-    }
+    public void updateDashboard() {}
 
     public void updateHeading() {
         float headingDegrees = (navx.getYaw() +
@@ -137,41 +135,22 @@ public class Drivetrain extends SubsystemBase {
         heading = Math.toRadians(headingDegrees);
     }
 
-    public void updateInputs() {
-    }
+    public void updateInputs() {}
 
-    public double getHeading() {
-        return heading;
-    }
+    public double getHeading() {return heading;}
 
-    public Pose getPose() {
-        return odometry.getPose();
-    }
+    public Pose getPose() { return odometry.getPose();}
 
-    public void boost() {
-        this.boost = true;
-    }
+    public void boost() {this.boost = true;}
+    public void stopBoost() {this.boost = false;}
+    public boolean isBoosting() {return boost;}
 
-    public void stopBoost() {
-        this.boost = false;
-    }
+    public void slow() {this.slow = true;}
+    public void stopSlow() {this.slow = false;}
+    public boolean isSlow() {return slow;}
 
-    public boolean isBoosting() {
-        return boost;
-    }
-
-    public void slow() {
-        this.slow = true;
-    }
-
-    public void stopSlow() {
-        this.slow = false;
-    }
-
-    public boolean isSlow() {
-        return slow;
-    }
-
+    public boolean isCalibrating() {return this.navx.isCalibrating();}
+    
     public void tankDrive(double leftSpeed, double rightSpeed) {
         leftDemand = leftSpeed;
         rightDemand = rightSpeed;
@@ -254,9 +233,4 @@ public class Drivetrain extends SubsystemBase {
         this.navx.zeroYaw();
         updateHeading();
     }
-
-    public boolean isCalibrating() {
-        return this.navx.isCalibrating();
-    }
-
 }
