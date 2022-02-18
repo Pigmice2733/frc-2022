@@ -4,25 +4,19 @@
 
 package com.pigmice.frc.robot;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
+import com.pigmice.frc.robot.subsystems.Drivetrain;
+import com.pigmice.frc.robot.testmode.Testable;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-
-import java.util.ArrayList;
-import java.util.List;
-
-// import com.pigmice.frc.robot.subsystems.Climber;
-import com.pigmice.frc.robot.subsystems.Drivetrain;
-// import com.pigmice.frc.robot.subsystems.Intake;
-// import com.pigmice.frc.robot.subsystems.Lights;
-// import com.pigmice.frc.robot.subsystems.Shooter;
-import com.pigmice.frc.robot.testmode.Testable;
-import com.pigmice.frc.robot.Controls;
-// import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
-import com.pigmice.frc.robot.commands.drivetrain.TankDrive;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
