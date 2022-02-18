@@ -15,9 +15,9 @@ public class Controls {
     }
 
     public double getDriveSpeed() {
-        double driveValue = driver.getLeftY();
+        double driveValue = -driver.getLeftY();
         driveValue = Math.abs(driveValue) > 0.2 ? driveValue : 0;
-        return -driveValue * DrivetrainConfig.driveSpeed;
+        return driveValue * DrivetrainConfig.driveSpeed;
     }
 
     public double getTurnSpeed() {

@@ -36,43 +36,46 @@ public class Drivetrain extends SubsystemBase {
     private final NetworkTableEntry navxReport;
 
     private final NetworkTableEntry xDisplay, yDisplay, headingDisplay,
-    leftEncoderDisplay, rightEncoderDisplay;
+            leftEncoderDisplay, rightEncoderDisplay;
 
     private Point initialPosition = Point.origin();
 
     public Drivetrain() {
         rightDrive = new CANSparkMax(DrivetrainConfig.frontRightMotorPort,
-            MotorType.kBrushless);
+                MotorType.kBrushless);
         rightFollower = new CANSparkMax(DrivetrainConfig.backRightMotorPort,
-            MotorType.kBrushless);
+                MotorType.kBrushless);
         leftDrive = new CANSparkMax(DrivetrainConfig.frontLeftMotorPort,
-            MotorType.kBrushless);
+                MotorType.kBrushless);
         leftFollower = new CANSparkMax(DrivetrainConfig.backLeftMotorPort,
-            MotorType.kBrushless);
+                MotorType.kBrushless);
 
-        leftDrive.setInverted(true);
+        rightDrive.restoreFactoryDefaults();
+        rightFollower.restoreFactoryDefaults();
+        leftDrive.restoreFactoryDefaults();
+        leftFollower.restoreFactoryDefaults();
+
+        rightDrive.setInverted(true);
         leftFollower.follow(leftDrive);
         rightFollower.follow(rightDrive);
 
         navx = new AHRS(DrivetrainConfig.navxPort);
 
-        ShuffleboardLayout testReportLayout = Shuffleboard
-            .getTab(Dashboard.systemsTestTabName)
-            .getLayout("Drivetrain", BuiltInLayouts.kList)
-            .withSize(2, 1)
-            .withPosition(Dashboard.drivetrainTestPosition, 0);
+        ShuffleboardLayout testReportLayout = Shuffleboard.getTab(Dashboard.systemsTestTabName)
+                .getLayout("Drivetrain", BuiltInLayouts.kList)
+                .withSize(2, 1)
+                .withPosition(Dashboard.drivetrainTestPosition, 0);
 
         navxReport = testReportLayout.add("NavX", false).getEntry();
 
         leftDrive.getEncoder().setPositionConversionFactor(1.0 /
-            DrivetrainConfig.rotationToDistanceConversion);
+                DrivetrainConfig.rotationToDistanceConversion);
         rightDrive.getEncoder().setPositionConversionFactor(1.0 /
-            DrivetrainConfig.rotationToDistanceConversion);
+                DrivetrainConfig.rotationToDistanceConversion);
 
-        ShuffleboardLayout odometryLayout = Shuffleboard
-            .getTab(Dashboard.developmentTabName)
-            .getLayout("Odometry", BuiltInLayouts.kList).withSize(2, 5)
-            .withPosition(Dashboard.drivetrainDisplayPosition, 0);
+        ShuffleboardLayout odometryLayout = Shuffleboard.getTab(Dashboard.developmentTabName)
+                .getLayout("Odometry", BuiltInLayouts.kList).withSize(2, 5)
+                .withPosition(Dashboard.drivetrainDisplayPosition, 0);
 
         xDisplay = odometryLayout.add("X", 0.0).getEntry();
         yDisplay = odometryLayout.add("Y", 0.0).getEntry();
@@ -97,7 +100,7 @@ public class Drivetrain extends SubsystemBase {
         rightDemand = 0.0;
 
         navx.setAngleAdjustment(navx.getAngleAdjustment() - navx.getAngle() -
-        90.0);
+                90.0);
     }
 
     @Override
@@ -125,7 +128,8 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void updateHeading() {
-        float headingDegrees = (navx.getYaw() + DrivetrainConfig.navXRotationalOffsetDegrees) % 360;
+        float headingDegrees = (navx.getYaw() +
+                DrivetrainConfig.navXRotationalOffsetDegrees) % 360;
 
         SmartDashboard.putNumber("Heading (Degrees)", headingDegrees);
 
@@ -144,13 +148,29 @@ public class Drivetrain extends SubsystemBase {
         return odometry.getPose();
     }
 
-    public void boost() {this.boost = true;}
-    public void stopBoost() {this.boost = false;}
-    public boolean isBoosting() {return boost;}
+    public void boost() {
+        this.boost = true;
+    }
 
-    public void slow() {this.slow = true;}
-    public void stopSlow() {this.slow = false;}
-    public boolean isSlow() {return slow;}
+    public void stopBoost() {
+        this.boost = false;
+    }
+
+    public boolean isBoosting() {
+        return boost;
+    }
+
+    public void slow() {
+        this.slow = true;
+    }
+
+    public void stopSlow() {
+        this.slow = false;
+    }
+
+    public boolean isSlow() {
+        return slow;
+    }
 
     public void tankDrive(double leftSpeed, double rightSpeed) {
         leftDemand = leftSpeed;
@@ -172,9 +192,9 @@ public class Drivetrain extends SubsystemBase {
 
         if (!Utils.almostEquals(forwardSpeed, 0.0)) {
             leftSpeed = forwardSpeed * (1 + (curvature * 0.5 *
-            DrivetrainConfig.wheelBase));
+                    DrivetrainConfig.wheelBase));
             rightSpeed = forwardSpeed * (1 - (curvature * 0.5 *
-            DrivetrainConfig.wheelBase));
+                    DrivetrainConfig.wheelBase));
         }
 
         leftDemand = leftSpeed;
@@ -183,21 +203,17 @@ public class Drivetrain extends SubsystemBase {
         updateOutputs();
     }
 
-    public void swerveDrive(double forward, double strafe, double rotation_x) {}
+    public void swerveDrive(double forward, double strafe, double rotation_x) {
+    }
 
     public void stop() {
         leftDemand = 0.0;
         rightDemand = 0.0;
-
-        updateOutputs();
     }
 
     public void updateOutputs() {
         leftDrive.set(leftDemand);
         rightDrive.set(rightDemand);
-
-        SmartDashboard.putNumber("LeftSpeed", leftDemand);
-        SmartDashboard.putNumber("RightSpeed", rightDemand);
 
         leftDemand = 0.0;
         rightDemand = 0.0;

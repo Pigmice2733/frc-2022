@@ -53,15 +53,16 @@ public class RobotContainer {
     drivetrain = new Drivetrain();
     // intake = new Intake();
     // shooter = new Shooter();
-    //climber = new Climber();
+    // climber = new Climber();
     // lights = new Lights();
 
     XboxController driver = new XboxController(Constants.driverControllerPort);
+
     XboxController operator = new XboxController(Constants.operatorControllerPort);
 
     controls = new Controls(driver, operator);
 
-    drivetrain.setDefaultCommand(new TankDrive(drivetrain, controls::getLeftYAxis, controls::getRightYAxis));
+    drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain, controls::getDriveSpeed, controls::getTurnSpeed));
 
     // Configure the button bindings
     try {
@@ -87,7 +88,7 @@ public class RobotContainer {
     new JoystickButton(driver, Button.kA.value)
         .whenPressed(new InstantCommand(() -> {
           System.out.println("A Button Pressed");
-          //this.shooter.toggleEnabled();
+          // this.shooter.toggleEnabled();
         }));
     // later make this shoot button, run a shooting subroutine that will use
     // VisionAlignCommand
