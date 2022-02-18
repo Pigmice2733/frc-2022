@@ -14,10 +14,12 @@ public class TankDrive extends CommandBase {
         this.drivetrain = drivetrain;
         this.left = left;
         this.right = right;
+
+        this.addRequirements(drivetrain);
     }
 
     @Override
     public void execute() {
-        drivetrain.arcadeDrive(left.getAsDouble(), right.getAsDouble());
+        drivetrain.tankDrive(left.getAsDouble(), right.getAsDouble());
     }
 }
