@@ -30,7 +30,7 @@ public class BallTracker {
      */
     public BallType getBallInPosition(int slot) {
         // BallType.NONE should never be in the queue
-        return balls.size() > slot ? BallType.NONE : balls.get(slot);
+        return balls.size() > slot ? balls.get(slot) : BallType.NONE;
     }
 
     public boolean isFull() {
