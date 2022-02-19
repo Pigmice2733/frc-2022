@@ -1,9 +1,15 @@
 package com.pigmice.frc.robot.subsystems;
 
+import java.io.Console;
+
+import javax.print.event.PrintEvent;
+import javax.swing.JTable.PrintMode;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.pigmice.frc.robot.Constants;
 
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
@@ -19,13 +25,25 @@ public class Intake extends SubsystemBase {
         motorSpeed = Constants.IntakeConfig.intakeSpeed;
     }
 
-    public void enable() {setEnabled(true);}
-    public void disable() {setEnabled(false);}
-    public void toggle() {this.setEnabled(!this.enabled);}
-    public void setEnabled(boolean enabled) {this.enabled = enabled;}
+    public void enable() {
+        setEnabled(true);
+    }
+
+    public void disable() {
+        setEnabled(false);
+    }
+
+    public void toggle() {
+        this.setEnabled(!this.enabled);
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     @Override
     public void periodic() {
+
         // This method will be called once per scheduler run
 
         // Checks if the motor has been enabled and sets the speed (bottom motor)
@@ -38,6 +56,7 @@ public class Intake extends SubsystemBase {
         // Same thing as above but for the top motor
         if (this.enabled) {
             talonTop.set(ControlMode.PercentOutput, motorSpeed);
+
         } else {
             talonTop.set(ControlMode.PercentOutput, 0.0);
         }

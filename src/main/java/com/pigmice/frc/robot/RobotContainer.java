@@ -7,8 +7,13 @@ package com.pigmice.frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pigmice.frc.robot.commands.climber.ClimbHigh;
+import com.pigmice.frc.robot.commands.climber.ClimbTraversal;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
+import com.pigmice.frc.robot.commands.shooter.ShootBallCommand;
+import com.pigmice.frc.robot.subsystems.Climber;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
+import com.pigmice.frc.robot.subsystems.Shooter;
 import com.pigmice.frc.robot.testmode.Testable;
 
 import edu.wpi.first.wpilibj.GenericHID;
@@ -30,8 +35,8 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Drivetrain drivetrain;
   // private final Intake intake;
-  // private final Shooter shooter;
-  // private final Climber climber;
+  private final Shooter shooter;
+  private final Climber climber;
   // private final Lights lights;
 
   private Controls controls;
@@ -45,8 +50,8 @@ public class RobotContainer {
   public RobotContainer() {
     drivetrain = new Drivetrain();
     // intake = new Intake();
-    // shooter = new Shooter();
-    // climber = new Climber();
+    shooter = new Shooter();
+    climber = new Climber();
     // lights = new Lights();
 
     XboxController driver = new XboxController(Constants.driverControllerPort);
@@ -67,12 +72,47 @@ public class RobotContainer {
 
   /**
    * Use this method to define your button -> command mappings. Buttons can be
-   * created by instantiating a {@link GenericHID} or one of its subclasses ({@link
+   * created by instantiating a {@link GenericHID} or one of its subclasses
+   * ({@link
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
    * it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings(XboxController driver, XboxController operator, GenericHID pad) {
     System.out.println("Config Buttons Called");
+
+    // Driver Controls
+    new JoystickButton(driver, Button.kX.value)
+        .whenPressed(new InstantCommand(drivetrain::boost));
+
+    new JoystickButton(driver, Button.kY.value)
+        .whenPressed(new InstantCommand(drivetrain::stopBoost));
+
+    new JoystickButton(driver, Button.kA.value)
+        .whenPressed(new InstantCommand(drivetrain::slow));
+
+    new JoystickButton(driver, Button.kB.value)
+        .whenPressed(new InstantCommand(drivetrain::stopSlow));
+
+    // Operator Controls
+
+    new JoystickButton(operator, Button.kA.value)
+        .whenPressed(new ClimbTraversal(climber));
+
+    new JoystickButton(operator, Button.kB.value)
+        .whenPressed(new ClimbHigh(climber));
+
+    new JoystickButton(operator, Button.kLeftStick.value)
+        .whenPressed(new InstantCommand(drivetrain::stop));
+
+    /*
+     * new JoystickButton(operator, Button.kX.value)
+     * .whenPressed(new ));
+     */
+
+    /*
+     * new JoystickButton(operator, Button.kY.value)
+     * .whenPressed(new ShootBallCommand(distance, shooter));
+     */
 
     // toggle Shooter with pad-up button
     new JoystickButton(pad, pad.getPOV())
@@ -88,6 +128,7 @@ public class RobotContainer {
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
+   * 
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
