@@ -8,7 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
+import com.pigmice.frc.robot.Constants.DrivetrainConfig;
+import com.pigmice.frc.robot.commands.climber.ClimbHigh;
+import com.pigmice.frc.robot.commands.climber.ClimbTraversal;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
+import com.pigmice.frc.robot.commands.shooter.ShootBallCommand;
 import com.pigmice.frc.robot.subsystems.*;
 import com.pigmice.frc.robot.testmode.Testable;
 
@@ -87,29 +91,73 @@ public class RobotContainer {
 
   /**
    * Use this method to define your button -> command mappings. Buttons can be
-   * created by instantiating a {@link GenericHID} or one of its subclasses ({@link
+   * created by instantiating a {@link GenericHID} or one of its subclasses
+   * ({@link
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
    * it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings(XboxController driver, XboxController operator) {
     System.out.println("Config Buttons Called");
-
-    arrowUp.whenActive(new InstantCommand(() -> {shooter.toggleEnabled();})); // toggle Shooter with pad up arrow
-    arrowDown.whenActive(new InstantCommand(() -> {intake.toggle();})); // toggle Intake with pad down arrow
-    arrowLeft.whenActive(new InstantCommand(() -> {lights.toggle();})); // toggle Lights with pad left arrow
-    arrowRight.whenActive(new InstantCommand(() -> {climber.toggle();})); // toggle Climber with pad right arrow
     
     // later make this shoot button, run a shooting subroutine that will use VisionAlignCommand
     // new JoystickButton(driver, Button.kY.value)
     //    .whenPressed(new InstantCommand(Vision::toggleAlign));
 
-    // boost drivetrain with X button
+
+    // DRIVER CONTROLS
+    
     new JoystickButton(driver, Button.kX.value)
-      .whenPressed(new InstantCommand(drivetrain::boost));
+        .whenPressed(new InstantCommand(drivetrain::boost));
+    
+    new JoystickButton(driver, Button.kY.value)
+        .whenPressed(new InstantCommand(drivetrain::stopBoost));
+    
+    new JoystickButton(driver, Button.kA.value)
+        .whenPressed(new InstantCommand(drivetrain::slow));
+
+    new JoystickButton(driver, Button.kB.value)
+        .whenPressed(new InstantCommand(drivetrain::stopSlow));
+
+
+    // OPERATOR CONTROLS
+
+    new JoystickButton(operator, Button.kA.value)
+        .whenPressed(new ClimbTraversal(climber));
+
+    new JoystickButton(operator, Button.kB.value)
+        .whenPressed(new ClimbHigh(climber));
+
+    new JoystickButton(operator, Button.kLeftStick.value)
+        .whenPressed(new InstantCommand(drivetrain::stop));
+
+    /*
+     * new JoystickButton(operator, Button.kX.value)
+     * .whenPressed(new ));
+     */
+
+    /*
+     * new JoystickButton(operator, Button.kY.value)
+     * .whenPressed(new ShootBallCommand(distance, shooter));
+     */
+
+    if (Utils.almostEquals(operator.getRightTriggerAxis(), 1, DrivetrainConfig.driveEpsilon)
+      && Utils.almostEquals(operator.getLeftTriggerAxis(), 1, DrivetrainConfig.driveEpsilon)) {
+        drivetrain.stop();
+        climber.disable();
+        intake.disable();
+        lights.disable();
+        shooter.disable();
+    }
+
+    arrowUp.whenActive(new InstantCommand(() -> {shooter.toggle();})); // toggle Shooter with pad up arrow
+    arrowDown.whenActive(new InstantCommand(() -> {intake.toggle();})); // toggle Intake with pad down arrow
+    arrowLeft.whenActive(new InstantCommand(() -> {lights.toggle();})); // toggle Lights with pad left arrow
+    arrowRight.whenActive(new InstantCommand(() -> {climber.toggle();})); // toggle Climber with pad right arrow
   }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
+   * 
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {

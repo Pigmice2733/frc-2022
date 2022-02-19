@@ -182,8 +182,7 @@ public class Drivetrain extends SubsystemBase {
         updateOutputs();
     }
 
-    public void swerveDrive(double forward, double strafe, double rotation_x) {
-    }
+    public void swerveDrive(double forward, double strafe, double rotation_x) {}
 
     public void stop() {
         leftDemand = 0.0;

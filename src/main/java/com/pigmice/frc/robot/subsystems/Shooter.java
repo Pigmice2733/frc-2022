@@ -79,18 +79,11 @@ public class Shooter extends SubsystemBase {
         botCalculated = shooterTab.add("Bottom Calculated Velocity", 1).getEntry();
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-        if (!enabled) {
-            this.stopMotors();
-        }
-    }
-
-    public void toggleEnabled() {
-        System.out.println("Shooter Enabled Set to " + !enabled);
-        setEnabled(!enabled);
-    }
-
+    public void enable() {setEnabled(true);}
+    public void disable() {setEnabled(false);}
+    public void toggle() {this.setEnabled(!this.enabled);}
+    public void setEnabled(boolean enabled) {this.enabled = enabled;}
+    
     @Override
     public void periodic() {
         if (!enabled)
