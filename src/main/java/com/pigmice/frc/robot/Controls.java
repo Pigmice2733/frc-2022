@@ -2,6 +2,7 @@ package com.pigmice.frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
 
+import com.ctre.phoenix.Util;
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 
 public class Controls {
@@ -39,6 +40,14 @@ public class Controls {
         if (Utils.almostEquals(driveValue, 0, epsilon)) {driveValue = 0;}
         return driveValue * DrivetrainConfig.driveSpeed;
     }
+
+    public void fullStop() {
+        double rtAxis = operator.getRightTriggerAxis();
+        double ltAxis = operator.getLeftTriggerAxis();
+        if (Utils.almostEquals(rtAxis, 1, epsilon) && Utils.almostEquals(ltAxis, 1, epsilon)) {
+            
+        }
+    }
 }
 
 /*
@@ -57,7 +66,7 @@ A button: initiate climber sequence to traversal rung
 B button: initiate climber sequence to high rung
 X button: climber trigger (if needed)
 Y button: shoot ball
-left stick button: toggle drivetrain
+left stick button: stop drivetrain
 pad up button: toggle shooter
 pad down button: toggle intake
 pad left button: toggle lights

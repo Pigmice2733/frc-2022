@@ -19,6 +19,8 @@ public class Climber extends SubsystemBase {
     private double liftSpeed;
     private double rotateSpeed;
 
+    private boolean enabled = false;
+
     /** Creates a new Climber. */
     public Climber() {
         this.liftLead = new TalonSRX(ClimberConfig.liftLeadPort);
@@ -29,6 +31,11 @@ public class Climber extends SubsystemBase {
         this.liftSpeed = 0;
         this.rotateSpeed = 0;
     }
+
+    public void enable() {setEnabled(true);}
+    public void disable() {setEnabled(false);}
+    public void toggle() {this.setEnabled(!this.enabled);}
+    public void setEnabled(boolean enabled) {this.enabled = enabled;}
 
     @Override
     public void periodic() {

@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Intake extends SubsystemBase {
 
     TalonSRX talonBottom, talonTop;
-    boolean enabled = false;
+    private boolean enabled = false;
     static double motorSpeed;
 
     /** Creates a new Intake. */
