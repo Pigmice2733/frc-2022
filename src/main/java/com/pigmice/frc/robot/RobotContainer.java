@@ -6,7 +6,6 @@ package com.pigmice.frc.robot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 import com.pigmice.frc.robot.commands.climber.ClimbHigh;
@@ -23,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -40,16 +38,6 @@ public class RobotContainer {
   private final Climber climber;
   private final Lights lights;
   private Controls controls;
-
-  BooleanSupplier arrowUpSupplier;
-  BooleanSupplier arrowDownSupplier;
-  BooleanSupplier arrowLeftSupplier;
-  BooleanSupplier arrowRightSupplier;
-
-  Trigger arrowUp;
-  Trigger arrowDown;
-  Trigger arrowLeft;
-  Trigger arrowRight;
 
   // private final ExampleCommand m_autoCommand = new
   // ExampleCommand(m_exampleSubsystem);
@@ -69,21 +57,11 @@ public class RobotContainer {
     GenericHID pad = new GenericHID(Constants.operatorPadPort);
     controls = new Controls(driver, operator);
 
-    arrowUpSupplier = () -> (pad.getPOV() == 0);
-    arrowDownSupplier = () -> (pad.getPOV() == 180);
-    arrowLeftSupplier = () -> (pad.getPOV() == 270);
-    arrowRightSupplier = () -> (pad.getPOV() == 90);
-
-    arrowUp = new Trigger(arrowUpSupplier);
-    arrowDown = new Trigger(arrowDownSupplier);
-    arrowLeft = new Trigger(arrowLeftSupplier);
-    arrowRight = new Trigger(arrowRightSupplier);
-
     drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain, controls::getDriveSpeed, controls::getTurnSpeed));
 
     // Configure the button bindings
     try {
-      configureButtonBindings(driver, operator);
+      configureButtonBindings(driver, operator, pad);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -96,7 +74,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
    * it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings(XboxController driver, XboxController operator) {
+  private void configureButtonBindings(XboxController driver, XboxController operator, GenericHID pad) {
     System.out.println("Config Buttons Called");
     
     // later make this shoot button, run a shooting subroutine that will use VisionAlignCommand
@@ -149,10 +127,10 @@ public class RobotContainer {
         shooter.disable();
     }
 
-    arrowUp.whenActive(new InstantCommand(() -> {shooter.toggle();})); // toggle Shooter with pad up arrow
-    arrowDown.whenActive(new InstantCommand(() -> {intake.toggle();})); // toggle Intake with pad down arrow
-    arrowLeft.whenActive(new InstantCommand(() -> {lights.toggle();})); // toggle Lights with pad left arrow
-    arrowRight.whenActive(new InstantCommand(() -> {climber.toggle();})); // toggle Climber with pad right arrow
+    if (new POVButton(pad, 0).get())  {shooter.toggle();} // toggle Shooter with pad up arrow
+    if (new POVButton(pad, 90).get()) {climber.toggle();} // toggle Climber with pad right arrow
+    if (new POVButton(pad, 180).get()) {intake.toggle();} // toggle Intake with pad down arrow
+    if (new POVButton(pad, 270).get()) {lights.toggle();} // toggle Lights with pad left arrow
   }
 
   /**
