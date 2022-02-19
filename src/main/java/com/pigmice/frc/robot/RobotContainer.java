@@ -6,6 +6,7 @@ package com.pigmice.frc.robot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 import com.pigmice.frc.robot.commands.climber.ClimbHigh;
@@ -22,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -39,6 +41,8 @@ public class RobotContainer {
   private final Lights lights;
   private Controls controls;
 
+  final double epsilon;
+
   // private final ExampleCommand m_autoCommand = new
   // ExampleCommand(m_exampleSubsystem);
 
@@ -51,6 +55,8 @@ public class RobotContainer {
     shooter = new Shooter();
     climber = new Climber();
     lights = new Lights();
+
+    epsilon = DrivetrainConfig.driveEpsilon;
 
     XboxController driver = new XboxController(Constants.driverControllerPort);
     XboxController operator = new XboxController(Constants.operatorControllerPort);
@@ -109,28 +115,37 @@ public class RobotContainer {
         .whenPressed(new InstantCommand(drivetrain::stop));
 
     /*
-     * new JoystickButton(operator, Button.kX.value)
-     * .whenPressed(new ));
+    new JoystickButton(operator, Button.kX.value)
+      .whenPressed(new ));
      */
 
     /*
-     * new JoystickButton(operator, Button.kY.value)
-     * .whenPressed(new ShootBallCommand(distance, shooter));
+    new JoystickButton(operator, Button.kY.value)
+      .whenPressed(new ShootBallCommand(distance, shooter));
      */
 
-    if (Utils.almostEquals(operator.getRightTriggerAxis(), 1, DrivetrainConfig.driveEpsilon)
-      && Utils.almostEquals(operator.getLeftTriggerAxis(), 1, DrivetrainConfig.driveEpsilon)) {
-        drivetrain.stop();
-        climber.disable();
-        intake.disable();
-        lights.disable();
-        shooter.disable();
-    }
+    BooleanSupplier fullStop = () -> (
+      Utils.almostEquals(operator.getRightTriggerAxis(), 1, epsilon) &&
+      Utils.almostEquals(operator.getLeftTriggerAxis(), 1, epsilon)
+    );
+    new Trigger(fullStop)
+      .whenActive(new InstantCommand(drivetrain::stop))
+      .whenActive(new InstantCommand(climber::toggle))
+      .whenActive(new InstantCommand(intake::toggle))
+      .whenActive(new InstantCommand(lights::toggle))
+      .whenActive(new InstantCommand(shooter::toggle));
 
-    if (new POVButton(pad, 0).get())  {shooter.toggle();} // toggle Shooter with pad up arrow
-    if (new POVButton(pad, 90).get()) {climber.toggle();} // toggle Climber with pad right arrow
-    if (new POVButton(pad, 180).get()) {intake.toggle();} // toggle Intake with pad down arrow
-    if (new POVButton(pad, 270).get()) {lights.toggle();} // toggle Lights with pad left arrow
+    BooleanSupplier arrowUp = () -> new POVButton(pad, 0).get();
+    new Trigger(arrowUp).whenActive(new InstantCommand(shooter::toggle));
+
+    BooleanSupplier arrowRight = () -> new POVButton(pad, 90).get();
+    new Trigger(arrowRight).whenActive(new InstantCommand(climber::toggle));
+
+    BooleanSupplier arrowDown = () -> new POVButton(pad, 180).get();
+    new Trigger(arrowDown).whenActive(new InstantCommand(intake::toggle));
+
+    BooleanSupplier arrowLeft = () -> new POVButton(pad, 270).get();
+    new Trigger(arrowLeft).whenActive(new InstantCommand(lights::toggle));
   }
 
   /**
