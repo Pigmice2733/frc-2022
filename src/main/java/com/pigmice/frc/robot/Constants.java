@@ -68,6 +68,15 @@ public final class Constants {
         public static final double driveEpsilon = 0.2;
     }
 
+    public static class DrivetrainProfileConfig {
+        public static final double maxVelocity = 10d;
+        public static final double maxAcceleration = 2d;
+
+        public static final double feedforwardStatic = 3;
+        public static final double feedforwardVelocity = 3;
+        public static final double feedforwardAcceleration = 0;
+    }
+
     public static class IntakeConfig {
         public static final int intakeBottomPort = 0;
         public static final int intakeTopPort = 1;
