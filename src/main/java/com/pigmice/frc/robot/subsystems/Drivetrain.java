@@ -231,6 +231,8 @@ public class Drivetrain extends SubsystemBase {
         rightDemand *= 0.5;
         leftDrive.set(leftDemand);
         rightDrive.set(rightDemand);
+        // leftDrive.set(0.25);
+        // rightDrive.set(0.25);
 
         leftDemand = 0.0;
         rightDemand = 0.0;

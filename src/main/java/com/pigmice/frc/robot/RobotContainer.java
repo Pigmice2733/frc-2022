@@ -6,9 +6,11 @@ package com.pigmice.frc.robot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 import com.pigmice.frc.robot.commands.climber.ClimbHigh;
+import com.pigmice.frc.robot.commands.climber.ClimbTraversal;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.drivetrain.TurnToAngle;
 import com.pigmice.frc.robot.subsystems.Climber;
@@ -32,11 +34,13 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Drivetrain drivetrain;
-  private final Intake intake;
+  // private final Intake intake;
   // private final Shooter shooter;
   private final Climber climber;
   // private final Lights lights;
   private Controls controls;
+
+  final double epsilon;
 
   // private final ExampleCommand m_autoCommand = new
   // ExampleCommand(m_exampleSubsystem);
@@ -50,6 +54,8 @@ public class RobotContainer {
     // shooter = new Shooter();
     climber = new Climber();
     // lights = new Lights();
+
+    epsilon = DrivetrainConfig.driveEpsilon;
 
     XboxController driver = new XboxController(Constants.driverControllerPort);
     XboxController operator = new XboxController(Constants.operatorControllerPort);
