@@ -29,7 +29,7 @@ public class Controls {
         if (Utils.almostEquals(turnValue, 0, epsilon)) {
             turnValue = 0;
         }
-        return turnValue * DrivetrainConfig.turnSpeed;
+        return -turnValue * DrivetrainConfig.turnSpeed;
     }
 
     public double getLeftSpeed() {
@@ -50,25 +50,25 @@ public class Controls {
 }
 
 /*
-// TODO check with drive team to confirm these
-
-DRIVER
-arcade drive - left stick Y: drive speed; right stick X: turn speed
-tank drive - left stick Y: left speed; right stick Y: right speed
-X button: boost on
-Y button: boost off
-A button: slow on
-B button: slow off
-
-OPERATOR
-A button: initiate climber sequence to traversal rung
-B button: initiate climber sequence to high rung
-X button: climber trigger (if needed)
-Y button: shoot ball
-left stick button: stop drivetrain
-pad up button: toggle shooter
-pad down button: toggle intake
-pad left button: toggle lights
-pad right button: toggle climber
-LT and RT all the way: disable all systems
-*/
+ * // TODO check with drive team to confirm these
+ * 
+ * DRIVER
+ * arcade drive - left stick Y: drive speed; right stick X: turn speed
+ * tank drive - left stick Y: left speed; right stick Y: right speed
+ * X button: boost on
+ * Y button: boost off
+ * A button: slow on
+ * B button: slow off
+ * 
+ * OPERATOR
+ * A button: initiate climber sequence to traversal rung
+ * B button: initiate climber sequence to high rung
+ * X button: climber trigger (if needed)
+ * Y button: shoot ball
+ * left stick button: stop drivetrain
+ * pad up button: toggle shooter
+ * pad down button: toggle intake
+ * pad left button: toggle lights
+ * pad right button: toggle climber
+ * LT and RT all the way: disable all systems
+ */

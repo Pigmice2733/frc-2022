@@ -25,6 +25,8 @@ public class Drivetrain extends SubsystemBase {
     private double leftDemand, rightDemand;
     private double leftPosition, rightPosition, heading;
 
+    private float initialHeading = 0;
+
     private boolean boost = false;
     private boolean slow = false;
 
@@ -41,13 +43,13 @@ public class Drivetrain extends SubsystemBase {
     private Point initialPosition = Point.origin();
 
     public Drivetrain() {
-        rightDrive = new CANSparkMax(DrivetrainConfig.frontRightMotorPort,
+        rightDrive = new CANSparkMax(DrivetrainConfig.frontLeftMotorPort,
                 MotorType.kBrushless);
-        rightFollower = new CANSparkMax(DrivetrainConfig.backRightMotorPort,
+        rightFollower = new CANSparkMax(DrivetrainConfig.backLeftMotorPort,
                 MotorType.kBrushless);
-        leftDrive = new CANSparkMax(DrivetrainConfig.frontLeftMotorPort,
+        leftDrive = new CANSparkMax(DrivetrainConfig.frontRightMotorPort,
                 MotorType.kBrushless);
-        leftFollower = new CANSparkMax(DrivetrainConfig.backLeftMotorPort,
+        leftFollower = new CANSparkMax(DrivetrainConfig.backRightMotorPort,
                 MotorType.kBrushless);
 
         rightDrive.restoreFactoryDefaults();
@@ -55,7 +57,7 @@ public class Drivetrain extends SubsystemBase {
         leftDrive.restoreFactoryDefaults();
         leftFollower.restoreFactoryDefaults();
 
-        rightDrive.setInverted(true);
+        leftDrive.setInverted(true);
         leftFollower.follow(leftDrive);
         rightFollower.follow(rightDrive);
 
@@ -68,10 +70,8 @@ public class Drivetrain extends SubsystemBase {
 
         navxReport = testReportLayout.add("NavX", false).getEntry();
 
-        leftDrive.getEncoder().setPositionConversionFactor(1.0 /
-                DrivetrainConfig.rotationToDistanceConversion);
-        rightDrive.getEncoder().setPositionConversionFactor(1.0 /
-                DrivetrainConfig.rotationToDistanceConversion);
+        leftDrive.getEncoder().setPositionConversionFactor(DrivetrainConfig.rotationToDistanceConversion);
+        rightDrive.getEncoder().setPositionConversionFactor(DrivetrainConfig.rotationToDistanceConversion);
 
         ShuffleboardLayout odometryLayout = Shuffleboard.getTab(Dashboard.developmentTabName)
                 .getLayout("Odometry", BuiltInLayouts.kList).withSize(2, 5)
@@ -89,7 +89,19 @@ public class Drivetrain extends SubsystemBase {
         leftPosition = 0.0;
         rightPosition = 0.0;
         heading = 0.0; // 0.5 * Math.PI;
+
+        while (navx.isCalibrating()) {
+            try {
+                Thread.sleep(100);
+                System.out.println("Calibrating NAVX...");
+            } catch (InterruptedException e) {
+
+            }
+        }
+
         zeroHeading();
+
+        initialHeading = navx.getYaw();
 
         leftDrive.getEncoder().setPosition(0.0);
         rightDrive.getEncoder().setPosition(0.0);
@@ -99,8 +111,8 @@ public class Drivetrain extends SubsystemBase {
         leftDemand = 0.0;
         rightDemand = 0.0;
 
-        navx.setAngleAdjustment(navx.getAngleAdjustment() - navx.getAngle() -
-                90.0);
+        // navx.setAngleAdjustment(navx.getAngleAdjustment() - navx.getAngle() -
+        // 90.0);
     }
 
     @Override
@@ -123,11 +135,12 @@ public class Drivetrain extends SubsystemBase {
         rightEncoderDisplay.setNumber(rightPosition);
     }
 
-    public void updateDashboard() {}
+    public void updateDashboard() {
+    }
 
     public void updateHeading() {
         float headingDegrees = (navx.getYaw() +
-                DrivetrainConfig.navXRotationalOffsetDegrees) % 360;
+                DrivetrainConfig.navXRotationalOffsetDegrees - initialHeading) % 360;
 
         SmartDashboard.putNumber("Heading (Degrees)", headingDegrees);
 
@@ -135,22 +148,45 @@ public class Drivetrain extends SubsystemBase {
         heading = Math.toRadians(headingDegrees);
     }
 
-    public void updateInputs() {}
+    public void updateInputs() {
+    }
 
-    public double getHeading() {return heading;}
+    public double getHeading() {
+        return heading;
+    }
 
-    public Pose getPose() { return odometry.getPose();}
+    public Pose getPose() {
+        return odometry.getPose();
+    }
 
-    public void boost() {this.boost = true;}
-    public void stopBoost() {this.boost = false;}
-    public boolean isBoosting() {return boost;}
+    public void boost() {
+        this.boost = true;
+    }
 
-    public void slow() {this.slow = true;}
-    public void stopSlow() {this.slow = false;}
-    public boolean isSlow() {return slow;}
+    public void stopBoost() {
+        this.boost = false;
+    }
 
-    public boolean isCalibrating() {return this.navx.isCalibrating();}
-    
+    public boolean isBoosting() {
+        return boost;
+    }
+
+    public void slow() {
+        this.slow = true;
+    }
+
+    public void stopSlow() {
+        this.slow = false;
+    }
+
+    public boolean isSlow() {
+        return slow;
+    }
+
+    public boolean isCalibrating() {
+        return this.navx.isCalibrating();
+    }
+
     public void tankDrive(double leftSpeed, double rightSpeed) {
         leftDemand = leftSpeed;
         rightDemand = rightSpeed;
@@ -182,7 +218,8 @@ public class Drivetrain extends SubsystemBase {
         updateOutputs();
     }
 
-    public void swerveDrive(double forward, double strafe, double rotation_x) {}
+    public void swerveDrive(double forward, double strafe, double rotation_x) {
+    }
 
     public void stop() {
         leftDemand = 0.0;
@@ -190,6 +227,8 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void updateOutputs() {
+        leftDemand *= 0.5;
+        rightDemand *= 0.5;
         leftDrive.set(leftDemand);
         rightDrive.set(rightDemand);
 
@@ -219,7 +258,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void resetPose() {
-        this.odometry.set(new Pose(0, 0, getPose().getHeading()), 0.0, 0.0);
+        // this.odometry.set(new Pose(0, 0, getPose().getHeading()), 0.0, 0.0);
         initialPosition = new Point(this.getPose());
     }
 

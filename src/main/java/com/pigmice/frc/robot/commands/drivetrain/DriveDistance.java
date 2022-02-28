@@ -1,23 +1,25 @@
 package com.pigmice.frc.robot.commands.drivetrain;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
-import com.pigmice.frc.lib.utils.Point;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
+
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 
-public class DriveDistance extends PIDCommand {
+public class DriveDistance extends ProfiledPIDCommand {
     private final Drivetrain drivetrain;
-    private final double maxError = 0.05;
-    private final double maxVelocity = 1;
+    private final double maxError = 0.01;
+    private final double maxVelocity = 1.0;
 
     public DriveDistance(double distance, Drivetrain drivetrain) {
         super(
-            new PIDController(2.0, 0.0, 0.0),
-            drivetrain::getDistanceFromStart,
-            distance,
-            output -> drivetrain.tankDrive(output, output),
-            drivetrain
-        );
+                new ProfiledPIDController(1.5, 0.5, 0.3, new TrapezoidProfile.Constraints(1.0, 1.5)),
+                drivetrain::getDistanceFromStart,
+                distance,
+                (output, setpoint) -> drivetrain.tankDrive(output, output),
+                drivetrain);
 
         this.drivetrain = drivetrain;
 
@@ -31,6 +33,10 @@ public class DriveDistance extends PIDCommand {
 
     @Override
     public boolean isFinished() {
-        return getController().atSetpoint();
+        System.out.println(
+                "DISTANCE FROM SETPOINT: "
+                        + (getController().getSetpoint().position - drivetrain.getDistanceFromStart())
+                        + " | AT SETPOINT? " + getController().atGoal());
+        return getController().atGoal();
     }
 }

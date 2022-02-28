@@ -4,6 +4,7 @@
 
 package com.pigmice.frc.robot;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SPI;
 
 /**
@@ -29,25 +30,25 @@ public final class Constants {
     }
 
     public static class ClimberConfig {
-        public static int liftLeadPort = 0;
-        public static int liftFollowPort = 0;
-        public static int rotateLeadPort = 0;
-        public static int rotateFollowPort = 0;
+        public static final int liftLeadPort = 7;
+        public static final int liftFollowPort = 8;
+        public static final int rotateLeadPort = 0;
+        public static final int rotateFollowPort = 0;
 
         // both of these in rpm
-        public static double defaultLiftMotorSpeed = 600;
-        public static double defaultRotateMotorSpeed = 600;
+        public static final double defaultLiftMotorSpeed = 600;
+        public static final double defaultRotateMotorSpeed = 600;
 
         // radius of gear in contact with motor and lifting arm, in inches
-        public static double liftMotorRadius = 0.5;
+        public static final double liftMotorRadius = 0.5;
 
         // both of these in inches
-        public static double liftArmHeight = 52; // height of base of lift arms
-        public static double rotateArmLength = 8.25; // at straight vertical, height above liftArmHeight
+        public static final double liftArmHeight = 52; // height of base of lift arms
+        public static final double rotateArmLength = 8.25; // at straight vertical, height above liftArmHeight
 
         // both of these in inches
-        public static double horizDistBtwnRungs = 24;
-        public static double vertDistBtwnRungs = 15.375;
+        public static final double horizDistBtwnRungs = 24;
+        public static final double vertDistBtwnRungs = 15.375;
     }
 
     public static class DrivetrainConfig {
@@ -56,12 +57,16 @@ public final class Constants {
         public static final int backRightMotorPort = 1;
         public static final int backLeftMotorPort = 4;
 
-        public static final double driveSpeed = 0.8;
+        public static final double driveSpeed = 0.5;
         public static final double turnSpeed = 0.4;
         public static final SPI.Port navxPort = SPI.Port.kMXP;
 
-        public static final double rotationToDistanceConversion = 16.13;
-        public static final double wheelBase = 0.603;
+        public static final double wheelDiameterMeters = Units.inchesToMeters(4.125);
+        public static final double gearRatio = 7.56; // 3 motor rotations to 1 wheel rotation
+        public static final double rotationToDistanceConversion = (Math.PI * wheelDiameterMeters) / gearRatio; //
+        // circumference
+        // / gear ratio
+        public static final double wheelBase = 0.69;
 
         public static final int navXRotationalOffsetDegrees = 0;
 

@@ -9,10 +9,10 @@ import java.util.List;
 
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 import com.pigmice.frc.robot.commands.climber.ClimbHigh;
-import com.pigmice.frc.robot.commands.climber.ClimbTraversal;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
-import com.pigmice.frc.robot.commands.shooter.ShootBallCommand;
-import com.pigmice.frc.robot.subsystems.*;
+import com.pigmice.frc.robot.commands.drivetrain.TurnToAngle;
+import com.pigmice.frc.robot.subsystems.Climber;
+import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.testmode.Testable;
 
 import edu.wpi.first.wpilibj.GenericHID;
@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -34,9 +33,9 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Drivetrain drivetrain;
   private final Intake intake;
-  private final Shooter shooter;
+  // private final Shooter shooter;
   private final Climber climber;
-  private final Lights lights;
+  // private final Lights lights;
   private Controls controls;
 
   // private final ExampleCommand m_autoCommand = new
@@ -47,21 +46,22 @@ public class RobotContainer {
    */
   public RobotContainer() {
     drivetrain = new Drivetrain();
-    intake = new Intake();
-    shooter = new Shooter();
+    // intake = new Intake();
+    // shooter = new Shooter();
     climber = new Climber();
-    lights = new Lights();
+    // lights = new Lights();
 
     XboxController driver = new XboxController(Constants.driverControllerPort);
     XboxController operator = new XboxController(Constants.operatorControllerPort);
-    GenericHID pad = new GenericHID(Constants.operatorPadPort);
+    // GenericHID pad = new GenericHID(Constants.operatorPadPort);
     controls = new Controls(driver, operator);
 
-    drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain, controls::getDriveSpeed, controls::getTurnSpeed));
+    drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
+        controls::getDriveSpeed, controls::getTurnSpeed));
 
     // Configure the button bindings
     try {
-      configureButtonBindings(driver, operator, pad);
+      configureButtonBindings(driver, operator, null);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -76,26 +76,25 @@ public class RobotContainer {
    */
   private void configureButtonBindings(XboxController driver, XboxController operator, GenericHID pad) {
     System.out.println("Config Buttons Called");
-    
-    // later make this shoot button, run a shooting subroutine that will use VisionAlignCommand
-    // new JoystickButton(driver, Button.kY.value)
-    //    .whenPressed(new InstantCommand(Vision::toggleAlign));
 
+    // later make this shoot button, run a shooting subroutine that will use
+    // VisionAlignCommand
+    // new JoystickButton(driver, Button.kY.value)
+    // .whenPressed(new InstantCommand(Vision::toggleAlign));
 
     // DRIVER CONTROLS
-    
+
     new JoystickButton(driver, Button.kX.value)
         .whenPressed(new InstantCommand(drivetrain::boost));
-    
+
     new JoystickButton(driver, Button.kY.value)
         .whenPressed(new InstantCommand(drivetrain::stopBoost));
-    
+
     new JoystickButton(driver, Button.kA.value)
         .whenPressed(new InstantCommand(drivetrain::slow));
 
     new JoystickButton(driver, Button.kB.value)
         .whenPressed(new InstantCommand(drivetrain::stopSlow));
-
 
     // OPERATOR CONTROLS
 
@@ -119,18 +118,26 @@ public class RobotContainer {
      */
 
     if (Utils.almostEquals(operator.getRightTriggerAxis(), 1, DrivetrainConfig.driveEpsilon)
-      && Utils.almostEquals(operator.getLeftTriggerAxis(), 1, DrivetrainConfig.driveEpsilon)) {
-        drivetrain.stop();
-        climber.disable();
-        intake.disable();
-        lights.disable();
-        shooter.disable();
+        && Utils.almostEquals(operator.getLeftTriggerAxis(), 1, DrivetrainConfig.driveEpsilon)) {
+      // drivetrain.stop();
+      climber.disable();
+      // intake.disable();
+      // lights.disable();
+      // shooter.disable();
     }
 
-    if (new POVButton(pad, 0).get())  {shooter.toggle();} // toggle Shooter with pad up arrow
-    if (new POVButton(pad, 90).get()) {climber.toggle();} // toggle Climber with pad right arrow
-    if (new POVButton(pad, 180).get()) {intake.toggle();} // toggle Intake with pad down arrow
-    if (new POVButton(pad, 270).get()) {lights.toggle();} // toggle Lights with pad left arrow
+    // if (new POVButton(pad, 0).get()) {
+    // shooter.toggle();
+    // } // toggle Shooter with pad up arrow
+    // if (new POVButton(pad, 90).get()) {
+    // climber.toggle();
+    // } // toggle Climber with pad right arrow
+    // if (new POVButton(pad, 180).get()) {
+    // intake.toggle();
+    // } // toggle Intake with pad down arrow
+    // if (new POVButton(pad, 270).get()) {
+    // lights.toggle();
+    // } // toggle Lights with pad left arrow
   }
 
   /**
@@ -141,7 +148,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
     // return m_autoCommand;
-    return null;
+    return new TurnToAngle(-Math.PI / 2, true, this.drivetrain);
   }
 
   public List<Testable> getTestables() {
