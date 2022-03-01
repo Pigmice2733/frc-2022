@@ -1,28 +1,14 @@
 package com.pigmice.frc.robot;
 
-import java.util.Deque;
-import java.util.ArrayDeque;
+/* import java.util.LinkedList;
+import java.util.Queue; */
 
 //this here class is to find where yo ballz at
 public class BallTracker{
     Deque<BallColor> balls = new ArrayDeque<BallColor>();
 
-    public boolean isFull() {
-        if (balls[1] == Colors.NONE) {
-            return false;
-        }
-        else {return true;}
-    }
-
-    public int numBalls() {
-        if (isEmpty()) {return 0;}
-        if (isFull()) {return 2;}
-        else return 1;
-    }
-
-    public void newBall(Colors color) {
-        balls[1] = color;
-        updateArray();
+    public void newBall(BallColor color) {
+        balls.add(color);
     }
 
     public void ballLaunched() {
