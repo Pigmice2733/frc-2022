@@ -51,6 +51,15 @@ public final class Constants {
         public static final double vertDistBtwnRungs = 15.375;
     }
 
+    public static class ClimberProfileConfig {
+        public static final double maxVelocity = 10d;
+        public static final double maxAcceleration = 2d;
+
+        /* public static final double feedforwardStatic = 3;
+        public static final double feedforwardVelocity = 3;
+        public static final double feedforwardAcceleration = 0; */
+    }
+
     public static class DrivetrainConfig {
         public static final int frontRightMotorPort = 2;
         public static final int frontLeftMotorPort = 3;
@@ -71,15 +80,6 @@ public final class Constants {
         public static final int navXRotationalOffsetDegrees = 0;
 
         public static final double driveEpsilon = 0.2;
-    }
-
-    public static class DrivetrainProfileConfig {
-        public static final double maxVelocity = 10d;
-        public static final double maxAcceleration = 2d;
-
-        public static final double feedforwardStatic = 3;
-        public static final double feedforwardVelocity = 3;
-        public static final double feedforwardAcceleration = 0;
     }
 
     public static class IntakeConfig {
