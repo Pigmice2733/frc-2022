@@ -71,6 +71,10 @@ public final class Constants {
         public static final int navXRotationalOffsetDegrees = 0;
 
         public static final double driveEpsilon = 0.2;
+        public static final double boostMultiplier = 1.5;
+        public static final double slowMultiplier = 0.5;
+
+
     }
 
     public static class DrivetrainProfileConfig {

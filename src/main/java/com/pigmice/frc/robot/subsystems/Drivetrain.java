@@ -16,6 +16,7 @@ import com.pigmice.frc.lib.utils.Odometry;
 import com.pigmice.frc.lib.utils.Point;
 import com.pigmice.frc.robot.Utils;
 import com.pigmice.frc.lib.utils.Odometry.Pose;
+import com.pigmice.frc.robot.Constants;
 import com.pigmice.frc.robot.Dashboard;
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 
@@ -167,8 +168,13 @@ public class Drivetrain extends SubsystemBase {
         this.boost = false;
     }
 
+    public void toggleBoost() {
+        this.boost = !this.boost;
+        this.slow = false;
+    }
+
     public boolean isBoosting() {
-        return boost;
+        return this.boost;
     }
 
     public void slow() {
@@ -179,8 +185,13 @@ public class Drivetrain extends SubsystemBase {
         this.slow = false;
     }
 
+    public void toggleSlow() {
+        this.slow = !this.slow;
+        this.boost = false;
+    }
+
     public boolean isSlow() {
-        return slow;
+        return this.slow;
     }
 
     public boolean isCalibrating() {
@@ -227,12 +238,30 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void updateOutputs() {
+
         leftDemand *= 0.5;
         rightDemand *= 0.5;
+
+        if (slow) {
+            leftDemand *= DrivetrainConfig.slowMultiplier;
+            rightDemand *= DrivetrainConfig.slowMultiplier;
+            SmartDashboard.putBoolean("Boost", false);
+            SmartDashboard.putBoolean("slow", true);
+
+        }
+        else if (boost) {
+            leftDemand *= DrivetrainConfig.boostMultiplier;
+            rightDemand *= DrivetrainConfig.boostMultiplier;
+            SmartDashboard.putBoolean("Boost", true);
+            SmartDashboard.putBoolean("slow", false);
+        }
+        else {
+            SmartDashboard.putBoolean("Boost", false);
+            SmartDashboard.putBoolean("slow", false);
+        }
+
         leftDrive.set(leftDemand);
         rightDrive.set(rightDemand);
-        // leftDrive.set(0.25);
-        // rightDrive.set(0.25);
 
         leftDemand = 0.0;
         rightDemand = 0.0;
