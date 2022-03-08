@@ -12,9 +12,6 @@ import edu.wpi.first.wpilibj.SPI;
  * numerical or boolean constants. This class should not be used for any other
  * purpose. All constants should be declared globally (i.e., public static). Do
  * not put anything functional in this class.
- * 
- * purpose. All constants should be declared globally (i.e. public static). Do
- * not put anything functional in this class.
  *
  * <p>
  * It is advised to statically import this class (or one of its inner classes)
@@ -36,24 +33,46 @@ public final class Constants {
         public static final int rotateFollowPort = 0;
 
         // both of these in rpm
-        public static final double defaultLiftMotorSpeed = 600;
+        public static final double maxLiftMotorSpeed = 600;
         public static final double defaultRotateMotorSpeed = 600;
 
         // radius of gear in contact with motor and lifting arm, in inches
         public static final double liftMotorRadius = 0.5;
 
-        // both of these in inches
+        // both in inches
         public static final double liftArmHeight = 52; // height of base of lift arms
         public static final double rotateArmLength = 8.25; // at straight vertical, height above liftArmHeight
 
-        // both of these in inches
+        // both in inches
         public static final double horizDistBtwnRungs = 24;
         public static final double vertDistBtwnRungs = 15.375;
+
+        // both in inches
+        public static final double minLiftHeight = -3;
+        public static final double maxLiftHeight = 32;
+        
+        // both in degrees
+        public static final double minRotateAngle = -90;
+        public static final double maxRotateAngle = 90;
     }
 
     public static class ClimberProfileConfig {
-        public static final double maxVelocity = 10d;
-        public static final double maxAcceleration = 2d;
+        public static final double maxLiftVelocity = 1;
+        public static final double maxLiftAcceleration = 0.4;
+
+        public static final double maxRotateVelocity = 1.375;
+        public static final double maxRotateAcceleration = 0.4;
+
+        public static final double liftP = 1.;
+        public static final double liftI = 0.;
+        public static final double liftD = 0.;
+
+        public static final double rotateP = 1.;
+        public static final double rotateI = 0.;
+        public static final double rotateD = 0.;
+
+        public static final double tolerableError = 0.02;
+        public static final double tolerableEndVelo = 0.01;
 
         /* public static final double feedforwardStatic = 3;
         public static final double feedforwardVelocity = 3;
