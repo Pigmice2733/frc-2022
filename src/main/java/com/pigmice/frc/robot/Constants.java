@@ -36,8 +36,11 @@ public final class Constants {
         public static final double maxLiftMotorSpeed = 600;
         public static final double defaultRotateMotorSpeed = 600;
 
-        // radius of gear in contact with motor and lifting arm, in inches
-        public static final double liftMotorRadius = 0.5;
+        // conversion rate: rotations of lift motor -> lift distance of arm in inches
+        public static final double liftConversion = 1.;
+
+        //conversion rate: rotations of rotate motor -> rotations of rotate arm
+        public static final double rotateConversion = 1.;
 
         // both in inches
         public static final double liftArmHeight = 52; // height of base of lift arms

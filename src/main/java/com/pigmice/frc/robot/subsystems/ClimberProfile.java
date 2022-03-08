@@ -48,7 +48,7 @@ public class ClimberProfile extends TrapezoidProfileSubsystem {
     public void setEnabled(boolean enabled) {this.enabled = enabled;}
 
     public void useState(TrapezoidProfile.State currentState) {
-        if (enabled) {return;}
+        if (!enabled) {return;}
         
         double rotateTicks = Utils.calculateTicksPerDs(rotateSpeed, feedbackDevice);
 

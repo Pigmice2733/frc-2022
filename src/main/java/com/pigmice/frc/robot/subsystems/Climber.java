@@ -47,20 +47,20 @@ public class Climber extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (enabled) {return;}
+        if (!enabled) {return;}
         
         if (liftAbsolute <= ClimberConfig.minLiftHeight && liftSpeed < 0) {liftSpeed = 0;}
         if (liftAbsolute >= ClimberConfig.maxLiftHeight && liftSpeed > 0) {liftSpeed = 0;}
         liftLead.set(liftSpeed);
-        liftDistance += liftSpeed * ClimberConfig.maxLiftMotorSpeed / 3000;
-        liftAbsolute += liftSpeed * ClimberConfig.maxLiftMotorSpeed / 3000;
+        liftDistance += liftSpeed * ClimberConfig.maxLiftMotorSpeed * ClimberConfig.liftConversion / 3000;
+        liftAbsolute += liftSpeed * ClimberConfig.maxLiftMotorSpeed * ClimberConfig.liftConversion / 3000;
 
         if (rotateAbsolute <= ClimberConfig.minRotateAngle && rotateSpeed < 0) {rotateSpeed = 0;}
         if (rotateAbsolute >= ClimberConfig.maxRotateAngle && rotateSpeed > 0) {rotateSpeed = 0;}
         double rotateTicks = Utils.calculateTicksPerDs(rotateSpeed, feedbackDevice);
         rotateLead.set(ControlMode.Velocity, rotateTicks);
-        rotateAngle += rotateSpeed * 360 / 3000;
-        rotateAbsolute += rotateSpeed * 360 / 3000;
+        rotateAngle += rotateSpeed * ClimberConfig.rotateConversion * 360 / 3000;
+        rotateAbsolute += rotateSpeed * ClimberConfig.rotateConversion * 360 / 3000;
     }
 
     @Override
