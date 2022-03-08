@@ -85,8 +85,8 @@ public final class Constants {
         public static final int backRightMotorPort = 1;
         public static final int backLeftMotorPort = 4;
 
-        public static final double driveSpeed = 0.5;
-        public static final double turnSpeed = 0.4;
+        public static final double driveSpeed = 0.8;
+        public static final double turnSpeed = 0.6;
         public static final SPI.Port navxPort = SPI.Port.kMXP;
 
         public static final double wheelDiameterMeters = Units.inchesToMeters(4.125);
@@ -99,6 +99,10 @@ public final class Constants {
         public static final int navXRotationalOffsetDegrees = 0;
 
         public static final double driveEpsilon = 0.2;
+        public static final double boostMultiplier = 1.25;
+        public static final double slowMultiplier = 0.5;
+
+
     }
 
     public static class IntakeConfig {

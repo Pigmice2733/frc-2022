@@ -55,10 +55,8 @@ public class Controls {
  * DRIVER
  * arcade drive - left stick Y: drive speed; right stick X: turn speed
  * tank drive - left stick Y: left speed; right stick Y: right speed
- * X button: boost on
- * Y button: boost off
- * A button: slow on
- * B button: slow off
+ * X button: toggle boost
+ * Y button: toggle slow - slow overrites boost
  * 
  * OPERATOR
  * A button: initiate climber sequence to traversal rung

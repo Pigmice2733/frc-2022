@@ -90,17 +90,25 @@ public class RobotContainer {
 
     // DRIVER CONTROLS
 
-    new JoystickButton(driver, Button.kX.value)
+    /*new JoystickButton(driver, Button.kX.value)
         .whenPressed(new InstantCommand(drivetrain::boost));
 
-    new JoystickButton(driver, Button.kY.value)
+    new JoystickButton(driver, Button.kB.value)
         .whenPressed(new InstantCommand(drivetrain::stopBoost));
 
-    new JoystickButton(driver, Button.kA.value)
+    new JoystickButton(driver, Button.kY.value)
         .whenPressed(new InstantCommand(drivetrain::slow));
 
-    new JoystickButton(driver, Button.kB.value)
-        .whenPressed(new InstantCommand(drivetrain::stopSlow));
+    new JoystickButton(driver, Button.kA.value)
+        .whenPressed(new InstantCommand(drivetrain::stopSlow));*/
+
+    // Boost with toggle
+
+    new JoystickButton(driver, Button.kX.value)
+        .whenPressed(new InstantCommand(drivetrain::toggleBoost));
+
+    new JoystickButton(driver, Button.kY.value)
+        .whenPressed(new InstantCommand(drivetrain::toggleSlow));
 
     // OPERATOR CONTROLS
 
