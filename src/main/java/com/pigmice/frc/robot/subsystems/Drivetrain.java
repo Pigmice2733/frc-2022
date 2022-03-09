@@ -242,22 +242,15 @@ public class Drivetrain extends SubsystemBase {
         leftDemand *= 0.5;
         rightDemand *= 0.5;
 
+        SmartDashboard.putBoolean("Boost", this.boost);
+        SmartDashboard.putBoolean("Slow", this.slow);
+
         if (slow) {
             leftDemand *= DrivetrainConfig.slowMultiplier;
             rightDemand *= DrivetrainConfig.slowMultiplier;
-            SmartDashboard.putBoolean("Boost", false);
-            SmartDashboard.putBoolean("slow", true);
-
-        }
-        else if (boost) {
+        } else if (boost) {
             leftDemand *= DrivetrainConfig.boostMultiplier;
             rightDemand *= DrivetrainConfig.boostMultiplier;
-            SmartDashboard.putBoolean("Boost", true);
-            SmartDashboard.putBoolean("slow", false);
-        }
-        else {
-            SmartDashboard.putBoolean("Boost", false);
-            SmartDashboard.putBoolean("slow", false);
         }
 
         leftDrive.set(leftDemand);

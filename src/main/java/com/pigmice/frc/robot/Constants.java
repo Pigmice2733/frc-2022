@@ -27,19 +27,20 @@ public final class Constants {
     }
 
     public static class ClimberConfig {
-        public static final int liftLeadPort = 7;
+        public static final int liftLeadPort = 5;
         public static final int liftFollowPort = 8;
-        public static final int rotateLeadPort = 0;
+        public static final int rotateLeadPort = 12;
         public static final int rotateFollowPort = 0;
 
         // both of these in rpm
         public static final double maxLiftMotorSpeed = 600;
         public static final double defaultRotateMotorSpeed = 600;
+        public static final double defaultLiftMotorSpeed = 100;
 
         // conversion rate: rotations of lift motor -> lift distance of arm in inches
         public static final double liftConversion = 1.;
 
-        //conversion rate: rotations of rotate motor -> rotations of rotate arm
+        // conversion rate: rotations of rotate motor -> rotations of rotate arm
         public static final double rotateConversion = 1.;
 
         // both in inches
@@ -53,20 +54,20 @@ public final class Constants {
         // both in inches
         public static final double minLiftHeight = -3;
         public static final double maxLiftHeight = 32;
-        
+
         // both in degrees
         public static final double minRotateAngle = -90;
         public static final double maxRotateAngle = 90;
     }
 
     public static class ClimberProfileConfig {
-        public static final double maxLiftVelocity = 1;
-        public static final double maxLiftAcceleration = 0.4;
+        public static final double maxLiftVelocity = 5.0;
+        public static final double maxLiftAcceleration = 10.0;
 
         public static final double maxRotateVelocity = 1.375;
         public static final double maxRotateAcceleration = 0.4;
 
-        public static final double liftP = 1.;
+        public static final double liftP = 0.08;
         public static final double liftI = 0.;
         public static final double liftD = 0.;
 
@@ -74,12 +75,14 @@ public final class Constants {
         public static final double rotateI = 0.;
         public static final double rotateD = 0.;
 
-        public static final double tolerableError = 0.02;
-        public static final double tolerableEndVelo = 0.01;
+        public static final double tolerableError = 0.2;
+        public static final double tolerableEndVelo = 0.1;
 
-        /* public static final double feedforwardStatic = 3;
-        public static final double feedforwardVelocity = 3;
-        public static final double feedforwardAcceleration = 0; */
+        /*
+         * public static final double feedforwardStatic = 3;
+         * public static final double feedforwardVelocity = 3;
+         * public static final double feedforwardAcceleration = 0;
+         */
     }
 
     public static class DrivetrainConfig {
@@ -104,7 +107,6 @@ public final class Constants {
         public static final double driveEpsilon = 0.2;
         public static final double boostMultiplier = 1.25;
         public static final double slowMultiplier = 0.5;
-
 
     }
 

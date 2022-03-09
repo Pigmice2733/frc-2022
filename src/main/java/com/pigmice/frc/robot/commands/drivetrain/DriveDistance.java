@@ -1,12 +1,10 @@
 package com.pigmice.frc.robot.commands.drivetrain;
 
-import edu.wpi.first.math.controller.PIDController;
+import com.pigmice.frc.robot.subsystems.Drivetrain;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
-
-import com.pigmice.frc.robot.subsystems.Drivetrain;
 
 public class DriveDistance extends ProfiledPIDCommand {
     private final Drivetrain drivetrain;

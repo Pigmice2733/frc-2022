@@ -6,13 +6,14 @@ package com.pigmice.frc.robot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 import com.pigmice.frc.robot.commands.climber.ClimbHigh;
 import com.pigmice.frc.robot.commands.climber.ClimbTraversal;
+import com.pigmice.frc.robot.commands.climber.LiftIn;
+import com.pigmice.frc.robot.commands.climber.LiftOut;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
-import com.pigmice.frc.robot.commands.drivetrain.TurnToAngle;
+import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.subsystems.Climber;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.testmode.Testable;
@@ -90,18 +91,6 @@ public class RobotContainer {
 
     // DRIVER CONTROLS
 
-    /*new JoystickButton(driver, Button.kX.value)
-        .whenPressed(new InstantCommand(drivetrain::boost));
-
-    new JoystickButton(driver, Button.kB.value)
-        .whenPressed(new InstantCommand(drivetrain::stopBoost));
-
-    new JoystickButton(driver, Button.kY.value)
-        .whenPressed(new InstantCommand(drivetrain::slow));
-
-    new JoystickButton(driver, Button.kA.value)
-        .whenPressed(new InstantCommand(drivetrain::stopSlow));*/
-
     // Boost with toggle
 
     new JoystickButton(driver, Button.kX.value)
@@ -112,14 +101,14 @@ public class RobotContainer {
 
     // OPERATOR CONTROLS
 
-    new JoystickButton(operator, Button.kA.value)
-        .whenPressed(new ClimbTraversal(climber));
+    // new JoystickButton(operator, Button.kA.value)
+    // .whenPressed(new ClimbTraversal(climber));
 
-    new JoystickButton(operator, Button.kB.value)
-        .whenPressed(new ClimbHigh(climber));
+    // new JoystickButton(operator, Button.kB.value)
+    // .whenPressed(new ClimbHigh(climber));
 
-    new JoystickButton(operator, Button.kLeftStick.value)
-        .whenPressed(new InstantCommand(drivetrain::stop));
+    // new JoystickButton(operator, Button.kLeftStick.value)
+    // .whenPressed(new InstantCommand(drivetrain::stop));
 
     /*
      * new JoystickButton(operator, Button.kX.value)
@@ -133,7 +122,7 @@ public class RobotContainer {
 
     if (Utils.almostEquals(operator.getRightTriggerAxis(), 1, DrivetrainConfig.driveEpsilon)
         && Utils.almostEquals(operator.getLeftTriggerAxis(), 1, DrivetrainConfig.driveEpsilon)) {
-      // drivetrain.stop();
+      drivetrain.stop();
       climber.disable();
       // intake.disable();
       // lights.disable();
@@ -160,9 +149,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
-    // return m_autoCommand;
-    return new TurnToAngle(-Math.PI / 2, true, this.drivetrain);
+    // TODO return new DriveDistance(2, this.drivetrain);
+    return new LiftOut(this.climber, 6);
   }
 
   public List<Testable> getTestables() {
