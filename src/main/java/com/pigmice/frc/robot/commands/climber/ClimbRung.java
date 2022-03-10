@@ -3,24 +3,23 @@ package com.pigmice.frc.robot.commands.climber;
 import com.pigmice.frc.robot.Constants.ClimberConfig;
 import com.pigmice.frc.robot.subsystems.Climber;
 
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class ClimbRung extends SequentialCommandGroup {
-    // private double liftArmHeight = ClimberConfig.liftArmHeight;
-    private double rotateArmLength = ClimberConfig.rotateArmLength;
-    
-    public ClimbRung(Climber climber, double distance, double angle) {
+    public ClimbRung(Climber climber) {
         addCommands(
-            // robot is suspended from lower rung, supported by both arms
-            new LiftOut(climber, 2),
-            new RotateBack(climber, 10),
-            new LiftIn(climber, 4),
-            new RotateFront(climber, 25),
-            new LiftOut(climber, distance + 4 - rotateArmLength),
-            new RotateFront(climber, angle - 15),
-            new LiftIn(climber, 2),
-            new RotateFront(climber, 10)
-            // the robot will swing and come to rest directly below the higher rung, supported by lift arms
+                // robot is suspended from lower rung, supported by both arms
+                new LiftOffBar(climber),
+                new ParallelRaceGroup(new LiftOffBar(climber, true), new RotateToTarget(climber)),
+                new ParallelRaceGroup(new RotateToTarget(climber, true), new LiftExtendFully(climber)),
+                new ParallelRaceGroup(new LiftExtendFully(climber, true), new RotateToHook(climber)),
+                new ParallelRaceGroup(new RotateToHook(climber, true), new LiftHalfway(climber)),
+                new ParallelRaceGroup(new LiftHalfway(climber, true), new RotateAway(climber)),
+                new ParallelRaceGroup(new RotateAway(climber, true), new LiftRetractFully(climber)),
+                new ParallelRaceGroup(new LiftRetractFully(climber, true), new RotateToVertical(climber))
+        // the robot will swing and come to rest directly below the higher rung,
+        // supported by lift arms
         );
 
         addRequirements(climber);

@@ -7,11 +7,30 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 
-public class LiftOut extends ProfiledPIDCommand {
+public class LiftTo extends ProfiledPIDCommand {
     private Climber climber;
-    private double tError, tVelocity;
+    private boolean infinite;
 
-    public LiftOut(Climber climber, double distance) {
+    /**
+     * Create a command to move the lift arm to a vertical distance from where it
+     * was when robot started
+     * 
+     * @param climber  Climber subsystem
+     * @param distance Distance in inches
+     */
+    public LiftTo(Climber climber, double distance) {
+        this(climber, distance, false);
+    }
+
+    /**
+     * Create a command to move the lift arm to a vertical distance from where it
+     * was when robot started
+     * 
+     * @param climber  Climber subsystem
+     * @param distance Distance in inches
+     * @param infinite True makes the command never finish
+     */
+    public LiftTo(Climber climber, double distance, boolean infinite) {
         super(
                 new ProfiledPIDController(
                         ClimberProfileConfig.liftP,
@@ -27,32 +46,27 @@ public class LiftOut extends ProfiledPIDCommand {
                 },
                 climber);
 
-        this.tError = ClimberProfileConfig.tolerableError;
-        this.tVelocity = ClimberProfileConfig.tolerableEndVelo;
-
         this.climber = climber;
-        addRequirements(climber);
+        this.infinite = infinite;
 
-        getController().setTolerance(tError, tVelocity);
-    }
+        this.m_requirements.clear();
 
-    @Override
-    public void initialize() {
-        this.climber.reset();
+        getController().setTolerance(ClimberProfileConfig.liftTolerableError,
+                ClimberProfileConfig.liftTolerableEndVelocity);
     }
 
     @Override
     public void end(boolean interrupted) {
-        this.climber.setLiftSpeed(0);
+        this.climber.setLiftOutput(0.0);
     }
 
     @Override
     public boolean isFinished() {
         System.out.println(
-                "DISTANCE FROM SETPOINT: "
+                "LIFT | DISTANCE FROM SETPOINT: "
                         + (getController().getSetpoint().position - climber.getLiftDistance())
                         + " SETPOINT: " + getController().getSetpoint().position + " | AT SETPOINT? "
                         + getController().atGoal());
-        return getController().atGoal();
+        return !this.infinite && getController().atGoal();
     }
 }

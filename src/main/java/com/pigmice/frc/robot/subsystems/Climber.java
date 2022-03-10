@@ -2,14 +2,14 @@ package com.pigmice.frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.pigmice.frc.robot.Constants.ClimberConfig;
-import com.pigmice.frc.robot.Utils;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkMax.IdleMode;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,15 +25,13 @@ public class Climber extends SubsystemBase {
     private final double LIFT_GEAR_RATIO = 12.0 / 68.0;
     private final double LIFT_GEAR_CIRC = Math.PI * 1.273; // diameter 1.273 inches
 
-    private double liftSpeed, rotateSpeed;
-    private double liftDistance, rotateAngle;
-    private double liftAbsolute, rotateAbsolute; // while the commands change the ones above these never change
+    private final double ROTATE_GEAR_RATIO = 1.0 / 2.0;
+
+    private double liftOutput, rotateOutput;
 
     private ShuffleboardTab climberTab;
 
     private boolean enabled = true;
-
-    private double initialPosition = 0.0;
 
     /** Creates a new Climber. */
     public Climber() {
@@ -43,25 +41,29 @@ public class Climber extends SubsystemBase {
         this.rotateFollow = new TalonSRX(ClimberConfig.rotateFollowPort);
 
         this.liftLead.restoreFactoryDefaults();
+        this.liftFollow.restoreFactoryDefaults();
+        this.rotateLead.configFactoryDefault();
+        this.rotateFollow.configFactoryDefault();
 
-        this.liftLead.setInverted(true);
+        this.liftFollow.setInverted(true);
+        this.rotateLead.setInverted(true);
 
-        liftFollow.follow(liftLead);
+        this.liftLead.setIdleMode(IdleMode.kBrake);
+        this.liftFollow.setIdleMode(IdleMode.kBrake);
+        this.rotateLead.setNeutralMode(NeutralMode.Brake);
+        this.rotateFollow.setNeutralMode(NeutralMode.Brake);
+
+        // liftFollow.follow(liftLead);
         rotateFollow.follow(rotateLead);
 
         this.liftEncoder = this.liftLead.getEncoder();
+        this.rotateLead.configSelectedFeedbackSensor(feedbackDevice);
 
-        this.liftSpeed = 0;
-        this.rotateSpeed = 0;
-
-        this.liftDistance = 0;
-        this.rotateAngle = 0;
-
-        this.liftAbsolute = 0;
-        this.rotateAbsolute = 0;
+        this.rotateLead.setSensorPhase(true);
 
         this.climberTab = Shuffleboard.getTab("Climber");
-        climberTab.addNumber("Encoder Position", this.liftEncoder::getPosition);
+        climberTab.addNumber("Encoder Position", this::getRotateAngle);
+        climberTab.addNumber("Lift Distance", this::getLiftDistance);
 
         this.zeroEncoders();
     }
@@ -84,6 +86,7 @@ public class Climber extends SubsystemBase {
 
     public void zeroEncoders() {
         this.liftEncoder.setPosition(0);
+        this.rotateLead.setSelectedSensorPosition(0.0);
     }
 
     @Override
@@ -92,17 +95,18 @@ public class Climber extends SubsystemBase {
             return;
         }
 
-        liftLead.set(liftSpeed);
+        liftLead.set(liftOutput);
+        liftFollow.set(liftOutput);
 
-        rotateLead.set(ControlMode.PercentOutput, rotateSpeed);
+        rotateLead.set(ControlMode.PercentOutput, rotateOutput);
     }
 
     public void setLiftOutput(double output) {
-        this.liftSpeed = output;
+        this.liftOutput = output;
     }
 
     public void setRotateOutput(double output) {
-        this.rotateSpeed = output;
+        this.rotateOutput = output;
     }
 
     @Override
@@ -111,37 +115,23 @@ public class Climber extends SubsystemBase {
     }
 
     /**
-     * Moves lift arms up or down, thus moving the robot down or up, or stop the
-     * lift motors.
+     * Converts total angular displacement of lift arm motor to linear displacement
+     * of arm.
      * 
-     * @param kV The factor applied to the default speed.
+     * @return Inches lift arm has traveled
      */
-    public void setLiftSpeed(double kV) {
-        liftSpeed = kV * ClimberConfig.defaultLiftMotorSpeed;
-    }
-
-    public void setRotateSpeed(double kV) {
-        rotateSpeed = kV * ClimberConfig.defaultRotateMotorSpeed;
-    }
-
-    /** Returns the distance the lift arms have moved from its starting position. */
     public double getLiftDistance() {
-        // TODO position to inch conversion is position * gear ratio * circumference
-        // = position * (12 / 68.0) * Math.PI * 1.273
-        return this.liftEncoder.getPosition();
+        // encoder position 1:1 with rotations
+        return this.liftEncoder.getPosition() * LIFT_GEAR_RATIO * LIFT_GEAR_CIRC;
     }
 
     /**
-     * Returns the angle the rotate arms have rotated from their starting position.
+     * Converts arm encoder position to angle in degrees.
+     * 
+     * @return Degrees the arms have rotated
      */
     public double getRotateAngle() {
-        return this.rotateAngle;
-    }
-
-    /** Resets the counters for liftDistanRce and rotateAngle. */
-    public void reset() {
-        this.zeroEncoders();
-        rotateAngle = 0;
-        liftDistance = 0;
+        // 4096 sensor ticks in one rotation for Talon SRX encoder
+        return (this.rotateLead.getSelectedSensorPosition() / 4096.0) * ROTATE_GEAR_RATIO * 360.0;
     }
 }

@@ -24,7 +24,7 @@ public class Drivetrain extends SubsystemBase {
     private final CANSparkMax leftDrive, rightDrive, rightFollower, leftFollower;
 
     private double leftDemand, rightDemand;
-    private double leftPosition, rightPosition, heading;
+    private double leftPosition, rightPosition, heading; // heading is in degrees now
 
     private float initialHeading = 0;
 
@@ -89,7 +89,7 @@ public class Drivetrain extends SubsystemBase {
         // Used to be in initialize()
         leftPosition = 0.0;
         rightPosition = 0.0;
-        heading = 0.0; // 0.5 * Math.PI;
+        heading = 0.0;
 
         while (navx.isCalibrating()) {
             try {
@@ -145,8 +145,7 @@ public class Drivetrain extends SubsystemBase {
 
         SmartDashboard.putNumber("Heading (Degrees)", headingDegrees);
 
-        // calculates robot heading based on navx reading and offset
-        heading = Math.toRadians(headingDegrees);
+        heading = headingDegrees;
     }
 
     public void updateInputs() {

@@ -10,10 +10,13 @@ import java.util.List;
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 import com.pigmice.frc.robot.commands.climber.ClimbHigh;
 import com.pigmice.frc.robot.commands.climber.ClimbTraversal;
-import com.pigmice.frc.robot.commands.climber.LiftIn;
-import com.pigmice.frc.robot.commands.climber.LiftOut;
+import com.pigmice.frc.robot.commands.climber.LiftExtendFully;
+import com.pigmice.frc.robot.commands.climber.LiftOffBar;
+import com.pigmice.frc.robot.commands.climber.LiftRetractFully;
+import com.pigmice.frc.robot.commands.climber.RotateAway;
+import com.pigmice.frc.robot.commands.climber.RotateTo;
+import com.pigmice.frc.robot.commands.climber.RotateToVertical;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
-import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.subsystems.Climber;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.testmode.Testable;
@@ -23,6 +26,9 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
@@ -94,15 +100,29 @@ public class RobotContainer {
     // Boost with toggle
 
     new JoystickButton(driver, Button.kX.value)
-        .whenPressed(new InstantCommand(drivetrain::toggleBoost));
+        .whenPressed(new InstantCommand(this.drivetrain::toggleBoost));
 
     new JoystickButton(driver, Button.kY.value)
-        .whenPressed(new InstantCommand(drivetrain::toggleSlow));
+        .whenPressed(new InstantCommand(this.drivetrain::toggleSlow));
+
+    new JoystickButton(driver, Button.kRightBumper.value)
+        .whenPressed(new SequentialCommandGroup(
+            new LiftExtendFully(this.climber),
+            new ParallelRaceGroup(new LiftExtendFully(this.climber, true), new RotateAway(this.climber)),
+            new ParallelRaceGroup(new RotateAway(this.climber, true), new WaitCommand(2.0)),
+            new ParallelRaceGroup(new RotateAway(this.climber, true), new LiftRetractFully(this.climber)),
+            new ParallelRaceGroup(new LiftRetractFully(this.climber, true), new RotateTo(this.climber, 10))));
+
+    new JoystickButton(driver, Button.kLeftBumper.value)
+        .whenPressed(new SequentialCommandGroup(
+            new LiftRetractFully(this.climber),
+            new ParallelRaceGroup(new LiftRetractFully(this.climber, true), new RotateAway(this.climber)),
+            new ParallelRaceGroup(new RotateAway(this.climber, true), new LiftExtendFully(this.climber)),
+            new ParallelRaceGroup(new LiftExtendFully(this.climber, true), new WaitCommand(2.0)),
+            new RotateToVertical(this.climber),
+            new LiftRetractFully(climber)));
 
     // OPERATOR CONTROLS
-
-    // new JoystickButton(operator, Button.kA.value)
-    // .whenPressed(new ClimbTraversal(climber));
 
     // new JoystickButton(operator, Button.kB.value)
     // .whenPressed(new ClimbHigh(climber));
@@ -122,7 +142,7 @@ public class RobotContainer {
 
     if (Utils.almostEquals(operator.getRightTriggerAxis(), 1, DrivetrainConfig.driveEpsilon)
         && Utils.almostEquals(operator.getLeftTriggerAxis(), 1, DrivetrainConfig.driveEpsilon)) {
-      drivetrain.stop();
+      // drivetrain.stop();
       climber.disable();
       // intake.disable();
       // lights.disable();
@@ -150,7 +170,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // TODO return new DriveDistance(2, this.drivetrain);
-    return new LiftOut(this.climber, 6);
+    return new ClimbHigh(this.climber);
   }
 
   public List<Testable> getTestables() {

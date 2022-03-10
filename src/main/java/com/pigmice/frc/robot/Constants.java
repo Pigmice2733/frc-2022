@@ -28,9 +28,9 @@ public final class Constants {
 
     public static class ClimberConfig {
         public static final int liftLeadPort = 5;
-        public static final int liftFollowPort = 8;
+        public static final int liftFollowPort = 6;
         public static final int rotateLeadPort = 12;
-        public static final int rotateFollowPort = 0;
+        public static final int rotateFollowPort = 13;
 
         // both of these in rpm
         public static final double maxLiftMotorSpeed = 600;
@@ -52,8 +52,8 @@ public final class Constants {
         public static final double vertDistBtwnRungs = 15.375;
 
         // both in inches
-        public static final double minLiftHeight = -3;
-        public static final double maxLiftHeight = 32;
+        public static final double minLiftHeight = 0;
+        public static final double maxLiftHeight = 24.5;
 
         // both in degrees
         public static final double minRotateAngle = -90;
@@ -64,19 +64,22 @@ public final class Constants {
         public static final double maxLiftVelocity = 5.0;
         public static final double maxLiftAcceleration = 10.0;
 
-        public static final double maxRotateVelocity = 1.375;
-        public static final double maxRotateAcceleration = 0.4;
+        public static final double maxRotateVelocity = 50.0;
+        public static final double maxRotateAcceleration = 50.0;
 
         public static final double liftP = 0.08;
         public static final double liftI = 0.;
         public static final double liftD = 0.;
 
-        public static final double rotateP = 1.;
+        public static final double rotateP = 0.025;
         public static final double rotateI = 0.;
         public static final double rotateD = 0.;
 
-        public static final double tolerableError = 0.2;
-        public static final double tolerableEndVelo = 0.1;
+        public static final double liftTolerableError = 0.2;
+        public static final double liftTolerableEndVelocity = 0.1;
+
+        public static final double angleTolerableError = 3.0;
+        public static final double angleTolerableEndVelocity = 1.0;
 
         /*
          * public static final double feedforwardStatic = 3;
@@ -86,10 +89,10 @@ public final class Constants {
     }
 
     public static class DrivetrainConfig {
-        public static final int frontRightMotorPort = 2;
-        public static final int frontLeftMotorPort = 3;
-        public static final int backRightMotorPort = 1;
-        public static final int backLeftMotorPort = 4;
+        public static final int frontRightMotorPort = 3;
+        public static final int frontLeftMotorPort = 1;
+        public static final int backRightMotorPort = 4;
+        public static final int backLeftMotorPort = 2;
 
         public static final double driveSpeed = 0.8;
         public static final double turnSpeed = 0.6;
