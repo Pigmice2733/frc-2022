@@ -1,6 +1,12 @@
 package com.pigmice.frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pigmice.frc.lib.utils.Odometry;
+import com.pigmice.frc.lib.utils.Odometry.Pose;
+import com.pigmice.frc.lib.utils.Point;
+import com.pigmice.frc.robot.Constants.DrivetrainConfig;
+import com.pigmice.frc.robot.Dashboard;
+import com.pigmice.frc.robot.Utils;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -11,14 +17,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import com.pigmice.frc.lib.utils.Odometry;
-import com.pigmice.frc.lib.utils.Point;
-import com.pigmice.frc.robot.Utils;
-import com.pigmice.frc.lib.utils.Odometry.Pose;
-import com.pigmice.frc.robot.Constants;
-import com.pigmice.frc.robot.Dashboard;
-import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 
 public class Drivetrain extends SubsystemBase {
     private final CANSparkMax leftDrive, rightDrive, rightFollower, leftFollower;

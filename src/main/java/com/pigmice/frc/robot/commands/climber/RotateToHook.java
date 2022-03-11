@@ -1,14 +1,20 @@
 package com.pigmice.frc.robot.commands.climber;
 
-import com.pigmice.frc.robot.subsystems.Climber;
+import com.pigmice.frc.robot.Constants.ClimberConfig;
+import com.pigmice.frc.robot.subsystems.Rotato;
 
-public class RotateToHook extends RotateTo {
-    // exact angle to rung 57.41º
-    public RotateToHook(Climber climber) {
-        super(climber, 55.0, false);
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+
+public class RotateToHook extends ParallelCommandGroup {
+
+    public RotateToHook(Rotato rotato) {
+        this(rotato, false);
     }
 
-    public RotateToHook(Climber climber, boolean infinite) {
-        super(climber, 55.0, infinite);
+    public RotateToHook(Rotato rotato, boolean infinite) {
+        super(new RotateOneTo(rotato.getLeft(), ClimberConfig.angleToRung - 5.0, infinite),
+                new RotateOneTo(rotato.getRight(), ClimberConfig.angleToRung - 5.0, infinite));
+
+        addRequirements(rotato.getLeft(), rotato.getRight());
     }
 }

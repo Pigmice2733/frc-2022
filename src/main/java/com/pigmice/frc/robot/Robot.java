@@ -6,8 +6,6 @@ package com.pigmice.frc.robot;
 
 import com.pigmice.frc.robot.testmode.Testable;
 
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -39,7 +37,7 @@ public class Robot extends TimedRobot {
 
   /**
    * This function is called every robot packet, no matter the mode. Use this for
-   * items like diagnostics that you want run during disabled, autonomous, 
+   * items like diagnostics that you want run during disabled, autonomous,
    * teleoperated and test.
    *
    * <p>
@@ -48,20 +46,24 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    /** Runs the Scheduler. This is responsible for polling buttons, adding newly-
+    /**
+     * Runs the Scheduler. This is responsible for polling buttons, adding newly-
      * scheduled commands, running already-scheduled commands, removing finished
      * or interrupted commands, and running subsystem periodic() methods. This
      * must be called from the robot's periodic block in order for anything in the
-     * Command-based framework to work. */
+     * Command-based framework to work.
+     */
     CommandScheduler.getInstance().run();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   /**
    * This autonomous runs the autonomous command selected by your
@@ -84,9 +86,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    /** This makes sure that the autonomous stops running when teleop starts
+    /**
+     * This makes sure that the autonomous stops running when teleop starts
      * running . If you want the autonomous to continue until interrupted by
-     * another command, remove this line or comment it out. */
+     * another command, remove this line or comment it out.
+     */
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }

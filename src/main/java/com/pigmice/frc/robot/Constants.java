@@ -27,10 +27,10 @@ public final class Constants {
     }
 
     public static class ClimberConfig {
-        public static final int liftLeadPort = 5;
-        public static final int liftFollowPort = 6;
-        public static final int rotateLeadPort = 12;
-        public static final int rotateFollowPort = 13;
+        public static final int liftRightPort = 5;
+        public static final int liftLeftPort = 6;
+        public static final int rotateRightPort = 7;
+        public static final int rotateLeftPort = 8;
 
         // both of these in rpm
         public static final double maxLiftMotorSpeed = 600;
@@ -56,8 +56,10 @@ public final class Constants {
         public static final double maxLiftHeight = 24.5;
 
         // both in degrees
-        public static final double minRotateAngle = -90;
-        public static final double maxRotateAngle = 90;
+        public static final double minRotateAngle = -45.0;
+        public static final double maxRotateAngle = 45.0;
+
+        public static final double angleToRung = 24.62;
     }
 
     public static class ClimberProfileConfig {
@@ -68,7 +70,7 @@ public final class Constants {
         public static final double maxRotateAcceleration = 50.0;
 
         public static final double liftP = 0.08;
-        public static final double liftI = 0.;
+        public static final double liftI = 0.005;
         public static final double liftD = 0.;
 
         public static final double rotateP = 0.025;
@@ -107,7 +109,7 @@ public final class Constants {
 
         public static final int navXRotationalOffsetDegrees = 0;
 
-        public static final double driveEpsilon = 0.2;
+        public static final double driveThreshold = 0.2;
         public static final double boostMultiplier = 1.25;
         public static final double slowMultiplier = 0.5;
 

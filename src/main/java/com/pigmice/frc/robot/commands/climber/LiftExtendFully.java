@@ -1,14 +1,19 @@
 package com.pigmice.frc.robot.commands.climber;
 
 import com.pigmice.frc.robot.Constants.ClimberConfig;
-import com.pigmice.frc.robot.subsystems.Climber;
+import com.pigmice.frc.robot.subsystems.Lifty;
 
-public class LiftExtendFully extends LiftTo {
-    public LiftExtendFully(Climber climber) {
-        super(climber, ClimberConfig.maxLiftHeight, false);
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+
+public class LiftExtendFully extends ParallelCommandGroup {
+    public LiftExtendFully(Lifty lifty) {
+        this(lifty, false);
     }
 
-    public LiftExtendFully(Climber climber, boolean infinite) {
-        super(climber, ClimberConfig.maxLiftHeight, infinite);
+    public LiftExtendFully(Lifty lifty, boolean infinite) {
+        super(new LiftOneTo(lifty.getLeft(), ClimberConfig.maxLiftHeight, infinite),
+                new LiftOneTo(lifty.getRight(), ClimberConfig.maxLiftHeight, infinite));
+
+        addRequirements(lifty.getLeft(), lifty.getRight());
     }
 }
