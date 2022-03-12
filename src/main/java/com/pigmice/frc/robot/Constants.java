@@ -73,8 +73,8 @@ public final class Constants {
         public static final double liftI = 0.005;
         public static final double liftD = 0.;
 
-        public static final double rotateP = 0.025;
-        public static final double rotateI = 0.;
+        public static final double rotateP = 0.002;
+        public static final double rotateI = 0.001;
         public static final double rotateD = 0.;
 
         public static final double liftTolerableError = 0.2;
@@ -96,7 +96,7 @@ public final class Constants {
         public static final int backRightMotorPort = 4;
         public static final int backLeftMotorPort = 2;
 
-        public static final double driveSpeed = 0.8;
+        public static final double driveSpeed = 1.0;
         public static final double turnSpeed = 0.6;
         public static final SPI.Port navxPort = SPI.Port.kMXP;
 

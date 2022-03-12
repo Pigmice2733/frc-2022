@@ -1,5 +1,6 @@
 package com.pigmice.frc.robot.commands.climber;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import com.pigmice.frc.robot.Constants.ClimberProfileConfig;
@@ -14,11 +15,19 @@ public class RotateOneTo extends ProfiledPIDCommand {
     private boolean infinite;
 
     public RotateOneTo(AbstractRotate rotato, double angle) {
-        this(rotato, () -> angle);
+        this(rotato, () -> angle, () -> false);
+    }
+
+    public RotateOneTo(AbstractRotate rotato, double angle, BooleanSupplier orPower) {
+        this(rotato, () -> angle, orPower);
     }
 
     public RotateOneTo(AbstractRotate rotato, double angle, boolean infinite) {
-        this(rotato, () -> angle, infinite);
+        this(rotato, () -> angle, infinite, () -> false);
+    }
+
+    public RotateOneTo(AbstractRotate rotato, double angle, boolean infinite, BooleanSupplier orPower) {
+        this(rotato, () -> angle, infinite, orPower);
     }
 
     /**
@@ -27,8 +36,12 @@ public class RotateOneTo extends ProfiledPIDCommand {
      * @param climber Climber subsystem
      * @param angle   Angle to rotate to in degrees
      */
+    public RotateOneTo(AbstractRotate rotato, DoubleSupplier angle, BooleanSupplier orPower) {
+        this(rotato, angle, false, orPower);
+    }
+
     public RotateOneTo(AbstractRotate rotato, DoubleSupplier angle) {
-        this(rotato, angle, false);
+        this(rotato, angle, false, () -> false);
     }
 
     /**
@@ -38,7 +51,7 @@ public class RotateOneTo extends ProfiledPIDCommand {
      * @param angle    Angle to rotate to in degrees
      * @param infinite True makes the command never finish
      */
-    public RotateOneTo(AbstractRotate rotato, DoubleSupplier angle, boolean infinite) {
+    public RotateOneTo(AbstractRotate rotato, DoubleSupplier angle, boolean infinite, BooleanSupplier orPower) {
         super(
                 new ProfiledPIDController(
                         ClimberProfileConfig.rotateP,
@@ -50,7 +63,7 @@ public class RotateOneTo extends ProfiledPIDCommand {
                 angle,
                 (output, setpoint) -> {
                     System.out.println("ROTATE MOTOR OUTPUT " + output);
-                    rotato.setOutput(output);
+                    rotato.setOutput(orPower.getAsBoolean() ? angle.getAsDouble() : output);
                 },
                 rotato);
 

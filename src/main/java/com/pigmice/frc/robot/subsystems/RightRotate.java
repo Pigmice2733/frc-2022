@@ -11,7 +11,7 @@ public class RightRotate extends AbstractRotate {
 
     @Override
     protected void useOutput(double output) {
-        motor.set(ControlMode.PercentOutput, output);
+        motor.set(ControlMode.PercentOutput, -output);
     }
 
     @Override

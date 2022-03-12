@@ -11,7 +11,7 @@ public abstract class AbstractRotate extends SubsystemBase {
 
     protected TalonSRX motor;
 
-    protected double output;
+    protected double output = 0.0;
 
     public AbstractRotate(int motorPort, boolean sensorPhase) {
         this.motor = new TalonSRX(motorPort);
@@ -24,6 +24,11 @@ public abstract class AbstractRotate extends SubsystemBase {
         this.motor.setSensorPhase(sensorPhase);
 
         this.motor.setSelectedSensorPosition(0.0);
+    }
+
+    @Override
+    public void periodic() {
+        this.useOutput(this.output);
     }
 
     protected abstract void useOutput(double output);

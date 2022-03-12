@@ -1,5 +1,6 @@
 package com.pigmice.frc.robot.commands.climber;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import com.pigmice.frc.robot.Constants.ClimberProfileConfig;
@@ -17,8 +18,16 @@ public class LiftOneTo extends ProfiledPIDCommand {
         this(lifty, () -> angle);
     }
 
+    public LiftOneTo(AbstractLift lifty, double angle, BooleanSupplier doPower) {
+        this(lifty, angle, false, doPower);
+    }
+
     public LiftOneTo(AbstractLift lifty, double angle, boolean infinite) {
         this(lifty, () -> angle, infinite);
+    }
+
+    public LiftOneTo(AbstractLift lifty, double angle, boolean infinite, BooleanSupplier doPower) {
+        this(lifty, () -> angle, infinite, doPower);
     }
 
     /**
@@ -32,6 +41,14 @@ public class LiftOneTo extends ProfiledPIDCommand {
         this(lifty, distance, false);
     }
 
+    public LiftOneTo(AbstractLift lifty, DoubleSupplier distance, boolean infinite) {
+        this(lifty, distance, infinite, () -> false);
+    }
+
+    public LiftOneTo(AbstractLift lifty, DoubleSupplier distance, BooleanSupplier doPower) {
+        this(lifty, distance, false, doPower);
+    }
+
     /**
      * Create a command to move the lift arm to a vertical distance from where it
      * was when robot started
@@ -40,7 +57,7 @@ public class LiftOneTo extends ProfiledPIDCommand {
      * @param distance Distance in inches
      * @param infinite True makes the command never finish
      */
-    public LiftOneTo(AbstractLift lifty, DoubleSupplier distance, boolean infinite) {
+    public LiftOneTo(AbstractLift lifty, DoubleSupplier distance, boolean infinite, BooleanSupplier doPower) {
         super(
                 new ProfiledPIDController(
                         ClimberProfileConfig.liftP,
@@ -52,7 +69,7 @@ public class LiftOneTo extends ProfiledPIDCommand {
                 distance,
                 (output, setpoint) -> {
                     // System.out.println("LIFT MOTOR OUTPUT " + output);
-                    lifty.setOutput(output);
+                    lifty.setOutput(doPower.getAsBoolean() ? distance.getAsDouble() : output);
                 },
                 lifty);
 

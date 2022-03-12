@@ -17,6 +17,8 @@ import com.pigmice.frc.robot.commands.climber.RotateAway;
 import com.pigmice.frc.robot.commands.climber.RotateTo;
 import com.pigmice.frc.robot.commands.climber.RotateToVertical;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
+import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
+import com.pigmice.frc.robot.commands.drivetrain.TankDrive;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.subsystems.Lifty;
 import com.pigmice.frc.robot.subsystems.Rotato;
@@ -48,6 +50,9 @@ public class RobotContainer {
   // private final Lights lights;
   private Controls controls;
 
+  private XboxController driver;
+  private XboxController operator;
+
   // private final ExampleCommand m_autoCommand = new
   // ExampleCommand(m_exampleSubsystem);
 
@@ -62,15 +67,15 @@ public class RobotContainer {
     rotato = new Rotato();
     // lights = new Lights();
 
-    XboxController driver = new XboxController(Constants.driverControllerPort);
-    XboxController operator = new XboxController(Constants.operatorControllerPort);
+    driver = new XboxController(Constants.driverControllerPort);
+    operator = new XboxController(Constants.operatorControllerPort);
     controls = new Controls(driver, operator);
 
     drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
         controls::getDriveSpeed, controls::getTurnSpeed));
 
-    rotato.setDefaultCommand(new RotateTo(rotato, rotato::getTarget));
-    lifty.setDefaultCommand(new LiftTo(lifty, lifty::getTarget));
+    rotato.setDefaultCommand(new RotateTo(rotato, () -> this.rotateOutput, true, () -> true));
+    lifty.setDefaultCommand(new LiftTo(lifty, () -> this.liftOutput, true, () -> true));
 
     // Configure the button bindings
     try {
@@ -79,6 +84,9 @@ public class RobotContainer {
       e.printStackTrace();
     }
   }
+
+  private double rotateOutput = 0.0;
+  private double liftOutput = 0.0;
 
   /**
    * Use this method to define your button -> command mappings. Buttons can be
@@ -91,30 +99,35 @@ public class RobotContainer {
 
     // DRIVER CONTROLS
 
-    new JoystickButton(driver, Button.kX.value)
-        .whenPressed(this.drivetrain::toggleBoost);
-
     new JoystickButton(driver, Button.kY.value)
-        .whenPressed(this.drivetrain::toggleSlow);
+        .whenPressed(this.drivetrain::slow)
+        .whenReleased(this.drivetrain::stopSlow);
 
     // TODO remove these or move them to operator controls
 
-    new JoystickButton(driver, Button.kRightBumper.value)
-        .whenPressed(new SequentialCommandGroup(
-            new LiftExtendFully(this.lifty),
-            new ParallelRaceGroup(new LiftExtendFully(this.lifty, true), new RotateAway(this.rotato)),
-            new ParallelRaceGroup(new RotateAway(this.rotato, true), new WaitCommand(2.0)),
-            new ParallelRaceGroup(new RotateAway(this.rotato, true), new LiftRetractFully(this.lifty)),
-            new ParallelRaceGroup(new LiftRetractFully(this.lifty, true), new RotateTo(this.rotato, 10))));
+    // new JoystickButton(driver, Button.kRightBumper.value)
+    // .whenPressed(new SequentialCommandGroup(
+    // new LiftExtendFully(this.lifty),
+    // new ParallelRaceGroup(new LiftExtendFully(this.lifty, true), new
+    // RotateAway(this.rotato)),
+    // new ParallelRaceGroup(new RotateAway(this.rotato, true), new
+    // WaitCommand(2.0)),
+    // new ParallelRaceGroup(new RotateAway(this.rotato, true), new
+    // LiftRetractFully(this.lifty)),
+    // new ParallelRaceGroup(new LiftRetractFully(this.lifty, true), new
+    // RotateTo(this.rotato, 10))));
 
-    new JoystickButton(driver, Button.kLeftBumper.value)
-        .whenPressed(new SequentialCommandGroup(
-            new LiftRetractFully(this.lifty),
-            new ParallelRaceGroup(new LiftRetractFully(this.lifty, true), new RotateAway(this.rotato)),
-            new ParallelRaceGroup(new RotateAway(this.rotato, true), new LiftExtendFully(this.lifty)),
-            new ParallelRaceGroup(new LiftExtendFully(this.lifty, true), new WaitCommand(2.0)),
-            new RotateToVertical(this.rotato),
-            new LiftRetractFully(this.lifty)));
+    // new JoystickButton(driver, Button.kLeftBumper.value)
+    // .whenPressed(new SequentialCommandGroup(
+    // new LiftRetractFully(this.lifty),
+    // new ParallelRaceGroup(new LiftRetractFully(this.lifty, true), new
+    // RotateAway(this.rotato)),
+    // new ParallelRaceGroup(new RotateAway(this.rotato, true), new
+    // LiftExtendFully(this.lifty)),
+    // new ParallelRaceGroup(new LiftExtendFully(this.lifty, true), new
+    // WaitCommand(2.0)),
+    // new RotateToVertical(this.rotato),
+    // new LiftRetractFully(this.lifty)));
 
     // OPERATOR CONTROLS
 
@@ -124,22 +137,28 @@ public class RobotContainer {
     // for both default commands
 
     new JoystickButton(operator, Button.kRightBumper.value)
-        .whenPressed(() -> lifty.setTarget(ClimberConfig.maxLiftHeight))
-        .whenReleased(() -> lifty.setTarget(lifty.getRight().getLiftDistance()));
+        .whenPressed(() -> this.liftOutput = 0.30)
+        .whenReleased(() -> this.liftOutput = 0.00);
 
     new JoystickButton(operator, Button.kLeftBumper.value)
-        .whenPressed(() -> lifty.setTarget(ClimberConfig.minLiftHeight))
-        .whenReleased(() -> lifty.setTarget(lifty.getRight().getLiftDistance()));
+        .whenPressed(() -> this.liftOutput = -0.30)
+        .whenReleased(() -> this.liftOutput = 0.00);
+
+    // new JoystickButton(operator, Button.kA.value)
+    // .whenPressed(() -> rotato.setTarget(ClimberConfig.maxRotateAngle))
+    // .whenReleased(() -> rotato.setTarget(rotato.getRight().getRotateAngle()));
+
+    // new JoystickButton(operator, Button.kB.value)
+    // .whenPressed(() -> rotato.setTarget(ClimberConfig.minRotateAngle))
+    // .whenReleased(() -> rotato.setTarget(rotato.getRight().getRotateAngle()));
 
     new JoystickButton(operator, Button.kA.value)
-        .whenPressed(() -> rotato.setTarget(
-            ClimberConfig.maxRotateAngle))
-        .whenReleased(() -> rotato.setTarget(rotato.getRight().getRotateAngle()));
+        .whenPressed(() -> this.rotateOutput = 0.15)
+        .whenReleased(() -> this.rotateOutput = 0.0);
 
     new JoystickButton(operator, Button.kB.value)
-        .whenPressed(() -> rotato.setTarget(
-            ClimberConfig.minRotateAngle))
-        .whenReleased(() -> rotato.setTarget(rotato.getRight().getRotateAngle()));
+        .whenPressed(() -> this.rotateOutput = -0.15)
+        .whenReleased(() -> this.rotateOutput = 0.0);
 
     new JoystickButton(operator, Button.kStart.value)
         .whenPressed(new ClimbHigh(lifty, rotato));
@@ -148,13 +167,22 @@ public class RobotContainer {
         .whenPressed(new ClimbRung(lifty, rotato));
   }
 
+  // private double getPower() {
+  // return usePower() ? this.rotateOutput : rotato.getTarget();
+  // }
+
+  // private boolean usePower() {
+  // return operator.getAButton() || operator.getBButton() ||
+  // operator.getRightBumper() || operator.getLeftBumper();
+  // }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    * 
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new ClimbHigh(this.lifty, this.rotato);
+    return new DriveDistance(1.5, this.drivetrain);
   }
 
   public List<Testable> getTestables() {
