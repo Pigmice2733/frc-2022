@@ -1,31 +1,23 @@
 package com.pigmice.frc.robot.commands.climber;
 
-import com.pigmice.frc.robot.Constants.ClimberConfig;
-import com.pigmice.frc.robot.subsystems.Climber;
+import com.pigmice.frc.robot.subsystems.Lifty;
+import com.pigmice.frc.robot.subsystems.Rotato;
 
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class ClimbHigh extends SequentialCommandGroup {
-    private double liftArmHeight = ClimberConfig.liftArmHeight;
-    private double rotateArmLength = ClimberConfig.rotateArmLength;
-    private double angleToRung;
-    private double distToRung;
 
-    public ClimbHigh(Climber climber) {
-        angleToRung = Math.atan(ClimberConfig.horizDistBtwnRungs / (rotateArmLength + ClimberConfig.vertDistBtwnRungs));
-        distToRung = Math.sqrt(Math.pow(ClimberConfig.horizDistBtwnRungs, 2)
-            + Math.pow(rotateArmLength + ClimberConfig.vertDistBtwnRungs, 2));
+    public ClimbHigh(Lifty lifty, Rotato rotato) {
 
         addCommands(
-            new LiftOut(climber, (62 - liftArmHeight)),
-            // wait for the robot to move forward a bit
-            new LiftIn(climber, (62 - liftArmHeight - rotateArmLength)),
-            // assuming the rotate arms start parallel to the floor against the back of the robot
-            new RotateBack(climber, 90),
-            // robot is now suspended from mid rung, supported by both arms
-            new ClimbRung(climber, distToRung, angleToRung)
-        );
-
-        addRequirements(climber);
+                new LiftExtendFully(lifty),
+                new ParallelRaceGroup(new LiftExtendFully(lifty, true), new RotateAway(rotato)),
+                new ParallelRaceGroup(new RotateAway(rotato, true), new WaitCommand(2.0)),
+                // driver should drive forwards into the bar
+                new ParallelRaceGroup(new RotateAway(rotato, true), new LiftRetractFully(lifty)),
+                new ParallelRaceGroup(new LiftRetractFully(lifty, true), new RotateToVertical(rotato)),
+                new ParallelRaceGroup(new RotateToVertical(rotato, true), new ClimbRung(lifty, rotato)));
     }
 }

@@ -1,6 +1,12 @@
 package com.pigmice.frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pigmice.frc.lib.utils.Odometry;
+import com.pigmice.frc.lib.utils.Odometry.Pose;
+import com.pigmice.frc.lib.utils.Point;
+import com.pigmice.frc.robot.Constants.DrivetrainConfig;
+import com.pigmice.frc.robot.Dashboard;
+import com.pigmice.frc.robot.Utils;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -12,19 +18,11 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import com.pigmice.frc.lib.utils.Odometry;
-import com.pigmice.frc.lib.utils.Point;
-import com.pigmice.frc.robot.Utils;
-import com.pigmice.frc.lib.utils.Odometry.Pose;
-import com.pigmice.frc.robot.Constants;
-import com.pigmice.frc.robot.Dashboard;
-import com.pigmice.frc.robot.Constants.DrivetrainConfig;
-
 public class Drivetrain extends SubsystemBase {
     private final CANSparkMax leftDrive, rightDrive, rightFollower, leftFollower;
 
     private double leftDemand, rightDemand;
-    private double leftPosition, rightPosition, heading;
+    private double leftPosition, rightPosition, heading; // heading is in degrees now
 
     private float initialHeading = 0;
 
@@ -89,7 +87,7 @@ public class Drivetrain extends SubsystemBase {
         // Used to be in initialize()
         leftPosition = 0.0;
         rightPosition = 0.0;
-        heading = 0.0; // 0.5 * Math.PI;
+        heading = 0.0;
 
         while (navx.isCalibrating()) {
             try {
@@ -145,8 +143,7 @@ public class Drivetrain extends SubsystemBase {
 
         SmartDashboard.putNumber("Heading (Degrees)", headingDegrees);
 
-        // calculates robot heading based on navx reading and offset
-        heading = Math.toRadians(headingDegrees);
+        heading = headingDegrees;
     }
 
     public void updateInputs() {
@@ -245,19 +242,6 @@ public class Drivetrain extends SubsystemBase {
         if (slow) {
             leftDemand *= DrivetrainConfig.slowMultiplier;
             rightDemand *= DrivetrainConfig.slowMultiplier;
-            SmartDashboard.putBoolean("Boost", false);
-            SmartDashboard.putBoolean("slow", true);
-
-        }
-        else if (boost) {
-            leftDemand *= DrivetrainConfig.boostMultiplier;
-            rightDemand *= DrivetrainConfig.boostMultiplier;
-            SmartDashboard.putBoolean("Boost", true);
-            SmartDashboard.putBoolean("slow", false);
-        }
-        else {
-            SmartDashboard.putBoolean("Boost", false);
-            SmartDashboard.putBoolean("slow", false);
         }
 
         leftDrive.set(leftDemand);

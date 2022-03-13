@@ -12,9 +12,6 @@ import edu.wpi.first.wpilibj.SPI;
  * numerical or boolean constants. This class should not be used for any other
  * purpose. All constants should be declared globally (i.e., public static). Do
  * not put anything functional in this class.
- * 
- * purpose. All constants should be declared globally (i.e. public static). Do
- * not put anything functional in this class.
  *
  * <p>
  * It is advised to statically import this class (or one of its inner classes)
@@ -30,43 +27,76 @@ public final class Constants {
     }
 
     public static class ClimberConfig {
-        public static final int liftLeadPort = 7;
-        public static final int liftFollowPort = 8;
-        public static final int rotateLeadPort = 0;
-        public static final int rotateFollowPort = 0;
+        public static final int liftRightPort = 5;
+        public static final int liftLeftPort = 6;
+        public static final int rotateRightPort = 7;
+        public static final int rotateLeftPort = 8;
 
         // both of these in rpm
-        public static final double defaultLiftMotorSpeed = 600;
+        public static final double maxLiftMotorSpeed = 600;
         public static final double defaultRotateMotorSpeed = 600;
+        public static final double defaultLiftMotorSpeed = 100;
 
-        // radius of gear in contact with motor and lifting arm, in inches
-        public static final double liftMotorRadius = 0.5;
+        // conversion rate: rotations of lift motor -> lift distance of arm in inches
+        public static final double liftConversion = 1.;
 
-        // both of these in inches
+        // conversion rate: rotations of rotate motor -> rotations of rotate arm
+        public static final double rotateConversion = 1.;
+
+        // both in inches
         public static final double liftArmHeight = 52; // height of base of lift arms
         public static final double rotateArmLength = 8.25; // at straight vertical, height above liftArmHeight
 
-        // both of these in inches
+        // both in inches
         public static final double horizDistBtwnRungs = 24;
         public static final double vertDistBtwnRungs = 15.375;
+
+        // both in inches
+        public static final double minLiftHeight = 0;
+        public static final double maxLiftHeight = 24.5;
+
+        // both in degrees
+        public static final double minRotateAngle = -45.0;
+        public static final double maxRotateAngle = 45.0;
+
+        public static final double angleToRung = 24.62;
     }
 
     public static class ClimberProfileConfig {
-        public static final double maxVelocity = 10d;
-        public static final double maxAcceleration = 2d;
+        public static final double maxLiftVelocity = 5.0;
+        public static final double maxLiftAcceleration = 10.0;
 
-        /* public static final double feedforwardStatic = 3;
-        public static final double feedforwardVelocity = 3;
-        public static final double feedforwardAcceleration = 0; */
+        public static final double maxRotateVelocity = 50.0;
+        public static final double maxRotateAcceleration = 50.0;
+
+        public static final double liftP = 0.08;
+        public static final double liftI = 0.005;
+        public static final double liftD = 0.;
+
+        public static final double rotateP = 0.002;
+        public static final double rotateI = 0.001;
+        public static final double rotateD = 0.;
+
+        public static final double liftTolerableError = 0.2;
+        public static final double liftTolerableEndVelocity = 0.1;
+
+        public static final double angleTolerableError = 3.0;
+        public static final double angleTolerableEndVelocity = 1.0;
+
+        /*
+         * public static final double feedforwardStatic = 3;
+         * public static final double feedforwardVelocity = 3;
+         * public static final double feedforwardAcceleration = 0;
+         */
     }
 
     public static class DrivetrainConfig {
-        public static final int frontRightMotorPort = 2;
-        public static final int frontLeftMotorPort = 3;
-        public static final int backRightMotorPort = 1;
-        public static final int backLeftMotorPort = 4;
+        public static final int frontRightMotorPort = 3;
+        public static final int frontLeftMotorPort = 1;
+        public static final int backRightMotorPort = 4;
+        public static final int backLeftMotorPort = 2;
 
-        public static final double driveSpeed = 0.8;
+        public static final double driveSpeed = 1.0;
         public static final double turnSpeed = 0.6;
         public static final SPI.Port navxPort = SPI.Port.kMXP;
 
@@ -79,10 +109,9 @@ public final class Constants {
 
         public static final int navXRotationalOffsetDegrees = 0;
 
-        public static final double driveEpsilon = 0.2;
+        public static final double driveThreshold = 0.2;
         public static final double boostMultiplier = 1.25;
         public static final double slowMultiplier = 0.5;
-
 
     }
 

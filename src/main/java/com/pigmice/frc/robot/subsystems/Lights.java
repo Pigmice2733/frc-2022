@@ -33,6 +33,8 @@ public class Lights extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
+        if (!enabled) {return;}
+
         for (int i = 0; i < NUM_LEDS; i++) {
             buffer.setRGB(i, 255, 0, 255);
         }

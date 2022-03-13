@@ -6,22 +6,20 @@ package com.pigmice.frc.robot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 
-import com.pigmice.frc.robot.Constants.DrivetrainConfig;
-import com.pigmice.frc.robot.commands.climber.ClimbHigh;
-import com.pigmice.frc.robot.commands.climber.ClimbTraversal;
+import com.pigmice.frc.robot.commands.climber.LiftTo;
+import com.pigmice.frc.robot.commands.climber.RotateTo;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
-import com.pigmice.frc.robot.commands.drivetrain.TurnToAngle;
-import com.pigmice.frc.robot.subsystems.Climber;
+import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
+import com.pigmice.frc.robot.subsystems.Lifty;
+import com.pigmice.frc.robot.subsystems.Rotato;
 import com.pigmice.frc.robot.testmode.Testable;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
@@ -36,11 +34,13 @@ public class RobotContainer {
   private final Drivetrain drivetrain;
   // private final Intake intake;
   // private final Shooter shooter;
-  private final Climber climber;
+  private final Lifty lifty;
+  private final Rotato rotato;
   // private final Lights lights;
   private Controls controls;
 
-  final double epsilon;
+  private XboxController driver;
+  private XboxController operator;
 
   // private final ExampleCommand m_autoCommand = new
   // ExampleCommand(m_exampleSubsystem);
@@ -52,26 +52,30 @@ public class RobotContainer {
     drivetrain = new Drivetrain();
     // intake = new Intake();
     // shooter = new Shooter();
-    climber = new Climber();
+    lifty = new Lifty();
+    rotato = new Rotato();
     // lights = new Lights();
 
-    epsilon = DrivetrainConfig.driveEpsilon;
-
-    XboxController driver = new XboxController(Constants.driverControllerPort);
-    XboxController operator = new XboxController(Constants.operatorControllerPort);
-    // GenericHID pad = new GenericHID(Constants.operatorPadPort);
+    driver = new XboxController(Constants.driverControllerPort);
+    operator = new XboxController(Constants.operatorControllerPort);
     controls = new Controls(driver, operator);
 
     drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
         controls::getDriveSpeed, controls::getTurnSpeed));
 
+    rotato.setDefaultCommand(new RotateTo(rotato, () -> this.rotateOutput, true, () -> true));
+    lifty.setDefaultCommand(new LiftTo(lifty, () -> this.liftOutput, true, () -> true));
+
     // Configure the button bindings
     try {
-      configureButtonBindings(driver, operator, null);
+      configureButtonBindings(driver, operator);
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
+
+  private double rotateOutput = 0.0;
+  private double liftOutput = 0.0;
 
   /**
    * Use this method to define your button -> command mappings. Buttons can be
@@ -80,79 +84,97 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
    * it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings(XboxController driver, XboxController operator, GenericHID pad) {
-    System.out.println("Config Buttons Called");
-
-    // later make this shoot button, run a shooting subroutine that will use
-    // VisionAlignCommand
-    // new JoystickButton(driver, Button.kY.value)
-    // .whenPressed(new InstantCommand(Vision::toggleAlign));
+  private void configureButtonBindings(XboxController driver, XboxController operator) {
 
     // DRIVER CONTROLS
 
-    /*new JoystickButton(driver, Button.kX.value)
-        .whenPressed(new InstantCommand(drivetrain::boost));
-
-    new JoystickButton(driver, Button.kB.value)
-        .whenPressed(new InstantCommand(drivetrain::stopBoost));
-
     new JoystickButton(driver, Button.kY.value)
-        .whenPressed(new InstantCommand(drivetrain::slow));
+        .whenPressed(this.drivetrain::slow)
+        .whenReleased(this.drivetrain::stopSlow);
 
-    new JoystickButton(driver, Button.kA.value)
-        .whenPressed(new InstantCommand(drivetrain::stopSlow));*/
+    // TODO remove these or move them to operator controls
 
-    // Boost with toggle
+    // new JoystickButton(driver, Button.kRightBumper.value)
+    // .whenPressed(new SequentialCommandGroup(
+    // new LiftExtendFully(this.lifty),
+    // new ParallelRaceGroup(new LiftExtendFully(this.lifty, true), new
+    // RotateAway(this.rotato)),
+    // new ParallelRaceGroup(new RotateAway(this.rotato, true), new
+    // WaitCommand(2.0)),
+    // new ParallelRaceGroup(new RotateAway(this.rotato, true), new
+    // LiftRetractFully(this.lifty)),
+    // new ParallelRaceGroup(new LiftRetractFully(this.lifty, true), new
+    // RotateTo(this.rotato, 10))));
 
-    new JoystickButton(driver, Button.kX.value)
-        .whenPressed(new InstantCommand(drivetrain::toggleBoost));
-
-    new JoystickButton(driver, Button.kY.value)
-        .whenPressed(new InstantCommand(drivetrain::toggleSlow));
+    // new JoystickButton(driver, Button.kLeftBumper.value)
+    // .whenPressed(new SequentialCommandGroup(
+    // new LiftRetractFully(this.lifty),
+    // new ParallelRaceGroup(new LiftRetractFully(this.lifty, true), new
+    // RotateAway(this.rotato)),
+    // new ParallelRaceGroup(new RotateAway(this.rotato, true), new
+    // LiftExtendFully(this.lifty)),
+    // new ParallelRaceGroup(new LiftExtendFully(this.lifty, true), new
+    // WaitCommand(2.0)),
+    // new RotateToVertical(this.rotato),
+    // new LiftRetractFully(this.lifty)));
 
     // OPERATOR CONTROLS
 
+    // TODO Create target variables for both rotato and lifty that the default
+    // commands will use
+    // make a double supplier that returns those and pass it in as the target state
+    // for both default commands
+
+    new JoystickButton(operator, Button.kRightBumper.value)
+        .whenPressed(() -> this.liftOutput = 0.30)
+        .whenReleased(() -> this.liftOutput = 0.00);
+
+    new JoystickButton(operator, Button.kLeftBumper.value)
+        .whenPressed(() -> this.liftOutput = -0.30)
+        .whenReleased(() -> this.liftOutput = 0.00);
+
+    // new JoystickButton(operator, Button.kA.value)
+    // .whenPressed(() -> rotato.setTarget(ClimberConfig.maxRotateAngle))
+    // .whenReleased(() -> rotato.setTarget(rotato.getRight().getRotateAngle()));
+
+    // new JoystickButton(operator, Button.kB.value)
+    // .whenPressed(() -> rotato.setTarget(ClimberConfig.minRotateAngle))
+    // .whenReleased(() -> rotato.setTarget(rotato.getRight().getRotateAngle()));
+
     new JoystickButton(operator, Button.kA.value)
-        .whenPressed(new ClimbTraversal(climber));
+        .whenPressed(() -> this.rotateOutput = 0.35)
+        .whenReleased(() -> this.rotateOutput = 0.0);
 
     new JoystickButton(operator, Button.kB.value)
-        .whenPressed(new ClimbHigh(climber));
+        .whenPressed(() -> this.rotateOutput = -0.35)
+        .whenReleased(() -> this.rotateOutput = 0.0);
 
-    new JoystickButton(operator, Button.kLeftStick.value)
-        .whenPressed(new InstantCommand(drivetrain::stop));
+    new JoystickButton(operator, Button.kX.value)
+        .whenPressed(() -> this.rotateOutput = 0.15)
+        .whenReleased(() -> this.rotateOutput = 0.0);
 
-    /*
-     * new JoystickButton(operator, Button.kX.value)
-     * .whenPressed(new ));
-     */
+    new JoystickButton(operator, Button.kY.value)
+        .whenPressed(() -> this.rotateOutput = -0.15)
+        .whenReleased(() -> this.rotateOutput = 0.0);
 
-    /*
-     * new JoystickButton(operator, Button.kY.value)
-     * .whenPressed(new ShootBallCommand(distance, shooter));
-     */
+    new JoystickButton(operator, Button.kStart.value)
+        .whenPressed(new LiftTo(this.lifty, 10.0));
 
-    if (Utils.almostEquals(operator.getRightTriggerAxis(), 1, DrivetrainConfig.driveEpsilon)
-        && Utils.almostEquals(operator.getLeftTriggerAxis(), 1, DrivetrainConfig.driveEpsilon)) {
-      // drivetrain.stop();
-      climber.disable();
-      // intake.disable();
-      // lights.disable();
-      // shooter.disable();
-    }
+    // new JoystickButton(operator, Button.kStart.value)
+    // .whenPressed(new ClimbHigh(lifty, rotato));
 
-    // if (new POVButton(pad, 0).get()) {
-    // shooter.toggle();
-    // } // toggle Shooter with pad up arrow
-    // if (new POVButton(pad, 90).get()) {
-    // climber.toggle();
-    // } // toggle Climber with pad right arrow
-    // if (new POVButton(pad, 180).get()) {
-    // intake.toggle();
-    // } // toggle Intake with pad down arrow
-    // if (new POVButton(pad, 270).get()) {
-    // lights.toggle();
-    // } // toggle Lights with pad left arrow
+    // new JoystickButton(operator, Button.kBack.value)
+    // .whenPressed(new ClimbRung(lifty, rotato));
   }
+
+  // private double getPower() {
+  // return usePower() ? this.rotateOutput : rotato.getTarget();
+  // }
+
+  // private boolean usePower() {
+  // return operator.getAButton() || operator.getBButton() ||
+  // operator.getRightBumper() || operator.getLeftBumper();
+  // }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -160,9 +182,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
-    // return m_autoCommand;
-    return new TurnToAngle(-Math.PI / 2, true, this.drivetrain);
+    return new DriveDistance(1.5, this.drivetrain);
   }
 
   public List<Testable> getTestables() {

@@ -22,7 +22,7 @@ public class TurnToAngle extends ProfiledPIDCommand {
 
         this.drivetrain = drivetrain;
 
-        getController().enableContinuousInput(-Math.PI, Math.PI);
+        getController().enableContinuousInput(-180, 180);
 
         getController().setTolerance(errorThreshold, turnSpeedThreshold);
     }
