@@ -7,18 +7,10 @@ package com.pigmice.frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pigmice.frc.robot.Constants.ClimberConfig;
-import com.pigmice.frc.robot.commands.climber.ClimbHigh;
-import com.pigmice.frc.robot.commands.climber.ClimbRung;
-import com.pigmice.frc.robot.commands.climber.LiftExtendFully;
-import com.pigmice.frc.robot.commands.climber.LiftRetractFully;
 import com.pigmice.frc.robot.commands.climber.LiftTo;
-import com.pigmice.frc.robot.commands.climber.RotateAway;
 import com.pigmice.frc.robot.commands.climber.RotateTo;
-import com.pigmice.frc.robot.commands.climber.RotateToVertical;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
-import com.pigmice.frc.robot.commands.drivetrain.TankDrive;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.subsystems.Lifty;
 import com.pigmice.frc.robot.subsystems.Rotato;
@@ -28,9 +20,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
@@ -153,18 +142,29 @@ public class RobotContainer {
     // .whenReleased(() -> rotato.setTarget(rotato.getRight().getRotateAngle()));
 
     new JoystickButton(operator, Button.kA.value)
-        .whenPressed(() -> this.rotateOutput = 0.15)
+        .whenPressed(() -> this.rotateOutput = 0.35)
         .whenReleased(() -> this.rotateOutput = 0.0);
 
     new JoystickButton(operator, Button.kB.value)
+        .whenPressed(() -> this.rotateOutput = -0.35)
+        .whenReleased(() -> this.rotateOutput = 0.0);
+
+    new JoystickButton(operator, Button.kX.value)
+        .whenPressed(() -> this.rotateOutput = 0.15)
+        .whenReleased(() -> this.rotateOutput = 0.0);
+
+    new JoystickButton(operator, Button.kY.value)
         .whenPressed(() -> this.rotateOutput = -0.15)
         .whenReleased(() -> this.rotateOutput = 0.0);
 
     new JoystickButton(operator, Button.kStart.value)
-        .whenPressed(new ClimbHigh(lifty, rotato));
+        .whenPressed(new LiftTo(this.lifty, 10.0));
 
-    new JoystickButton(operator, Button.kBack.value)
-        .whenPressed(new ClimbRung(lifty, rotato));
+    // new JoystickButton(operator, Button.kStart.value)
+    // .whenPressed(new ClimbHigh(lifty, rotato));
+
+    // new JoystickButton(operator, Button.kBack.value)
+    // .whenPressed(new ClimbRung(lifty, rotato));
   }
 
   // private double getPower() {
