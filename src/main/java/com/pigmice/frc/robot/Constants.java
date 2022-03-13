@@ -93,6 +93,12 @@ public final class Constants {
         public static final double intakeSpeed = 0.75;
     }
 
+    public static class IndexerConfig {
+        public static final int motorPort = 0;
+        public static final boolean motorInverted = false;
+        public static final double velocityThreshold = 10;
+    }
+
     public static final int driverControllerPort = 0;
     public static final int operatorControllerPort = 1;
     public static final int operatorPadPort = 2;
