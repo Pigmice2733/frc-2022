@@ -1,6 +1,6 @@
 package com.pigmice.frc.robot.commands.climber;
 
-import com.pigmice.frc.robot.subsystems.Lifty;
+import com.pigmice.frc.robot.subsystems.climber.Lifty;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 

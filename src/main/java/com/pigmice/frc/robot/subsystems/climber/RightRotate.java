@@ -1,17 +1,17 @@
-package com.pigmice.frc.robot.subsystems;
+package com.pigmice.frc.robot.subsystems.climber;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.pigmice.frc.robot.Constants.ClimberConfig;
 
-public class LeftRotate extends AbstractRotate {
+public class RightRotate extends AbstractRotate {
 
-    public LeftRotate() {
-        super(ClimberConfig.rotateLeftPort, false);
+    public RightRotate() {
+        super(ClimberConfig.rotateRightPort, true);
     }
 
     @Override
     protected void useOutput(double output) {
-        motor.set(ControlMode.PercentOutput, output * 1.10);// + 0.05);
+        motor.set(ControlMode.PercentOutput, -output);
     }
 
     @Override

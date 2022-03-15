@@ -50,23 +50,19 @@ public class Controls {
 }
 
 /*
- * // TODO check with drive team to confirm these
- * 
  * DRIVER
  * arcade drive - left stick Y: drive speed; right stick X: turn speed
  * tank drive - left stick Y: left speed; right stick Y: right speed
  * X button: toggle boost
- * Y button: toggle slow - slow overrites boost
+ * Y button: toggle slow - slow overrides boost
  * 
  * OPERATOR
- * A button: initiate climber sequence to traversal rung
- * B button: initiate climber sequence to high rung
- * X button: climber trigger (if needed)
- * Y button: shoot ball
- * left stick button: stop drivetrain
- * pad up button: toggle shooter
- * pad down button: toggle intake
- * pad left button: toggle lights
- * pad right button: toggle climber
- * LT and RT all the way: disable all systems
+ * RB button: lift arm up
+ * LB button: lift arm down
+ * A button: rotate forward
+ * B button: rotate backward
+ * X button: rotate forward slowly
+ * Y button: rotate backward slowly
+ * RStick button: extend intake
+ * LStick button: retract intake
  */

@@ -3,7 +3,7 @@ package com.pigmice.frc.robot.commands.climber;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-import com.pigmice.frc.robot.subsystems.Lifty;
+import com.pigmice.frc.robot.subsystems.climber.Lifty;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 

@@ -1,4 +1,4 @@
-package com.pigmice.frc.robot.subsystems;
+package com.pigmice.frc.robot.subsystems.climber;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;

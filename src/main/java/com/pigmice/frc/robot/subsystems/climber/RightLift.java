@@ -1,4 +1,4 @@
-package com.pigmice.frc.robot.subsystems;
+package com.pigmice.frc.robot.subsystems.climber;
 
 import com.pigmice.frc.robot.Constants.ClimberConfig;
 

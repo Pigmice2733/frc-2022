@@ -11,9 +11,12 @@ import com.pigmice.frc.robot.commands.climber.LiftTo;
 import com.pigmice.frc.robot.commands.climber.RotateTo;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
+import com.pigmice.frc.robot.commands.intake.ExtendIntake;
+import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
-import com.pigmice.frc.robot.subsystems.Lifty;
-import com.pigmice.frc.robot.subsystems.Rotato;
+import com.pigmice.frc.robot.subsystems.Intake;
+import com.pigmice.frc.robot.subsystems.climber.Lifty;
+import com.pigmice.frc.robot.subsystems.climber.Rotato;
 import com.pigmice.frc.robot.testmode.Testable;
 
 import edu.wpi.first.wpilibj.GenericHID;
@@ -32,7 +35,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Drivetrain drivetrain;
-  // private final Intake intake;
+  private final Intake intake;
   // private final Shooter shooter;
   private final Lifty lifty;
   private final Rotato rotato;
@@ -50,7 +53,7 @@ public class RobotContainer {
    */
   public RobotContainer() {
     drivetrain = new Drivetrain();
-    // intake = new Intake();
+    intake = new Intake();
     // shooter = new Shooter();
     lifty = new Lifty();
     rotato = new Rotato();
@@ -165,6 +168,12 @@ public class RobotContainer {
 
     // new JoystickButton(operator, Button.kBack.value)
     // .whenPressed(new ClimbRung(lifty, rotato));
+
+    new JoystickButton(operator, Button.kRightStick.value)
+      .whenPressed(new ExtendIntake(intake));
+
+    new JoystickButton(operator, Button.kLeftStick.value)
+      .whenPressed(new RetractIntake(intake));
   }
 
   // private double getPower() {

@@ -1,6 +1,6 @@
 package com.pigmice.frc.robot.commands.climber;
 
-import com.pigmice.frc.robot.subsystems.Rotato;
+import com.pigmice.frc.robot.subsystems.climber.Rotato;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 

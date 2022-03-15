@@ -1,4 +1,4 @@
-package com.pigmice.frc.robot.subsystems;
+package com.pigmice.frc.robot.subsystems.climber;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;

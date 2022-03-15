@@ -120,6 +120,17 @@ public final class Constants {
         public static final int intakeTopPort = 1;
 
         public static final double intakeSpeed = 0.75;
+
+        public static final double extendP = 0.01;
+        public static final double extendI = 0.0;
+        public static final double extendD = 0.0;
+
+        public static final double maxExtendVelocity = 5.0;
+        public static final double maxExtendAcceleration = 1.8;
+
+        public static final double maxExtendAngle = 84.0;
+        public static final double extendTolError = 1.0;
+        public static final double extendTolEndVelo = 0.1;
     }
 
     public static class IndexerConfig {
@@ -127,7 +138,6 @@ public final class Constants {
         public static final boolean motorInverted = false;
         public static final double velocityThreshold = 10;
     }
-
     public static final int driverControllerPort = 0;
     public static final int operatorControllerPort = 1;
     public static final int operatorPadPort = 2;

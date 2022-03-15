@@ -4,7 +4,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import com.pigmice.frc.robot.Constants.ClimberProfileConfig;
-import com.pigmice.frc.robot.subsystems.AbstractRotate;
+import com.pigmice.frc.robot.subsystems.climber.AbstractRotate;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
