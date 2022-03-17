@@ -19,8 +19,8 @@ import edu.wpi.first.wpilibj.SPI;
  */
 public final class Constants {
     public static class ShooterConfig {
-        public static final int topMotorPort = 8;
-        public static final int bottomMotorPort = 7;
+        public static final int topMotorPort = 10;
+        public static final int bottomMotorPort = 9;
 
         public static final double topMotorSpeed = 0.62;
         public static final double bottomMotorSpeed = 0.62;
@@ -148,6 +148,21 @@ public final class Constants {
         public static final double angleTolerableError = 3.0;
         public static final double angleTolerableEndVelocity = 1.0;
     }
+
+    public static class VisionConfig {
+        public static final double cameraHeightMeters = 0.8;
+        public static final double targetHeightMeters = 2.38;// Units.inchesToMeters(104); // 8'8"
+        public static final double cameraPitchRadians = 0;
+        public static final double goalRangeMeters = 0.0;
+
+        public static final double rotationP = 0.001;
+        public static final double rotationI = 0.0;
+        public static final double rotationD = 0.0;
+
+        public static final double tolerableError = 0.1;
+        public static final double tolerableEndVelocity = 0.1;
+    }
+
     public static final int driverControllerPort = 0;
     public static final int operatorControllerPort = 1;
     public static final int operatorPadPort = 2;

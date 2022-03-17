@@ -38,6 +38,8 @@ public class Shooter extends SubsystemBase {
     private final NetworkTableEntry topCalculated;
     private final NetworkTableEntry botCalculated;
 
+    private final NetworkTableEntry atTargetEntry;
+
     private final FeedbackDevice feedbackDevice = FeedbackDevice.CTRE_MagEncoder_Absolute;
 
     private static final double RPM_NOT_SET = -1;
@@ -49,7 +51,9 @@ public class Shooter extends SubsystemBase {
     // private static final double MAX_RPS_775 = MAX_RPM_775 / 60;
 
     // tune this
-    private static final double VELOCITY_THRESHOLD = 10;
+    private static final double VELOCITY_THRESHOLD = 100;
+
+    private boolean atTarget = false;
 
     // Create a new Shooter
     public Shooter() {
@@ -75,21 +79,35 @@ public class Shooter extends SubsystemBase {
         this.actualTopRPM = shooterTab.add("Actual Top RPM", 1).getEntry();
         this.actualBottomRPM = shooterTab.add("Actual Bottom RPM", 1).getEntry();
 
-        topCalculated = shooterTab.add("Top Calculated Velocity", 1).getEntry();
-        botCalculated = shooterTab.add("Bottom Calculated Velocity", 1).getEntry();
+        this.topCalculated = shooterTab.add("Top Calculated Velocity", 1).getEntry();
+        this.botCalculated = shooterTab.add("Bottom Calculated Velocity", 1).getEntry();
+
+        this.atTargetEntry = shooterTab.add("At Target", this.atTarget).getEntry();
     }
 
-    public void enable() {setEnabled(true);}
-    public void disable() {setEnabled(false);}
-    public void toggle() {this.setEnabled(!this.enabled);}
-    public void setEnabled(boolean enabled) {this.enabled = enabled;}
-    
+    public void enable() {
+        setEnabled(true);
+    }
+
+    public void disable() {
+        setEnabled(false);
+    }
+
+    public void toggle() {
+        this.setEnabled(!this.enabled);
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     @Override
     public void periodic() {
         if (!enabled)
             this.setTargetSpeeds(0, 0);
         else
-            this.setTargetSpeeds(2000, 1750);
+            this.setTargetSpeeds(2600, 2300);
+        // this.setTargetSpeeds(2000, 1750);
 
         double topRPM = this.topTargetRPM == RPM_NOT_SET ? this.topRPMEntry.getDouble(ShooterConfig.topMotorSpeed)
                 : this.topTargetRPM;
@@ -99,7 +117,6 @@ public class Shooter extends SubsystemBase {
         // this.setTargetSpeeds(1600, 1800);
         // from fender
         // this.setTargetSpeeds(900, 2400);
-        this.setTargetSpeeds(900, 0);
         double topVelocity = topMotor.getSelectedSensorVelocity();
         double botVelocity = botMotor.getSelectedSensorVelocity();
 
@@ -118,6 +135,11 @@ public class Shooter extends SubsystemBase {
         topCalculated.setDouble(topTarget);
         botCalculated.setDouble(botTarget);
 
+        this.atTarget = Math.abs(topRPM - topActualRPM) <= VELOCITY_THRESHOLD
+                && Math.abs(botRPM - botActualRPM) <= VELOCITY_THRESHOLD;
+
+        this.atTargetEntry.setBoolean(this.atTarget);
+
         topMotor.set(ControlMode.PercentOutput, topTarget);
         botMotor.set(ControlMode.PercentOutput, botTarget);
     }
@@ -133,6 +155,7 @@ public class Shooter extends SubsystemBase {
         this.botController.setTargetRPM(bottom);
         this.topTargetRPM = top;
         this.botTargetRPM = bottom;
+        this.atTarget = false;
     }
 
     /**
@@ -146,11 +169,11 @@ public class Shooter extends SubsystemBase {
         this.topTargetRPM = this.botTargetRPM = 0;
         this.topController.setTargetRPM(0);
         this.botController.setTargetRPM(0);
+        this.atTarget = false;
     }
 
     public boolean isAtTargetVelocity() {
-        return this.topMotor.getClosedLoopError() <= VELOCITY_THRESHOLD
-                && this.botMotor.getClosedLoopError() <= VELOCITY_THRESHOLD;
+        return this.atTarget;
     }
 
     private double calculate(double velocity) {
