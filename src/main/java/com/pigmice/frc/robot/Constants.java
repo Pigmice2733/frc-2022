@@ -134,9 +134,19 @@ public final class Constants {
     }
 
     public static class IndexerConfig {
-        public static final int motorPort = 0;
+        public static final int motorPort = 13;
         public static final boolean motorInverted = false;
-        public static final double velocityThreshold = 10;
+        public static final double gearRatio = 1;
+
+        public static final double intakeP = 0.01;
+        public static final double intakeI = 0;
+        public static final double intakeD = 0;
+
+        public static final double maxRotateVelocity = 50.0;
+        public static final double maxRotateAcceleration = 50.0;
+
+        public static final double angleTolerableError = 3.0;
+        public static final double angleTolerableEndVelocity = 1.0;
     }
     public static final int driverControllerPort = 0;
     public static final int operatorControllerPort = 1;

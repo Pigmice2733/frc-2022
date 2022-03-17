@@ -6,7 +6,9 @@ package com.pigmice.frc.robot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
+import com.pigmice.frc.robot.commands.Indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.climber.LiftTo;
 import com.pigmice.frc.robot.commands.climber.RotateTo;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
@@ -14,7 +16,9 @@ import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
+import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
+import com.pigmice.frc.robot.subsystems.Shooter;
 import com.pigmice.frc.robot.subsystems.climber.Lifty;
 import com.pigmice.frc.robot.subsystems.climber.Rotato;
 import com.pigmice.frc.robot.testmode.Testable;
@@ -23,6 +27,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
@@ -36,11 +41,12 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Drivetrain drivetrain;
   private final Intake intake;
-  // private final Shooter shooter;
+  private final Shooter shooter;
   private final Lifty lifty;
   private final Rotato rotato;
   // private final Lights lights;
-  private Controls controls;
+  private final Controls controls;
+  private final Indexer indexer;
 
   private XboxController driver;
   private XboxController operator;
@@ -54,10 +60,11 @@ public class RobotContainer {
   public RobotContainer() {
     drivetrain = new Drivetrain();
     intake = new Intake();
-    // shooter = new Shooter();
+    shooter = new Shooter();
     lifty = new Lifty();
     rotato = new Rotato();
     // lights = new Lights();
+    indexer = new Indexer();
 
     driver = new XboxController(Constants.driverControllerPort);
     operator = new XboxController(Constants.operatorControllerPort);
@@ -66,8 +73,8 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
         controls::getDriveSpeed, controls::getTurnSpeed));
 
-    rotato.setDefaultCommand(new RotateTo(rotato, () -> this.rotateOutput, true, () -> true));
-    lifty.setDefaultCommand(new LiftTo(lifty, () -> this.liftOutput, true, () -> true));
+    //rotato.setDefaultCommand(new RotateTo(rotato, () -> this.rotateOutput, true, () -> true));
+    //lifty.setDefaultCommand(new LiftTo(lifty, () -> this.liftOutput, true, () -> true));
 
     // Configure the button bindings
     try {
@@ -94,6 +101,16 @@ public class RobotContainer {
     new JoystickButton(driver, Button.kY.value)
         .whenPressed(this.drivetrain::slow)
         .whenReleased(this.drivetrain::stopSlow);
+
+    /*new JoystickButton(driver, Button.kA.value)
+        .whenPressed(this.indexer::enable)
+        .whenReleased(this.indexer::disable);*/
+
+      new JoystickButton(driver, Button.kA.value)
+        .whenPressed(new SpinIndexerToAngle(indexer, 90, false));
+
+  
+      
 
     // TODO remove these or move them to operator controls
 
@@ -160,8 +177,8 @@ public class RobotContainer {
         .whenPressed(() -> this.rotateOutput = -0.15)
         .whenReleased(() -> this.rotateOutput = 0.0);
 
-    new JoystickButton(operator, Button.kStart.value)
-        .whenPressed(new LiftTo(this.lifty, 10.0));
+    //new JoystickButton(operator, Button.kStart.value)
+    //    .whenPressed(new LiftTo(this.lifty, 10.0));
 
     // new JoystickButton(operator, Button.kStart.value)
     // .whenPressed(new ClimbHigh(lifty, rotato));
