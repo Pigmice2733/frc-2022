@@ -21,7 +21,8 @@ public class Indexer extends SubsystemBase {
   ShuffleboardTab indexerTab;
   NetworkTableEntry enabledEntry;
   NetworkTableEntry motorOutputEntry;
-  NetworkTableEntry encoderPositionEntry;
+  //NetworkTableEntry encoderPositionEntry;
+  NetworkTableEntry rotateAngleEntry;
   
   /** Creates a new Indexer. */
   public Indexer() {
@@ -31,26 +32,24 @@ public class Indexer extends SubsystemBase {
     this.indexerTab = Shuffleboard.getTab("Indexer");
     this.enabledEntry = indexerTab.add("Enabled", enabled).getEntry();
     this.motorOutputEntry = indexerTab.add("Motor Output", 0).getEntry();
-    this.encoderPositionEntry = indexerTab.add("Encoder Position", 0).getEntry();
+    //this.encoderPositionEntry = indexerTab.add("Encoder Position", 0).getEntry();
+    this.rotateAngleEntry = indexerTab.add("Encoder Rotate Angle", 0).getEntry();
   }
 
   public void enable() {setEnabled(true);}
   public void disable() {setEnabled(false);}
   public void toggle() {this.setEnabled(!this.enabled);}
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-    enabledEntry.setBoolean(enabled);
-  }
+  public void setEnabled(boolean enabled) {this.enabled = enabled; enabledEntry.setBoolean(enabled);}
 
   @Override
   public void periodic() {
-    if (enabled) {
+    /*if (enabled) {
       setMotorOutput(0.25);
       encoderPositionEntry.setDouble(getEncoderPosition());
     }
     else {
       stopMotor();
-    }
+    }*/
   }
 
   public void setMotorOutput(double output) {
@@ -68,7 +67,9 @@ public class Indexer extends SubsystemBase {
   }
 
   public double getRotateAngle() {
-    return (this.getEncoderPosition() / 4096.0) * 360.0;
+    double rotateAngle = (this.getEncoderPosition() / 4096.0) * 360.0;
+    rotateAngleEntry.setDouble(rotateAngle);
+    return rotateAngle;
   }
 
   public void resetEncoder() {

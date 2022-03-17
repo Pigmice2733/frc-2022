@@ -30,7 +30,6 @@ public class SpinIndexerToAngle extends ProfiledPIDCommand {
                 angle,
                 (output, setpoint) -> {
                     indexer.setMotorOutput(output);
-
                     System.out.println(output + " " + indexer.getRotateAngle());
                 },
                 indexer);

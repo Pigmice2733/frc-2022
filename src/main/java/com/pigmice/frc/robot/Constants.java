@@ -134,7 +134,7 @@ public final class Constants {
     }
 
     public static class IndexerConfig {
-        public static final int motorPort = 13;
+        public static final int motorPort = 11;
         public static final boolean motorInverted = false;
         public static final double gearRatio = 1;
 
