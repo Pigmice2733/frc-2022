@@ -17,25 +17,16 @@ import com.pigmice.frc.robot.Constants.IndexerConfig;
 import com.revrobotics.ColorSensorV3;
 
 public class Indexer extends SubsystemBase {
-  private boolean enabled;
+  private boolean enabled = true;
   private TalonSRX motor;
 
   private ColorSensorV3 colorSensor;
 
-  private static final double RPM_NOT_SET = -1;
-  private double targetRPM = RPM_NOT_SET;
-
-  private final double INDEXER_KP = .01D;
-  private final double INDEXER_KS = 0;
-  private final double INDEXER_KV = .5;
-
   private ShuffleboardTab indexerTab;
   private NetworkTableEntry enabledEntry;
   private NetworkTableEntry motorOutputEntry;
-  private NetworkTableEntry encoderPositionEntry;
-
-  private NetworkTableEntry setRPM;
-  private NetworkTableEntry actualRPM;
+  //private NetworkTableEntry encoderPositionEntry;
+  private NetworkTableEntry rotateAngleEntry;
 
   private NetworkTableEntry rEntry;
   private NetworkTableEntry gEntry;
@@ -55,10 +46,8 @@ public class Indexer extends SubsystemBase {
     this.indexerTab = Shuffleboard.getTab("Indexer");
     this.enabledEntry = indexerTab.add("Enabled", enabled).getEntry();
     this.motorOutputEntry = indexerTab.add("Motor Output", 0).getEntry();
-    this.encoderPositionEntry = indexerTab.add("Encoder Position", 0).getEntry();
-
-    this.setRPM = indexerTab.add("Indexer Set RPM", 1).getEntry();
-    this.actualRPM = indexerTab.add("Indexer Actual RPM", 1).getEntry();
+    //this.encoderPositionEntry = indexerTab.add("Encoder Position", 0).getEntry();
+    this.rotateAngleEntry = indexerTab.add("Rotate Angle", 0).getEntry();
 
     this.rEntry = indexerTab.add("Color R", 0.0).getEntry();
     this.gEntry = indexerTab.add("Color G", 0.0).getEntry();
@@ -84,6 +73,10 @@ public class Indexer extends SubsystemBase {
     enabledEntry.setBoolean(enabled);
   }
 
+  public boolean isEnabled() {
+    return enabled;
+  }
+
   @Override
   public void periodic() {
     Color color = colorSensor.getColor();
@@ -93,15 +86,21 @@ public class Indexer extends SubsystemBase {
     irEntry.setDouble(colorSensor.getIR());
     proximityEntry.setDouble(colorSensor.getProximity());
 
-    if (enabled) {
+    /*if (enabled) {
       setMotorOutput(0.25);
       encoderPositionEntry.setDouble(getEncoderPosition());
     } else {
       stopMotor();
     }*/
+    //motor.set(ControlMode.PercentOutput, 0.5);
   }
 
   public void setMotorOutput(double output) {
+    if (!enabled) {
+      motor.set(ControlMode.PercentOutput, 0);
+      motorOutputEntry.setDouble(0);
+      return;
+    }
     motor.set(ControlMode.PercentOutput, output);
     motorOutputEntry.setDouble(output);
   }
@@ -110,10 +109,8 @@ public class Indexer extends SubsystemBase {
     setMotorOutput(0);
   }
 
-  private double encoderResetPosition = 0;
-
   public double getEncoderPosition() {
-    return motor.getSelectedSensorPosition() - encoderResetPosition;
+    return motor.getSelectedSensorPosition();
   }
 
   public double getRotateAngle() {

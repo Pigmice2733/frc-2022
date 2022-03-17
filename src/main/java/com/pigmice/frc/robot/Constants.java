@@ -138,12 +138,12 @@ public final class Constants {
         public static final boolean motorInverted = false;
         public static final double gearRatio = 1;
 
-        public static final double intakeP = 0.01;
-        public static final double intakeI = 0;
-        public static final double intakeD = 0;
+        public static final double kP = 0.01;
+        public static final double kI = 0.0015;
+        public static final double kD = 0;
 
         public static final double maxRotateVelocity = 50.0;
-        public static final double maxRotateAcceleration = 50.0;
+        public static final double maxRotateAcceleration = 50000.0;
 
         public static final double angleTolerableError = 3.0;
         public static final double angleTolerableEndVelocity = 1.0;

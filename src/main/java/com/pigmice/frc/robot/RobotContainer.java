@@ -7,6 +7,8 @@ package com.pigmice.frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pigmice.frc.robot.commands.Indexer.SpinIndexerToAngle;
+import com.pigmice.frc.robot.commands.Indexer.SpinIndexerToAngleOld;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
@@ -114,11 +116,23 @@ public class RobotContainer {
         .whenPressed(new SequentialCommandGroup(
             new InstantCommand(() -> this.shooter.enable()),
             new WaitUntilCommand(this.shooter::isAtTargetVelocity),
-            new InstantCommand(() -> this.indexer.enable())))
+            new InstantCommand(() -> this.indexer.resetEncoder()),
+            new InstantCommand(() -> this.indexer.enable()),
+            new SpinIndexerToAngle(indexer, 200, false),
+            new WaitUntilCommand(this.shooter::isAtTargetVelocity),
+            new InstantCommand(() -> this.indexer.resetEncoder()),
+            new InstantCommand(() -> this.indexer.enable()),
+            new SpinIndexerToAngle(indexer, 200, false)))
+            
         .whenReleased(() -> {
           this.shooter.disable();
           this.indexer.disable();
         });
+
+    new JoystickButton(driver, Button.kX.value)
+      .whenPressed(indexer::resetEncoder)
+      .whenPressed(indexer::enable)
+      .whenPressed(new SpinIndexerToAngleOld(indexer, 360, false));
 
     // TODO remove these or move them to operator controls
 
