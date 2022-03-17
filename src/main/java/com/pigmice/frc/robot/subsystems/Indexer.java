@@ -72,7 +72,7 @@ public class Indexer extends SubsystemBase {
   }
 
   public void resetEncoder() {
-    encoderResetPosition = motor.getSelectedSensorPosition();
+    motor.setSelectedSensorPosition(0);
   }
 
   @Override

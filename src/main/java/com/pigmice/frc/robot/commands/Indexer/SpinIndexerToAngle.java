@@ -34,7 +34,6 @@ public class SpinIndexerToAngle extends ProfiledPIDCommand {
                     System.out.println(output + " " + indexer.getRotateAngle());
                 },
                 indexer);
-            
         this.indexer = indexer;
         this.infinite = infinite;
 

@@ -107,6 +107,7 @@ public class RobotContainer {
         .whenReleased(this.indexer::disable);*/
 
       new JoystickButton(driver, Button.kA.value)
+        .whenPressed(this.indexer::resetEncoder)
         .whenPressed(new SpinIndexerToAngle(indexer, 90, false));
 
   
