@@ -62,7 +62,7 @@ public class RotateOneTo extends ProfiledPIDCommand {
                 rotato::getRotateAngle,
                 angle,
                 (output, setpoint) -> {
-                    System.out.println("ROTATE MOTOR OUTPUT " + output);
+                    // System.out.println("ROTATE MOTOR OUTPUT " + output);
                     rotato.setOutput(orPower.getAsBoolean() ? angle.getAsDouble() : output);
                 },
                 rotato);
@@ -83,11 +83,11 @@ public class RotateOneTo extends ProfiledPIDCommand {
 
     @Override
     public boolean isFinished() {
-        System.out.println(
-                "ROTATE | DISTANCE FROM SETPOINT: "
-                        + (getController().getSetpoint().position - rotato.getRotateAngle())
-                        + " SETPOINT: " + getController().getSetpoint().position + " | AT SETPOINT? "
-                        + getController().atGoal());
+        // System.out.println(
+        // "ROTATE | DISTANCE FROM SETPOINT: "
+        // + (getController().getSetpoint().position - rotato.getRotateAngle())
+        // + " SETPOINT: " + getController().getSetpoint().position + " | AT SETPOINT? "
+        // + getController().atGoal());
         return !this.infinite && getController().atGoal();
     }
 }
