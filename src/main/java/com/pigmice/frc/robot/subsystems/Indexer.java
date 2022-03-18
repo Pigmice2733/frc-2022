@@ -12,27 +12,40 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.pigmice.frc.robot.Utils;
+import com.pigmice.frc.robot.RPMPController;
 import com.pigmice.frc.robot.Constants.IndexerConfig;
 import com.revrobotics.ColorSensorV3;
 
 public class Indexer extends SubsystemBase {
   private boolean enabled = true;
+  private boolean freeSpinEnabled = true;
   private TalonSRX motor;
 
   private ColorSensorV3 colorSensor;
 
-  private ShuffleboardTab indexerTab;
-  private NetworkTableEntry enabledEntry;
-  private NetworkTableEntry motorOutputEntry;
-  //private NetworkTableEntry encoderPositionEntry;
-  private NetworkTableEntry rotateAngleEntry;
+  private final ShuffleboardTab indexerTab;
+  private final NetworkTableEntry enabledEntry;
+  private final NetworkTableEntry freeSpinEnabledEntry;
+  private final NetworkTableEntry motorOutputEntry;
+  private final NetworkTableEntry rotateAngleEntry;
+  private final NetworkTableEntry targetRPMEntry;
+  private final NetworkTableEntry currentRPMEntry;
+  private final NetworkTableEntry atTargetEntry;
 
-  private NetworkTableEntry rEntry;
-  private NetworkTableEntry gEntry;
-  private NetworkTableEntry bEntry;
-  private NetworkTableEntry irEntry;
-  private NetworkTableEntry proximityEntry;
+  private final NetworkTableEntry rEntry;
+  private final NetworkTableEntry gEntry;
+  private final NetworkTableEntry bEntry;
+  private final NetworkTableEntry irEntry;
+  private final NetworkTableEntry proximityEntry;
+
+  // RPM stuff for free spin
+  double targetRPM = 0;
+  private final RPMPController rpmpController = new RPMPController(IndexerConfig.freeSpin_kP, 0.25);
+  private final FeedbackDevice feedbackDevice = FeedbackDevice.CTRE_MagEncoder_Absolute;
+  private boolean atTarget;
 
   /** Creates a new Indexer. */
   public Indexer() {
@@ -40,14 +53,18 @@ public class Indexer extends SubsystemBase {
     this.motor.setInverted(IndexerConfig.motorInverted);
 
     this.motor.setSensorPhase(true);
+    this.motor.configSelectedFeedbackSensor(feedbackDevice);
 
     this.colorSensor = new ColorSensorV3(Port.kOnboard);
 
     this.indexerTab = Shuffleboard.getTab("Indexer");
     this.enabledEntry = indexerTab.add("Enabled", enabled).getEntry();
+    this.freeSpinEnabledEntry = indexerTab.add("Free Spin Enabled", freeSpinEnabled).getEntry();
     this.motorOutputEntry = indexerTab.add("Motor Output", 0).getEntry();
-    //this.encoderPositionEntry = indexerTab.add("Encoder Position", 0).getEntry();
     this.rotateAngleEntry = indexerTab.add("Rotate Angle", 0).getEntry();
+    this.targetRPMEntry = indexerTab.add("Target RPM", targetRPM).getEntry();
+    this.currentRPMEntry = indexerTab.add("Current RPM", 0).getEntry();
+    this.atTargetEntry = indexerTab.add("At Target RPM", false).getEntry();
 
     this.rEntry = indexerTab.add("Color R", 0.0).getEntry();
     this.gEntry = indexerTab.add("Color G", 0.0).getEntry();
@@ -56,22 +73,15 @@ public class Indexer extends SubsystemBase {
     this.proximityEntry = indexerTab.add("Color Proximity", 0.0).getEntry();
   }
 
-  public void enable() {
-    setEnabled(true);
-  }
+  public void enable() {setEnabled(true);}
+  public void disable() {setEnabled(false);}
+  public void toggle() {setEnabled(!this.enabled);}
+  public void setEnabled(boolean enabled) {this.enabled = enabled; enabledEntry.setBoolean(enabled);}
 
-  public void disable() {
-    setEnabled(false);
-  }
-
-  public void toggle() {
-    this.setEnabled(!this.enabled);
-  }
-
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-    enabledEntry.setBoolean(enabled);
-  }
+  public void enableFreeSpin() {setFreeSpin(true);}
+  public void disableFreeSpin() {setFreeSpin(false);}
+  public void toggleFreeSpin() {setFreeSpin(!freeSpinEnabled);}
+  public void setFreeSpin(boolean freeSpinEnabled) {this.freeSpinEnabled = freeSpinEnabled; freeSpinEnabledEntry.setBoolean(enabled);}
 
   public boolean isEnabled() {
     return enabled;
@@ -86,13 +96,29 @@ public class Indexer extends SubsystemBase {
     irEntry.setDouble(colorSensor.getIR());
     proximityEntry.setDouble(colorSensor.getProximity());
 
-    /*if (enabled) {
-      setMotorOutput(0.25);
-      encoderPositionEntry.setDouble(getEncoderPosition());
-    } else {
-      stopMotor();
-    }*/
-    //motor.set(ControlMode.PercentOutput, 0.5);
+    if (!enabled)
+      return;
+
+    if (!freeSpinEnabled)
+      return;
+
+      this.setTargetSpeed(200);
+
+  // from tarmac edge
+  // this.setTargetSpeeds(1600, 1800);
+  // from fender
+  // this.setTargetSpeeds(900, 2400);
+  double vecocity = motor.getSelectedSensorVelocity();
+
+  double actualRPM = Utils.calculateRPM(vecocity, feedbackDevice);
+  currentRPMEntry.setDouble(actualRPM);
+
+  double motorOutputTarget = rpmpController.update(actualRPM);
+
+  this.atTarget = Math.abs(targetRPM - actualRPM) <= IndexerConfig.velocityThreshold;
+  this.atTargetEntry.setBoolean(this.atTarget);
+
+  setMotorOutput(motorOutputTarget);
   }
 
   public void setMotorOutput(double output) {
@@ -121,6 +147,15 @@ public class Indexer extends SubsystemBase {
 
   public void resetEncoder() {
     motor.setSelectedSensorPosition(0);
+  }
+
+  // Functions for free spin
+  public void setTargetSpeed(double targetRPM) {
+    this.targetRPM = targetRPM;
+  }
+
+  public boolean isAtTargetVelocity() {
+    return targetRPM != 0 && this.atTarget;
   }
 
   @Override

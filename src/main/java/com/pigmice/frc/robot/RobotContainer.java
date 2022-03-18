@@ -129,7 +129,8 @@ public class RobotContainer {
           this.shooter.disable();
           this.indexer.disable();
         });*/
-
+        
+        // Call ShootBallCommand Until Released
         new JoystickButton(driver, Button.kA.value)
         .whileHeld(
           new ShootBallCommand(shooter, indexer)

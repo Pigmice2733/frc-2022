@@ -142,11 +142,17 @@ public final class Constants {
         public static final double kI = 0.0015;
         public static final double kD = 0;
 
+        public static final double freeSpin_kP = 0.2;
+        public static final double freeSpin_kS = 0;
+        public static final double freeSpinP_kV = 0.5;
+
         public static final double maxRotateVelocity = 50.0;
         public static final double maxRotateAcceleration = 50000.0;
 
         public static final double angleTolerableError = 3.0;
         public static final double angleTolerableEndVelocity = 1.0;
+
+        public static final double velocityThreshold = 100;
     }
 
     public static class VisionConfig {
