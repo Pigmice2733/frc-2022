@@ -30,6 +30,11 @@ public class ExtendIntake extends ProfiledPIDCommand {
     }
 
     @Override
+    public void initialize() {
+        intake.motorExtend.setSelectedSensorPosition(0.0);
+    }
+
+    @Override
     public void end(boolean interrupted) {
         intake.setExtendSpeed(0.0);
         intake.extend();
