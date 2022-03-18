@@ -33,21 +33,10 @@ public class Intake extends SubsystemBase {
         this.extended = false;
     }
 
-    public void enable() {
-        setEnabled(true);
-    }
-
-    public void disable() {
-        setEnabled(false);
-    }
-
-    public void toggle() {
-        this.setEnabled(!this.enabled);
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+    public void enable() {setEnabled(true);}
+    public void disable() {setEnabled(false);}
+    public void toggle() {this.setEnabled(!this.enabled);}
+    public void setEnabled(boolean enabled) {this.enabled = enabled;}
 
     @Override
     public void periodic() {
@@ -86,15 +75,7 @@ public class Intake extends SubsystemBase {
         this.extendSpeed = speed;
     }
 
-    public void runForward() {
-        this.runDirection = 1;
-    }
-
-    public void runBackward() {
-        this.runDirection = -1;
-    }
-
-    public void switchRunDirection() {
-        runDirection *= -1;
-    }
+    public void runForward() {this.runDirection = 1;}
+    public void runBackward() {this.runDirection = -1;}
+    public void switchRunDirection() {runDirection *= -1;}
 }
