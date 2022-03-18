@@ -1,10 +1,10 @@
 package com.pigmice.frc.robot;
 
-/* import java.util.LinkedList;
-import java.util.Queue; */
+import java.util.Deque;
+import java.util.ArrayDeque;
 
 //this here class is to find where yo ballz at
-public class BallTracker{
+public class BallTracker {
     Deque<BallColor> balls = new ArrayDeque<BallColor>();
 
     public void newBall(BallColor color) {
@@ -21,7 +21,7 @@ public class BallTracker{
         if (spotNumber == 0) {
             return balls.getFirst();
         } else {
-            if(balls.size() == 2){
+            if (balls.size() == 2) {
                 return balls.getLast();
             } else {
                 return BallColor.NONE;
@@ -29,11 +29,11 @@ public class BallTracker{
         }
     }
 
-    public boolean holdingColor(BallColor color){
+    public boolean holdingColor(BallColor color) {
         return balls.contains(color);
     }
 
     public enum BallColor {
-        RED,BLUE,NONE
+        RED, BLUE, NONE
     }
 }

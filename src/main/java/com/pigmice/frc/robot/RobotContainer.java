@@ -14,13 +14,14 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pigmice.frc.robot.subsystems.Climber;
+/* import com.pigmice.frc.robot.subsystems.Climber;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.subsystems.Intake;
-import com.pigmice.frc.robot.subsystems.Lights;
+import com.pigmice.frc.robot.subsystems.Lights; */
 import com.pigmice.frc.robot.subsystems.Shooter;
 import com.pigmice.frc.robot.testmode.Testable;
-import com.pigmice.frc.robot.Controls;
+/* import com.pigmice.frc.robot.Controls;
+import com.pigmice.frc.robot.commands.ShootBallCommand; */
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -33,13 +34,13 @@ import com.pigmice.frc.robot.Controls;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  //private final Drivetrain drivetrain = new Drivetrain();
-  private final Intake intake = new Intake();
+  // private final Drivetrain drivetrain = new Drivetrain();
+  // private final Intake intake = new Intake();
   private final Shooter shooter = new Shooter();
-  private final Climber climber = new Climber();
-  private final Lights lights = new Lights();
+  // private final Climber climber = new Climber();
+  // private final Lights lights = new Lights();
 
-  private Controls controls;
+  // private Controls controls;
 
   // private final ExampleCommand m_autoCommand = new
   // ExampleCommand(m_exampleSubsystem);
@@ -51,7 +52,7 @@ public class RobotContainer {
     XboxController driver = new XboxController(Constants.driverControllerPort);
     XboxController operator = new XboxController(Constants.operatorControllerPort);
 
-    controls = new Controls(driver, operator);
+    // controls = new Controls(driver, operator);
 
     // Configure the button bindings
     try {

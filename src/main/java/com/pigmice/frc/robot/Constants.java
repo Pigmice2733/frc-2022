@@ -21,8 +21,9 @@ import edu.wpi.first.wpilibj.SPI.Port;
  */
 public final class Constants {
     public static class ShooterConfig {
-        public static final int topMotorPort = 8;
-        public static final int bottomMotorPort = 7;
+        public static final int topMotorPort = 1;
+        public static final int bottomMotorPort = 2;
+        public static final int indexerport = 3;
 
         public static final double topMotorSpeed = 0.62;
         public static final double bottomMotorSpeed = 0.62;
