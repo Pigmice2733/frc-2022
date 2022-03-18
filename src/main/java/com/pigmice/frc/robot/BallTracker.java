@@ -1,43 +1,39 @@
 package com.pigmice.frc.robot;
 
-import java.util.LinkedList;
+import java.util.Deque;
+import java.util.ArrayDeque;
 
-// this here class is to find where yo ballz at
+//this here class is to find where yo ballz at
 public class BallTracker {
+    Deque<BallColor> balls = new ArrayDeque<BallColor>();
 
-    private static final int SIZE = 2;
+    public void newBall(BallColor color) {
+        balls.add(color);
+    }
 
-    LinkedList<BallType> balls = new LinkedList<>();
+    public void ballLaunched() {
+        balls.removeFirst();
+    }
 
-    /**
-     * Adds a ball to the queue. Used when a ball has been collected.
-     */
-    public void newBallStored(BallType color) {
-        if (!isFull()) {
-            balls.add(color);
+    // return the color of ball in a spot. 0 is the next one to be shot, 1 is the
+    // second one to be shot
+    public BallColor getCompartment(int spotNumber) {
+        if (spotNumber == 0) {
+            return balls.getFirst();
+        } else {
+            if (balls.size() == 2) {
+                return balls.getLast();
+            } else {
+                return BallColor.NONE;
+            }
         }
     }
 
-    /**
-     * Removes the ball at the head of the queue. Used when a ball is shot.
-     */
-    public BallType ballLaunched() {
-        return balls.isEmpty() ? BallType.NONE : balls.poll();
+    public boolean holdingColor(BallColor color) {
+        return balls.contains(color);
     }
 
-    /**
-     * Returns the ball in a specific position in the indexer.
-     */
-    public BallType getBallInPosition(int slot) {
-        // BallType.NONE should never be in the queue
-        return balls.size() > slot ? balls.get(slot) : BallType.NONE;
-    }
-
-    public boolean isFull() {
-        return balls.size() >= SIZE;
-    }
-
-    enum BallType {
+    public enum BallColor {
         RED, BLUE, NONE
     }
 }

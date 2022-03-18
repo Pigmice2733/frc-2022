@@ -25,7 +25,7 @@ public class Indexer extends SubsystemBase {
   private ShuffleboardTab indexerTab;
   private NetworkTableEntry enabledEntry;
   private NetworkTableEntry motorOutputEntry;
-  //private NetworkTableEntry encoderPositionEntry;
+  // private NetworkTableEntry encoderPositionEntry;
   private NetworkTableEntry rotateAngleEntry;
 
   private NetworkTableEntry rEntry;
@@ -46,7 +46,7 @@ public class Indexer extends SubsystemBase {
     this.indexerTab = Shuffleboard.getTab("Indexer");
     this.enabledEntry = indexerTab.add("Enabled", enabled).getEntry();
     this.motorOutputEntry = indexerTab.add("Motor Output", 0).getEntry();
-    //this.encoderPositionEntry = indexerTab.add("Encoder Position", 0).getEntry();
+    // this.encoderPositionEntry = indexerTab.add("Encoder Position", 0).getEntry();
     this.rotateAngleEntry = indexerTab.add("Rotate Angle", 0).getEntry();
 
     this.rEntry = indexerTab.add("Color R", 0.0).getEntry();
@@ -86,13 +86,15 @@ public class Indexer extends SubsystemBase {
     irEntry.setDouble(colorSensor.getIR());
     proximityEntry.setDouble(colorSensor.getProximity());
 
-    /*if (enabled) {
-      setMotorOutput(0.25);
-      encoderPositionEntry.setDouble(getEncoderPosition());
-    } else {
-      stopMotor();
-    }*/
-    //motor.set(ControlMode.PercentOutput, 0.5);
+    /*
+     * if (enabled) {
+     * setMotorOutput(0.25);
+     * encoderPositionEntry.setDouble(getEncoderPosition());
+     * } else {
+     * stopMotor();
+     * }
+     */
+    // motor.set(ControlMode.PercentOutput, 0.5);
   }
 
   public void setMotorOutput(double output) {

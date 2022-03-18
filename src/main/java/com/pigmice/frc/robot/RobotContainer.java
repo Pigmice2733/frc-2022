@@ -7,7 +7,6 @@ package com.pigmice.frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pigmice.frc.robot.commands.Indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.Indexer.SpinIndexerToAngleOld;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
@@ -15,18 +14,21 @@ import com.pigmice.frc.robot.commands.shooter.ShootBallCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
+/* import com.pigmice.frc.robot.subsystems.Climber;
+import com.pigmice.frc.robot.subsystems.Drivetrain;
+import com.pigmice.frc.robot.subsystems.Indexer;
+import com.pigmice.frc.robot.subsystems.Intake;
+import com.pigmice.frc.robot.subsystems.Lights; */
 import com.pigmice.frc.robot.subsystems.Shooter;
 import com.pigmice.frc.robot.subsystems.climber.Lifty;
 import com.pigmice.frc.robot.subsystems.climber.Rotato;
 import com.pigmice.frc.robot.testmode.Testable;
+/* import com.pigmice.frc.robot.Controls;
+import com.pigmice.frc.robot.commands.ShootBallCommand; */
 
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.XboxController.*;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
@@ -113,36 +115,37 @@ public class RobotContainer {
     // .whenPressed(this.indexer::resetEncoder)
     // .whenPressed(new SpinIndexerToAngle(indexer, 90, false));
 
-    /*new JoystickButton(driver, Button.kA.value)
-        .whenPressed(new SequentialCommandGroup(
-            new InstantCommand(() -> this.shooter.enable()),
-            new WaitUntilCommand(this.shooter::isAtTargetVelocity),
-            new InstantCommand(() -> this.indexer.resetEncoder()),
-            new InstantCommand(() -> this.indexer.enable()),
-            new SpinIndexerToAngle(indexer, 200, false),
-            new WaitUntilCommand(this.shooter::isAtTargetVelocity),
-            new InstantCommand(() -> this.indexer.resetEncoder()),
-            new InstantCommand(() -> this.indexer.enable()),
-            new SpinIndexerToAngle(indexer, 200, false)))
-            
-        .whenReleased(() -> {
-          this.shooter.disable();
-          this.indexer.disable();
-        });*/
+    /*
+     * new JoystickButton(driver, Button.kA.value)
+     * .whenPressed(new SequentialCommandGroup(
+     * new InstantCommand(() -> this.shooter.enable()),
+     * new WaitUntilCommand(this.shooter::isAtTargetVelocity),
+     * new InstantCommand(() -> this.indexer.resetEncoder()),
+     * new InstantCommand(() -> this.indexer.enable()),
+     * new SpinIndexerToAngle(indexer, 200, false),
+     * new WaitUntilCommand(this.shooter::isAtTargetVelocity),
+     * new InstantCommand(() -> this.indexer.resetEncoder()),
+     * new InstantCommand(() -> this.indexer.enable()),
+     * new SpinIndexerToAngle(indexer, 200, false)))
+     * 
+     * .whenReleased(() -> {
+     * this.shooter.disable();
+     * this.indexer.disable();
+     * });
+     */
 
-        new JoystickButton(driver, Button.kA.value)
+    new JoystickButton(driver, Button.kA.value)
         .whileHeld(
-          new ShootBallCommand(shooter, indexer)
-        )
+            new ShootBallCommand(shooter, indexer))
         .whenReleased(() -> {
           this.shooter.disable();
           this.indexer.disable();
         });
 
     new JoystickButton(driver, Button.kX.value)
-      .whenPressed(indexer::resetEncoder)
-      .whenPressed(indexer::enable)
-      .whenPressed(new SpinIndexerToAngleOld(indexer, 360, false));
+        .whenPressed(indexer::resetEncoder)
+        .whenPressed(indexer::enable)
+        .whenPressed(new SpinIndexerToAngleOld(indexer, 360, false));
 
     // TODO remove these or move them to operator controls
 
