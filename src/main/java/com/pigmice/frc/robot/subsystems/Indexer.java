@@ -7,13 +7,13 @@ package com.pigmice.frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.pigmice.frc.robot.BallTracker;
 import com.pigmice.frc.robot.Constants.IndexerConfig;
+import com.pigmice.frc.robot.RPMPController;
+import com.pigmice.frc.robot.Utils;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.pigmice.frc.robot.commands.shooter.SpinUpFlywheelsCommand;
-import com.pigmice.frc.robot.BallTracker;
-import com.pigmice.frc.robot.RPMPController;
-import com.pigmice.frc.robot.Utils;
 import com.revrobotics.ColorSensorV3;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -240,9 +240,10 @@ public class Indexer extends SubsystemBase {
   public void setFreeSpin(boolean freeSpinEnabled) {
     this.freeSpinEnabled = freeSpinEnabled;
     freeSpinEnabledEntry.setBoolean(enabled);
+  }
 
   @Override
   public void simulationPeriodic() {
-    periodic();
+    this.periodic();
   }
 }
