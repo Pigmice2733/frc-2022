@@ -19,13 +19,10 @@ public class Shooter extends SubsystemBase {
     private TalonSRX topMotor;
     private TalonSRX botMotor;
 
-    private final double SHOOTER_KP = .02D;
+    private double shooterP, shooterS, shooterV, vThresh;
 
-    private final double SHOOTER_KS = 0;
-    private final double SHOOTER_KV = .5;
-
-    private final RPMPController topController = new RPMPController(SHOOTER_KP, 0.25);
-    private final RPMPController botController = new RPMPController(SHOOTER_KP, 0.25);
+    private final RPMPController topController = new RPMPController(shooterP, 0.25);
+    private final RPMPController botController = new RPMPController(shooterP, 0.25);
 
     private final ShuffleboardTab shooterTab;
 
@@ -50,9 +47,6 @@ public class Shooter extends SubsystemBase {
     // private static final double MAX_RPM_775 = 18700;
     // private static final double MAX_RPS_775 = MAX_RPM_775 / 60;
 
-    // tune this
-    private static final double VELOCITY_THRESHOLD = 100;
-
     private boolean atTarget = false;
 
     // Create a new Shooter
@@ -70,6 +64,11 @@ public class Shooter extends SubsystemBase {
 
         // topMotor.setNeutralMode(NeutralMode.Coast);
         // botMotor.setNeutralMode(NeutralMode.Coast);
+
+        this.shooterP = ShooterConfig.shooterP;
+        this.shooterS = ShooterConfig.shooterS;
+        this.shooterV = ShooterConfig.shooterV;
+        this.vThresh = ShooterConfig.velocityThreshhold;
 
         this.shooterTab = Shuffleboard.getTab("Shooter");
 
@@ -103,12 +102,13 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (!enabled)
+        if (!enabled) {
             this.setTargetSpeeds(0, 0);
-        else
-        this.setTargetSpeeds(2400, 2000);
+        } else {
+            this.setTargetSpeeds(2400, 2000);
+        }
 
-            //this.setTargetSpeeds(2600, 2300);
+        // this.setTargetSpeeds(2600, 2300);
         // this.setTargetSpeeds(2000, 1750);
 
         double topRPM = this.topTargetRPM == RPM_NOT_SET ? this.topRPMEntry.getDouble(ShooterConfig.topMotorSpeed)
@@ -137,8 +137,8 @@ public class Shooter extends SubsystemBase {
         topCalculated.setDouble(topTarget);
         botCalculated.setDouble(botTarget);
 
-        this.atTarget = Math.abs(topRPM - topActualRPM) <= VELOCITY_THRESHOLD
-                && Math.abs(botRPM - botActualRPM) <= VELOCITY_THRESHOLD;
+        this.atTarget = Math.abs(topRPM - topActualRPM) <= vThresh
+                && Math.abs(botRPM - botActualRPM) <= vThresh;
 
         this.atTargetEntry.setBoolean(this.atTarget);
 
@@ -175,11 +175,11 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean isAtTargetVelocity() {
-        return topTargetRPM != 0 && topTargetRPM != 0 && this.atTarget;
+        return topTargetRPM != 0 && botTargetRPM != 0 && this.atTarget;
     }
 
     private double calculate(double velocity) {
-        return SHOOTER_KS * Math.signum(velocity) + SHOOTER_KV * velocity;
+        return shooterS * Math.signum(velocity) + shooterV * velocity;
     }
 
     @Override

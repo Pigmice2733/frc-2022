@@ -24,6 +24,12 @@ public final class Constants {
 
         public static final double topMotorSpeed = 0.62;
         public static final double bottomMotorSpeed = 0.62;
+
+        public static final double shooterP = .02D;
+        public static final double shooterS = 0;
+        public static final double shooterV = .5;
+
+        public static final double velocityThreshhold = 100; // tune this
     }
 
     public static class ClimberConfig {
@@ -151,7 +157,8 @@ public final class Constants {
 
     public static class VisionConfig {
         public static final double cameraHeightMeters = 0.8;
-        public static final double targetHeightMeters = 2.38;// Units.inchesToMeters(104); // 8'8"
+        public static final double targetHeightMeters = 2.38;
+        // Units.inchesToMeters(104); // 8'8"
         public static final double cameraPitchRadians = 0;
         public static final double goalRangeMeters = 0.0;
 
