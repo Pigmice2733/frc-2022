@@ -12,18 +12,16 @@ public class RetractIntake extends ProfiledPIDCommand {
 
     public RetractIntake(Intake intake) {
         super(
-            new ProfiledPIDController(
-                IntakeConfig.extendP,
-                IntakeConfig.extendI,
-                IntakeConfig.extendD,
-                new TrapezoidProfile.Constraints(IntakeConfig.maxExtendVelocity,
-                    IntakeConfig.maxExtendAcceleration)
-            ),
-            () -> -intake.extendAngle(),
-            0.0,
-            (output, setpoint) -> intake.setExtendSpeed(-output),
-            intake
-        );
+                new ProfiledPIDController(
+                        IntakeConfig.extendP,
+                        IntakeConfig.extendI,
+                        IntakeConfig.extendD,
+                        new TrapezoidProfile.Constraints(IntakeConfig.maxExtendVelocity,
+                                IntakeConfig.maxExtendAcceleration)),
+                () -> -intake.extendAngle(),
+                0.0,
+                (output, setpoint) -> intake.setExtendSpeed(-output),
+                intake);
 
         this.intake = intake;
         addRequirements(intake);
@@ -33,7 +31,7 @@ public class RetractIntake extends ProfiledPIDCommand {
 
     @Override
     public void initialize() {
-        intake.setExtended(false);
+        intake.retract();
     }
 
     @Override
