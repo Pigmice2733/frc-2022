@@ -7,11 +7,11 @@ package com.pigmice.frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pigmice.frc.robot.commands.Indexer.SpinIndexerToAngleOld;
 import com.pigmice.frc.robot.commands.climber.LiftTo;
 import com.pigmice.frc.robot.commands.climber.RotateTo;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
+import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngleProfiled;
 import com.pigmice.frc.robot.commands.shooter.ShootBallCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.subsystems.Indexer;
@@ -138,7 +138,7 @@ public class RobotContainer {
     new JoystickButton(driver, Button.kX.value)
         .whenPressed(indexer::resetEncoder)
         .whenPressed(indexer::enable)
-        .whenPressed(new SpinIndexerToAngleOld(indexer, 360, false));
+        .whenPressed(new SpinIndexerToAngleProfiled(indexer, 360, false));
 
     // TODO remove these or move them to operator controls
 

@@ -4,25 +4,39 @@
 
 package com.pigmice.frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.pigmice.frc.robot.Constants.IndexerConfig;
+import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
+import com.pigmice.frc.robot.commands.intake.RetractIntake;
+import com.pigmice.frc.robot.commands.shooter.SpinUpFlywheelsCommand;
+import com.pigmice.frc.robot.BallTracker;
+import com.pigmice.frc.robot.RPMPController;
+import com.pigmice.frc.robot.Utils;
+import com.revrobotics.ColorSensorV3;
+
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.pigmice.frc.robot.Utils;
-import com.pigmice.frc.robot.RPMPController;
-import com.pigmice.frc.robot.Constants.IndexerConfig;
-import com.revrobotics.ColorSensorV3;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 public class Indexer extends SubsystemBase {
   private boolean enabled = true;
   private boolean freeSpinEnabled = true;
   private TalonSRX motor;
+
+  private final Intake intake;
+  private final Shooter shooter;
 
   private ColorSensorV3 colorSensor;
 
@@ -41,6 +55,8 @@ public class Indexer extends SubsystemBase {
   private final NetworkTableEntry irEntry;
   private final NetworkTableEntry proximityEntry;
 
+  private BallTracker ballTracker;
+
   // RPM stuff for free spin
   double targetRPM = 0;
   private final RPMPController rpmpController = new RPMPController(IndexerConfig.freeSpin_kP, 0.25);
@@ -48,7 +64,10 @@ public class Indexer extends SubsystemBase {
   private boolean atTarget;
 
   /** Creates a new Indexer. */
-  public Indexer() {
+  public Indexer(Intake intake, Shooter shooter) {
+    this.intake = intake;
+    this.shooter = shooter;
+
     this.motor = new TalonSRX(IndexerConfig.motorPort);
     this.motor.setInverted(IndexerConfig.motorInverted);
 
@@ -71,17 +90,9 @@ public class Indexer extends SubsystemBase {
     this.bEntry = indexerTab.add("Color B", 0.0).getEntry();
     this.irEntry = indexerTab.add("Color IR", 0.0).getEntry();
     this.proximityEntry = indexerTab.add("Color Proximity", 0.0).getEntry();
+
+    this.ballTracker = new BallTracker();
   }
-
-  public void enable() {setEnabled(true);}
-  public void disable() {setEnabled(false);}
-  public void toggle() {setEnabled(!this.enabled);}
-  public void setEnabled(boolean enabled) {this.enabled = enabled; enabledEntry.setBoolean(enabled);}
-
-  public void enableFreeSpin() {setFreeSpin(true);}
-  public void disableFreeSpin() {setFreeSpin(false);}
-  public void toggleFreeSpin() {setFreeSpin(!freeSpinEnabled);}
-  public void setFreeSpin(boolean freeSpinEnabled) {this.freeSpinEnabled = freeSpinEnabled; freeSpinEnabledEntry.setBoolean(enabled);}
 
   public boolean isEnabled() {
     return enabled;
@@ -99,26 +110,65 @@ public class Indexer extends SubsystemBase {
     if (!enabled)
       return;
 
+    // SpinIndexerToAngle command rotates the indexer when free spin is not enabled
     if (!freeSpinEnabled)
       return;
 
-      this.setTargetSpeed(200);
+    this.setTargetSpeed(200);
+    double vecocity = motor.getSelectedSensorVelocity();
 
-  // from tarmac edge
-  // this.setTargetSpeeds(1600, 1800);
-  // from fender
-  // this.setTargetSpeeds(900, 2400);
-  double vecocity = motor.getSelectedSensorVelocity();
+    double actualRPM = Utils.calculateRPM(vecocity, feedbackDevice);
+    currentRPMEntry.setDouble(actualRPM);
 
-  double actualRPM = Utils.calculateRPM(vecocity, feedbackDevice);
-  currentRPMEntry.setDouble(actualRPM);
+    double motorOutputTarget = rpmpController.update(actualRPM);
 
-  double motorOutputTarget = rpmpController.update(actualRPM);
+    this.atTarget = Math.abs(targetRPM - actualRPM) <= IndexerConfig.velocityThreshold;
+    this.atTargetEntry.setBoolean(this.atTarget);
 
-  this.atTarget = Math.abs(targetRPM - actualRPM) <= IndexerConfig.velocityThreshold;
-  this.atTargetEntry.setBoolean(this.atTarget);
+    setMotorOutput(motorOutputTarget);
 
-  setMotorOutput(motorOutputTarget);
+    double infrared = colorSensor.getIR();
+    // there is a ball in the indexer
+    if (infrared > IndexerConfig.infraredThreshold) {
+      Alliance alliance = DriverStation.getAlliance();
+      // if color more red than blue, red ball
+      // if color more blue than red, blue ball
+      // if blue and red somehow equal, assume other alliance ball
+      Alliance ballAlliance = (color.red > color.blue) ? Alliance.Red
+          : (color.blue > color.red) ? Alliance.Blue : alliance == Alliance.Red ? Alliance.Blue : Alliance.Red;
+
+      if (alliance == ballAlliance) {
+        ballTracker.newBallStored(ballAlliance);
+
+        if (ballTracker.isFull()) {
+          CommandScheduler.getInstance().schedule(new RetractIntake(this.intake));
+          this.disableFreeSpin();
+        } else {
+          this.enableFreeSpin();
+        }
+      } else {
+        if (ballTracker.getSize() == 0) {
+          CommandScheduler.getInstance().schedule(new SequentialCommandGroup(
+              new InstantCommand(this.intake::disable),
+              new SpinUpFlywheelsCommand(this.shooter, 500),
+              new WaitUntilCommand(this.shooter::isAtTargetVelocity),
+              new SpinIndexerToAngle(this, 200, false),
+              new InstantCommand(this.intake::enable)));
+
+        } else if (ballTracker.getSize() == 1) {
+          CommandScheduler.getInstance().schedule(new SequentialCommandGroup(
+              new InstantCommand(() -> {
+                // TODO run intake backwards
+                this.setTargetSpeed(-100);
+              }),
+              new WaitCommand(1.0),
+              new InstantCommand(() -> {
+                // TODO run intake forwards
+                this.enableFreeSpin();
+              })));
+        }
+      }
+    }
   }
 
   public void setMotorOutput(double output) {
@@ -157,6 +207,39 @@ public class Indexer extends SubsystemBase {
   public boolean isAtTargetVelocity() {
     return targetRPM != 0 && this.atTarget;
   }
+
+  public void enable() {
+    setEnabled(true);
+  }
+
+  public void disable() {
+    setEnabled(false);
+  }
+
+  public void toggle() {
+    setEnabled(!this.enabled);
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+    enabledEntry.setBoolean(enabled);
+  }
+
+  public void enableFreeSpin() {
+    setFreeSpin(true);
+  }
+
+  public void disableFreeSpin() {
+    setFreeSpin(false);
+  }
+
+  public void toggleFreeSpin() {
+    setFreeSpin(!freeSpinEnabled);
+  }
+
+  public void setFreeSpin(boolean freeSpinEnabled) {
+    this.freeSpinEnabled = freeSpinEnabled;
+    freeSpinEnabledEntry.setBoolean(enabled);
 
   @Override
   public void simulationPeriodic() {

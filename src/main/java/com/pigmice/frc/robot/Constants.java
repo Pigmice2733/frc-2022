@@ -153,6 +153,8 @@ public final class Constants {
         public static final double angleTolerableEndVelocity = 1.0;
 
         public static final double velocityThreshold = 100;
+
+        public static final double infraredThreshold = 20.0;
     }
 
     public static class VisionConfig {
