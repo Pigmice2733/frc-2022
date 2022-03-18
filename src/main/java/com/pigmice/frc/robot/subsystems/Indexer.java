@@ -76,15 +76,18 @@ public class Indexer extends SubsystemBase {
   public void enable() {setEnabled(true);}
   public void disable() {setEnabled(false);}
   public void toggle() {setEnabled(!this.enabled);}
-  public void setEnabled(boolean enabled) {this.enabled = enabled; enabledEntry.setBoolean(enabled);}
+  public boolean isEnabled() {return enabled;}
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+    enabledEntry.setBoolean(enabled);
+  }
 
   public void enableFreeSpin() {setFreeSpin(true);}
   public void disableFreeSpin() {setFreeSpin(false);}
   public void toggleFreeSpin() {setFreeSpin(!freeSpinEnabled);}
-  public void setFreeSpin(boolean freeSpinEnabled) {this.freeSpinEnabled = freeSpinEnabled; freeSpinEnabledEntry.setBoolean(enabled);}
-
-  public boolean isEnabled() {
-    return enabled;
+  public void setFreeSpin(boolean freeSpinEnabled) {
+    this.freeSpinEnabled = freeSpinEnabled;
+    freeSpinEnabledEntry.setBoolean(enabled);
   }
 
   @Override
@@ -96,29 +99,27 @@ public class Indexer extends SubsystemBase {
     irEntry.setDouble(colorSensor.getIR());
     proximityEntry.setDouble(colorSensor.getProximity());
 
-    if (!enabled)
-      return;
+    if (!enabled) return;
 
-    if (!freeSpinEnabled)
-      return;
+    if (!freeSpinEnabled) return;
 
-      this.setTargetSpeed(200);
+    this.setTargetSpeed(200);
 
-  // from tarmac edge
-  // this.setTargetSpeeds(1600, 1800);
-  // from fender
-  // this.setTargetSpeeds(900, 2400);
-  double vecocity = motor.getSelectedSensorVelocity();
+    // from tarmac edge
+    // this.setTargetSpeeds(1600, 1800);
+    // from fender
+    // this.setTargetSpeeds(900, 2400);
+    double velocity = motor.getSelectedSensorVelocity();
 
-  double actualRPM = Utils.calculateRPM(vecocity, feedbackDevice);
-  currentRPMEntry.setDouble(actualRPM);
+    double actualRPM = Utils.calculateRPM(velocity, feedbackDevice);
+    currentRPMEntry.setDouble(actualRPM);
 
-  double motorOutputTarget = rpmpController.update(actualRPM);
+    double motorOutputTarget = rpmpController.update(actualRPM);
 
-  this.atTarget = Math.abs(targetRPM - actualRPM) <= IndexerConfig.velocityThreshold;
-  this.atTargetEntry.setBoolean(this.atTarget);
+    this.atTarget = Math.abs(targetRPM - actualRPM) <= IndexerConfig.velocityThreshold;
+    this.atTargetEntry.setBoolean(this.atTarget);
 
-  setMotorOutput(motorOutputTarget);
+    setMotorOutput(motorOutputTarget);
   }
 
   public void setMotorOutput(double output) {
@@ -160,6 +161,6 @@ public class Indexer extends SubsystemBase {
 
   @Override
   public void simulationPeriodic() {
-    periodic();
+    this.periodic();
   }
 }
