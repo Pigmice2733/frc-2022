@@ -1,8 +1,6 @@
 package com.pigmice.frc.robot.testmode;
 
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.util.sendable.SendableRegistry;
+import edu.wpi.first.util.sendable.*;
 
 public abstract class TestBase implements Sendable, Testable {
   private boolean run = false;

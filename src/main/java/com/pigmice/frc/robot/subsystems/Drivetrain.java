@@ -1,6 +1,12 @@
 package com.pigmice.frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pigmice.frc.lib.utils.Odometry;
+import com.pigmice.frc.lib.utils.Odometry.Pose;
+import com.pigmice.frc.lib.utils.Point;
+import com.pigmice.frc.robot.Constants.DrivetrainConfig;
+import com.pigmice.frc.robot.Dashboard;
+import com.pigmice.frc.robot.Utils;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -12,250 +18,272 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import com.pigmice.frc.lib.utils.Odometry;
-import com.pigmice.frc.lib.utils.Point;
-import com.pigmice.frc.lib.utils.Utils;
-import com.pigmice.frc.lib.utils.Odometry.Pose;
-import com.pigmice.frc.robot.Dashboard;
-import com.pigmice.frc.robot.Constants.DrivetrainConfig;
-
 public class Drivetrain extends SubsystemBase {
-    // private final CANSparkMax leftDrive, rightDrive, rightFollower, leftFollower;
+    private final CANSparkMax leftDrive, rightDrive, rightFollower, leftFollower;
 
-    // private double leftDemand, rightDemand;
-    // private double leftPosition, rightPosition, heading;
+    private double leftDemand, rightDemand;
+    private double leftPosition, rightPosition, heading; // heading is in degrees now
 
-    // private boolean boost = false;
-    // private boolean slow = false;
+    private float initialHeading = 0;
 
-    // private Odometry odometry;
+    private boolean boost = false;
+    private boolean slow = false;
 
-    // private AHRS navx;
-    // private double navxTestAngle;
-    // private boolean navxTestPassed = false;
-    // private final NetworkTableEntry navxReport;
+    private Odometry odometry;
 
-    // private final NetworkTableEntry xDisplay, yDisplay, headingDisplay,
-    // leftEncoderDisplay, rightEncoderDisplay;
+    private AHRS navx;
+    private double navxTestAngle;
+    private boolean navxTestPassed = false;
+    private final NetworkTableEntry navxReport;
 
-    // private Point initialPosition = Point.origin();
+    private final NetworkTableEntry xDisplay, yDisplay, headingDisplay,
+            leftEncoderDisplay, rightEncoderDisplay;
 
-    // public Drivetrain() {
+    private Point initialPosition = Point.origin();
 
-    // rightDrive = new CANSparkMax(DrivetrainConfig.frontRightMotorPort,
-    // MotorType.kBrushless);
-    // rightFollower = new CANSparkMax(DrivetrainConfig.backRightMotorPort,
-    // MotorType.kBrushless);
-    // leftDrive = new CANSparkMax(DrivetrainConfig.frontLeftMotorPort,
-    // MotorType.kBrushless);
-    // leftFollower = new CANSparkMax(DrivetrainConfig.backLeftMotorPort,
-    // MotorType.kBrushless);
+    public Drivetrain() {
+        rightDrive = new CANSparkMax(DrivetrainConfig.frontLeftMotorPort,
+                MotorType.kBrushless);
+        rightFollower = new CANSparkMax(DrivetrainConfig.backLeftMotorPort,
+                MotorType.kBrushless);
+        leftDrive = new CANSparkMax(DrivetrainConfig.frontRightMotorPort,
+                MotorType.kBrushless);
+        leftFollower = new CANSparkMax(DrivetrainConfig.backRightMotorPort,
+                MotorType.kBrushless);
 
-    // rightDrive.setInverted(true);
-    // leftFollower.follow(leftDrive);
-    // rightFollower.follow(rightDrive);
+        rightDrive.restoreFactoryDefaults();
+        rightFollower.restoreFactoryDefaults();
+        leftDrive.restoreFactoryDefaults();
+        leftFollower.restoreFactoryDefaults();
 
-    // navx = new AHRS(DrivetrainConfig.navxPort);
+        leftDrive.setInverted(true);
+        leftFollower.follow(leftDrive);
+        rightFollower.follow(rightDrive);
 
-    // ShuffleboardLayout testReportLayout =
-    // Shuffleboard.getTab(Dashboard.systemsTestTabName)
-    // .getLayout("Drivetrain", BuiltInLayouts.kList)
-    // .withSize(2, 1)
-    // .withPosition(Dashboard.drivetrainTestPosition, 0);
+        navx = new AHRS(DrivetrainConfig.navxPort);
 
-    // navxReport = testReportLayout.add("NavX", false).getEntry();
+        ShuffleboardLayout testReportLayout = Shuffleboard.getTab(Dashboard.systemsTestTabName)
+                .getLayout("Drivetrain", BuiltInLayouts.kList)
+                .withSize(2, 1)
+                .withPosition(Dashboard.drivetrainTestPosition, 0);
 
-    // leftDrive.getEncoder().setPositionConversionFactor(1.0 /
-    // DrivetrainConfig.rotationToDistanceConversion);
-    // rightDrive.getEncoder().setPositionConversionFactor(1.0 /
-    // DrivetrainConfig.rotationToDistanceConversion);
+        navxReport = testReportLayout.add("NavX", false).getEntry();
 
-    // ShuffleboardLayout odometryLayout =
-    // Shuffleboard.getTab(Dashboard.developmentTabName)
-    // .getLayout("Odometry", BuiltInLayouts.kList).withSize(2, 5)
-    // .withPosition(Dashboard.drivetrainDisplayPosition, 0);
+        leftDrive.getEncoder().setPositionConversionFactor(DrivetrainConfig.rotationToDistanceConversion);
+        rightDrive.getEncoder().setPositionConversionFactor(DrivetrainConfig.rotationToDistanceConversion);
 
-    // xDisplay = odometryLayout.add("X", 0.0).getEntry();
-    // yDisplay = odometryLayout.add("Y", 0.0).getEntry();
-    // headingDisplay = odometryLayout.add("Heading", 0.0).getEntry();
-    // leftEncoderDisplay = odometryLayout.add("Left Encoder", 0).getEntry();
-    // rightEncoderDisplay = odometryLayout.add("Right Encoder", 0).getEntry();
+        ShuffleboardLayout odometryLayout = Shuffleboard.getTab(Dashboard.developmentTabName)
+                .getLayout("Odometry", BuiltInLayouts.kList).withSize(2, 5)
+                .withPosition(Dashboard.drivetrainDisplayPosition, 0);
 
-    // odometry = new Odometry(new Pose(0.0, 0.0, 0.0));
+        xDisplay = odometryLayout.add("X", 0.0).getEntry();
+        yDisplay = odometryLayout.add("Y", 0.0).getEntry();
+        headingDisplay = odometryLayout.add("Heading", 0.0).getEntry();
+        leftEncoderDisplay = odometryLayout.add("Left Encoder", 0).getEntry();
+        rightEncoderDisplay = odometryLayout.add("Right Encoder", 0).getEntry();
 
-    // // Used to be in initialize()
-    // leftPosition = 0.0;
-    // rightPosition = 0.0;
-    // heading = 0.0;// 0.5 * Math.PI;
-    // zeroHeading();
+        odometry = new Odometry(new Pose(0.0, 0.0, 0.0));
 
-    // leftDrive.getEncoder().setPosition(0.0);
-    // rightDrive.getEncoder().setPosition(0.0);
+        // Used to be in initialize()
+        leftPosition = 0.0;
+        rightPosition = 0.0;
+        heading = 0.0;
 
-    // odometry.set(new Pose(0.0, 0.0, heading), leftPosition, rightPosition);
+        while (navx.isCalibrating()) {
+            try {
+                Thread.sleep(100);
+                System.out.println("Calibrating NAVX...");
+            } catch (InterruptedException e) {
 
-    // leftDemand = 0.0;
-    // rightDemand = 0.0;
+            }
+        }
 
-    // // navx.setAngleAdjustment(navx.getAngleAdjustment() - navx.getAngle() -
-    // 90.0);
-    // }
+        zeroHeading();
 
-    // @Override
-    // public void periodic() {
-    // // from updateInputs
-    // leftPosition = leftDrive.getEncoder().getPosition();
-    // rightPosition = rightDrive.getEncoder().getPosition();
+        initialHeading = navx.getYaw();
 
-    // updateHeading();
+        leftDrive.getEncoder().setPosition(0.0);
+        rightDrive.getEncoder().setPosition(0.0);
 
-    // odometry.update(leftPosition, rightPosition, heading);
+        odometry.set(new Pose(0.0, 0.0, heading), leftPosition, rightPosition);
 
-    // // from updateDashboard()
-    // Pose currentPose = odometry.getPose();
+        leftDemand = 0.0;
+        rightDemand = 0.0;
 
-    // xDisplay.setNumber(currentPose.getX());
-    // yDisplay.setNumber(currentPose.getY());
-    // headingDisplay.setNumber(currentPose.getHeading());
-    // leftEncoderDisplay.setNumber(leftPosition);
-    // rightEncoderDisplay.setNumber(rightPosition);
-    // }
+        // navx.setAngleAdjustment(navx.getAngleAdjustment() - navx.getAngle() -
+        // 90.0);
+    }
 
-    // public void updateDashboard() {
+    @Override
+    public void periodic() {
+        // from updateInputs
+        leftPosition = leftDrive.getEncoder().getPosition();
+        rightPosition = rightDrive.getEncoder().getPosition();
 
-    // }
+        updateHeading();
 
-    // public void updateHeading() {
-    // float headingDegrees = (navx.getYaw() +
-    // DrivetrainConfig.navXRotationalOffsetDegrees) % 360;
+        odometry.update(leftPosition, rightPosition, heading);
 
-    // SmartDashboard.putNumber("Heading (Degrees)", headingDegrees);
+        // from updateDashboard()
+        Pose currentPose = odometry.getPose();
 
-    // // calculates robot heading based on navx reading and offset
-    // heading = Math.toRadians(headingDegrees);
-    // }
+        xDisplay.setNumber(currentPose.getX());
+        yDisplay.setNumber(currentPose.getY());
+        headingDisplay.setNumber(currentPose.getHeading());
+        leftEncoderDisplay.setNumber(leftPosition);
+        rightEncoderDisplay.setNumber(rightPosition);
+    }
 
-    // public void updateInputs() {
-    // }
+    public void updateDashboard() {
+    }
 
-    // public double getHeading() {
-    // return heading;
-    // }
+    public void updateHeading() {
+        float headingDegrees = (navx.getYaw() +
+                DrivetrainConfig.navXRotationalOffsetDegrees - initialHeading) % 360;
 
-    // public Pose getPose() {
-    // return odometry.getPose();
-    // }
+        SmartDashboard.putNumber("Heading (Degrees)", headingDegrees);
 
-    // public void boost() {
-    // this.boost = true;
-    // }
+        heading = headingDegrees;
+    }
 
-    // public void stopBoost() {
-    // this.boost = false;
-    // }
+    public void updateInputs() {
+    }
 
-    // public boolean isBoosting() {
-    // return this.boost;
-    // }
+    public double getHeading() {
+        return heading;
+    }
 
-    // public void slow() {
-    // this.slow = true;
-    // }
+    public Pose getPose() {
+        return odometry.getPose();
+    }
 
-    // public void stopSlow() {
-    // this.slow = false;
-    // }
+    public void boost() {
+        this.boost = true;
+    }
 
-    // public boolean isSlow() {
-    // return this.slow;
-    // }
+    public void stopBoost() {
+        this.boost = false;
+    }
+
+    public void toggleBoost() {
+        this.boost = !this.boost;
+        this.slow = false;
+    }
+
+    public boolean isBoosting() {
+        return this.boost;
+    }
+
+    public void slow() {
+        this.slow = true;
+    }
+
+    public void stopSlow() {
+        this.slow = false;
+    }
+
+    public void toggleSlow() {
+        this.slow = !this.slow;
+        this.boost = false;
+    }
+
+    public boolean isSlow() {
+        return this.slow;
+    }
+
+    public boolean isCalibrating() {
+        return this.navx.isCalibrating();
+    }
 
     public void tankDrive(double leftSpeed, double rightSpeed) {
-        // leftDemand = leftSpeed;
-        // rightDemand = rightSpeed;
+        leftDemand = leftSpeed;
+        rightDemand = rightSpeed;
 
-        // updateOutputs();
+        updateOutputs();
     }
 
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
-        // leftDemand = forwardSpeed + turnSpeed;
-        // rightDemand = forwardSpeed - turnSpeed;
+        leftDemand = forwardSpeed + turnSpeed;
+        rightDemand = forwardSpeed - turnSpeed;
 
-        // updateOutputs();
+        updateOutputs();
     }
 
     public void curvatureDrive(double forwardSpeed, double curvature) {
-        // double leftSpeed = forwardSpeed;
-        // double rightSpeed = forwardSpeed;
+        double leftSpeed = forwardSpeed;
+        double rightSpeed = forwardSpeed;
 
-        // if (!Utils.almostEquals(forwardSpeed, 0.0)) {
-        // leftSpeed = forwardSpeed * (1 + (curvature * 0.5 *
-        // DrivetrainConfig.wheelBase));
-        // rightSpeed = forwardSpeed * (1 - (curvature * 0.5 *
-        // DrivetrainConfig.wheelBase));
+        if (!Utils.almostEquals(forwardSpeed, 0.0)) {
+            leftSpeed = forwardSpeed * (1 + (curvature * 0.5 *
+                    DrivetrainConfig.wheelBase));
+            rightSpeed = forwardSpeed * (1 - (curvature * 0.5 *
+                    DrivetrainConfig.wheelBase));
+        }
+
+        leftDemand = leftSpeed;
+        rightDemand = rightSpeed;
+
+        updateOutputs();
     }
 
-    // leftDemand = leftSpeed;
-    // rightDemand = rightSpeed;
+    public void swerveDrive(double forward, double strafe, double rotation_x) {
+    }
 
-    // updateOutputs();
-    // }
+    public void stop() {
+        leftDemand = 0.0;
+        rightDemand = 0.0;
+    }
 
-    // public void swerveDrive(double forward, double strafe, double rotation_x) {
+    public void updateOutputs() {
 
-    // }
+        leftDemand *= 0.5;
+        rightDemand *= 0.5;
 
-    // public void stop() {
-    // leftDemand = 0.0;
-    // rightDemand = 0.0;
-    // }
+        if (slow) {
+            leftDemand *= DrivetrainConfig.slowMultiplier;
+            rightDemand *= DrivetrainConfig.slowMultiplier;
+        }
 
-    // public void updateOutputs() {
-    // leftDrive.set(leftDemand);
-    // rightDrive.set(rightDemand);
+        leftDrive.set(leftDemand);
+        rightDrive.set(rightDemand);
 
-    // leftDemand = 0.0;
-    // rightDemand = 0.0;
-    // }
+        leftDemand = 0.0;
+        rightDemand = 0.0;
+    }
 
-    // public void test(double time) {
-    // if (time < 0.1) {
-    // navxTestAngle = navx.getAngle();
-    // navxTestPassed = false;
-    // }
+    public void test(double time) {
+        if (time < 0.1) {
+            navxTestAngle = navx.getAngle();
+            navxTestPassed = false;
+        }
 
-    // if (!navxTestPassed) {
-    // navxTestPassed = navx.getAngle() != navxTestAngle;
-    // }
+        if (!navxTestPassed) {
+            navxTestPassed = navx.getAngle() != navxTestAngle;
+        }
 
-    // navxReport.setBoolean(navxTestPassed);
-    // }
+        navxReport.setBoolean(navxTestPassed);
+    }
 
-    // public void setCoastMode(boolean coasting) {
-    // CANSparkMax.IdleMode newMode = coasting ? IdleMode.kCoast : IdleMode.kBrake;
-    // leftDrive.setIdleMode(newMode);
-    // rightDrive.setIdleMode(newMode);
-    // leftFollower.setIdleMode(newMode);
-    // rightFollower.setIdleMode(newMode);
-    // }
+    public void setCoastMode(boolean coasting) {
+        CANSparkMax.IdleMode newMode = coasting ? IdleMode.kCoast : IdleMode.kBrake;
+        leftDrive.setIdleMode(newMode);
+        rightDrive.setIdleMode(newMode);
+        leftFollower.setIdleMode(newMode);
+        rightFollower.setIdleMode(newMode);
+    }
 
-    // public void resetPose() {
-    // this.odometry.set(new Pose(0, 0, getPose().getHeading()), 0.0, 0.0);
-    // initialPosition = new Point(this.getPose());
-    // }
+    public void resetPose() {
+        // this.odometry.set(new Pose(0, 0, getPose().getHeading()), 0.0, 0.0);
+        initialPosition = new Point(this.getPose());
+    }
 
-    // public double getDistanceFromStart() {
-    // Point currentPosition = new Point(this.getPose());
-    // return (currentPosition).subtract(initialPosition).magnitude();
-    // }
+    public double getDistanceFromStart() {
+        Point currentPosition = new Point(this.getPose());
+        return currentPosition.subtract(initialPosition).magnitude();
+    }
 
-    // public void zeroHeading() {
-    // this.navx.zeroYaw();
-    // updateHeading();
-    // }
-
-    // public boolean isCalibrating() {
-    // return this.navx.isCalibrating();
-    // }
-
+    public void zeroHeading() {
+        this.navx.zeroYaw();
+        updateHeading();
+    }
 }

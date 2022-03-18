@@ -1,41 +1,45 @@
 package com.pigmice.frc.robot.commands;
 
+import com.pigmice.frc.robot.Constants.VisionConfig;
 import com.pigmice.frc.robot.Vision;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 
-public class VisionAlignCommand extends CommandBase {
+public class VisionAlignCommand extends ProfiledPIDCommand {
     private final Drivetrain drivetrain;
-    private double startTime;
-    private final double timeLimit;
 
-    public VisionAlignCommand(Drivetrain drivetrain, double timeLimit) {
+    public VisionAlignCommand(Drivetrain drivetrain) {
+        super(new ProfiledPIDController(VisionConfig.rotationP, VisionConfig.rotationI, VisionConfig.rotationD,
+                new TrapezoidProfile.Constraints(0.5, 0.5)),
+                Vision::getTargetYaw,
+                0.0,
+                (output, setpoint) -> drivetrain.arcadeDrive(0.0, output),
+                drivetrain);
         this.drivetrain = drivetrain;
-        this.timeLimit = timeLimit;
 
         this.addRequirements(drivetrain);
+
+        getController().setTolerance(VisionConfig.tolerableError,
+                VisionConfig.tolerableEndVelocity);
     }
 
     @Override
     public void initialize() {
-        startTime = Timer.getFPGATimestamp();
         Vision.update();
         super.initialize();
     }
 
     @Override
-    public void execute() {
-        Vision.update();
-
-        double output = Vision.getRotationOutput();
-        drivetrain.arcadeDrive(0.0, output);
-    }
-
-    @Override
     public boolean isFinished() {
-        return (Timer.getFPGATimestamp() - startTime > timeLimit || Vision.alignmentError() < 1);
+        // System.out.println(
+        // "VISION ANGLE: " + Vision.getBestTarget().getYaw() + " | GOAL: "
+        // + this.getController().getGoal().position + " | ERROR: "
+        // + this.getController().getPositionError() + " | AT GOAL: " +
+        // this.getController().atGoal());
+        return this.getController().atGoal();
     }
 
     @Override

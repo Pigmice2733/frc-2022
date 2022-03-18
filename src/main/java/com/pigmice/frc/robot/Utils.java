@@ -34,6 +34,20 @@ public class Utils {
         return ((raw * DECISECONDS_PER_MINUTE) / sensorUnitsPerRotation);
     }
 
+    /** Whether two values are within 1E-6 or 0.000001 of each other.
+     * 
+     * @param a one value
+     * @param b another value
+     * @return true if the values are within 1E-6, false otherwise
+    */
+    public static boolean almostEquals(double a, double b) {
+        return almostEquals(a, b, 1e-6);
+    }
+
+    public static boolean almostEquals(double a, double b, double epsilon) {
+        return Math.abs(a - b) < epsilon;
+    }
+
     /**
      * Converts motor RPM to encoder ticks per 100ms.
      * 

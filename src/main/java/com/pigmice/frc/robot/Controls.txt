@@ -1,1 +1,57 @@
-This is a text document for writing down what certain buttons on the controllers do once drive team designs it
+Driver:
+    Left X - N/A
+    Left Y - Move Forward
+    Left Stick - N/A
+    Right X - Turn
+    Right Y - N/A
+    Right Stick - 
+    A - N/A
+    B - N/A
+    X - N/A
+    Y - Slow Mode (hold)
+    LB - N/A
+    RB - N/A
+    LT - N/A
+    RT - N/A
+    Start - N/A
+    Back - N/A
+
+Operator - Shoot Mode:
+    Left X - N/A
+    Left Y - N/A
+    Left Stick - Toggle Shoot / Climb Mode
+    Right X - N/A
+    Right Y - N/A
+    Right Stick - N/A
+    A - Deploy Intake (hold) Retract Intake (on release)
+    B - N/A
+    X - N/A
+    Y - N/A
+    LB - N/A
+    RB - N/A
+    LT - N/A
+    RT - Shoot Balls (hold)
+    Start - N/A
+    Back - N/A
+    DP ^ - Tarmac High
+    DP v - Fender Low
+    DP < - Fender High
+    DP > - Lanchpad High
+
+Operator - Climb Mode:
+    Left X - N/A
+    Left Y - N/A
+    Left Stick - Toggle Shoot / Climb Mode
+    Right X - N/A
+    Right Y - N/A
+    Right Stick - Climb Rung
+    A - Rotate Forward
+    B - Rotate Back
+    X - Slow Rotate Forward
+    Y - Slow Rotate Back
+    LB - Lift Down
+    RB - Lift Up
+    LT - N/A
+    RT - N/A
+    Start - N/A
+    Back - Auto Climb Mid
