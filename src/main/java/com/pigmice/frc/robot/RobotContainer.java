@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -51,6 +52,7 @@ public class RobotContainer {
   private final Rotato rotato;
   // private final Lights lights;
   private final Controls controls;
+  private final GenericHID dpad;
 
   private XboxController driver;
   private XboxController operator;
@@ -73,6 +75,7 @@ public class RobotContainer {
 
     driver = new XboxController(Constants.driverControllerPort);
     operator = new XboxController(Constants.operatorControllerPort);
+    dpad = new GenericHID(Constants.operatorControllerPort);
     controls = new Controls(driver, operator);
 
     shootMode = true;
@@ -87,7 +90,7 @@ public class RobotContainer {
 
     // Configure the button bindings
     try {
-      configureButtonBindings(driver, operator);
+      configureButtonBindings(driver, operator, dpad);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -103,7 +106,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
    * it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings(XboxController driver, XboxController operator) {
+  private void configureButtonBindings(XboxController driver, XboxController operator, GenericHID pad) {
 
     // DRIVER CONTROLS
 
@@ -171,6 +174,29 @@ public class RobotContainer {
         this.shooter.disable();
         this.indexer.disable();
       });
+
+    /* shooter modes using Dpad
+
+    new Trigger(() -> shootMode == true &&
+      new POVButton(pad, 0).get())
+      .whenActive(shooterMode = tarmac)
+      .whenInactive(shooterMode = none);
+
+    new Trigger(() -> shootMode == true &&
+      new POVButton(pad, 90).get())
+      .whenActive(shooterMode = launchpad)
+      .whenInactive(shooterMode = none);
+
+    new Trigger(() -> shootMode == true &&
+      new POVButton(pad, 180).get())
+      .whenActive(shooterMode = low)
+      .whenInactive(shooterMode = none);
+    
+    new Trigger(() -> shootMode == true &&
+      new POVButton(pad, 270).get())
+      .whenActive(shooterMode = fender)
+      .whenInactive(shooterMode = none);
+    */
   }
 
   // private double getPower() {
