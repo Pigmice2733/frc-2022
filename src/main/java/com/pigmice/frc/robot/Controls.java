@@ -48,21 +48,3 @@ public class Controls {
         return driveValue * DrivetrainConfig.driveSpeed;
     }
 }
-
-/*
- * DRIVER
- * arcade drive - left stick Y: drive speed; right stick X: turn speed
- * tank drive - left stick Y: left speed; right stick Y: right speed
- * X button: toggle boost
- * Y button: toggle slow - slow overrides boost
- * 
- * OPERATOR
- * RB button: lift arm up
- * LB button: lift arm down
- * A button: rotate forward
- * B button: rotate backward
- * X button: rotate forward slowly
- * Y button: rotate backward slowly
- * RStick button: extend intake
- * LStick button: retract intake
- */
