@@ -9,9 +9,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
     private TalonSRX motorRun, motorExtend;
-    private boolean enabled, extended;
+    private boolean enabled, extended, backwards;
     private static double runSpeed;
-    private byte runDirection; // 1 is forward, -1 is backward
     private double extendSpeed;
     private final double extendGearRatio = 0.5;
 
@@ -26,11 +25,11 @@ public class Intake extends SubsystemBase {
         motorExtend.setSelectedSensorPosition(0.0);
 
         runSpeed = IntakeConfig.intakeSpeed;
-        runDirection = 1;
         extendSpeed = 0.0;
 
         this.enabled = false;
         this.extended = false;
+        this.backwards = false;
     }
 
     public void enable() {
@@ -55,7 +54,11 @@ public class Intake extends SubsystemBase {
             return;
 
         if (extended) {
-            motorRun.set(ControlMode.PercentOutput, runSpeed * runDirection);
+            if (backwards) {
+                motorRun.set(ControlMode.PercentOutput, -runSpeed);
+            } else {
+                motorRun.set(ControlMode.PercentOutput, runSpeed);
+            }
         } else {
             motorRun.set(ControlMode.PercentOutput, 0.0);
         }
@@ -75,7 +78,7 @@ public class Intake extends SubsystemBase {
 
     public void extend() {
         this.extended = true;
-        this.runForward();
+        this.backwards = false;
     }
 
     public void retract() {
@@ -86,15 +89,11 @@ public class Intake extends SubsystemBase {
         this.extendSpeed = speed;
     }
 
-    public void runForward() {
-        this.runDirection = 1;
+    public void setReverse(boolean backwards) {
+        this.backwards = backwards;
     }
 
-    public void runBackward() {
-        this.runDirection = -1;
-    }
-
-    public void switchRunDirection() {
-        runDirection *= -1;
+    public void reverseDirection() {
+        this.backwards = !backwards;
     }
 }
