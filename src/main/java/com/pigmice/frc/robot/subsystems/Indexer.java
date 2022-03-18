@@ -158,12 +158,12 @@ public class Indexer extends SubsystemBase {
         } else if (ballTracker.getSize() == 1) {
           CommandScheduler.getInstance().schedule(new SequentialCommandGroup(
               new InstantCommand(() -> {
-                // TODO run intake backwards
+                this.intake.setReverse(true);
                 this.setTargetSpeed(-100);
               }),
               new WaitCommand(1.0),
               new InstantCommand(() -> {
-                // TODO run intake forwards
+                this.intake.setReverse(false);
                 this.enableFreeSpin();
               })));
         }

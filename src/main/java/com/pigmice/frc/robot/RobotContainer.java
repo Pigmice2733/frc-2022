@@ -12,6 +12,8 @@ import com.pigmice.frc.robot.commands.climber.RotateTo;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngleProfiled;
+import com.pigmice.frc.robot.commands.intake.ExtendIntake;
+import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.pigmice.frc.robot.commands.shooter.ShootBallCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.subsystems.Indexer;
@@ -25,7 +27,11 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+
+import static com.pigmice.frc.robot.Constants.DrivetrainConfig;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -47,6 +53,7 @@ public class RobotContainer {
 
   private XboxController driver;
   private XboxController operator;
+  private boolean shootMode;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -54,8 +61,8 @@ public class RobotContainer {
   public RobotContainer() {
     drivetrain = new Drivetrain();
     intake = new Intake();
-    indexer = new Indexer();
     shooter = new Shooter();
+    indexer = new Indexer(this.intake, this.shooter);
     lifty = new Lifty();
     rotato = new Rotato();
     // lights = new Lights();
@@ -63,6 +70,8 @@ public class RobotContainer {
     driver = new XboxController(Constants.driverControllerPort);
     operator = new XboxController(Constants.operatorControllerPort);
     controls = new Controls(driver, operator);
+
+    shootMode = true;
 
     drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
         controls::getDriveSpeed, controls::getTurnSpeed));
@@ -94,8 +103,8 @@ public class RobotContainer {
     // DRIVER CONTROLS
 
     new JoystickButton(driver, Button.kY.value)
-        .whenPressed(this.drivetrain::slow)
-        .whenReleased(this.drivetrain::stopSlow);
+        .whenPressed(new InstantCommand(this.drivetrain::slow))
+        .whenReleased(new InstantCommand(this.drivetrain::stopSlow));
 
     /*
      * new JoystickButton(driver, Button.kA.value)
@@ -136,8 +145,8 @@ public class RobotContainer {
         });
 
     new JoystickButton(driver, Button.kX.value)
-        .whenPressed(indexer::resetEncoder)
-        .whenPressed(indexer::enable)
+        .whenPressed(new InstantCommand(indexer::resetEncoder))
+        .whenPressed(new InstantCommand(indexer::enable))
         .whenPressed(new SpinIndexerToAngleProfiled(indexer, 360, false));
 
     // TODO remove these or move them to operator controls
@@ -168,6 +177,9 @@ public class RobotContainer {
 
     // OPERATOR CONTROLS
 
+    new JoystickButton(operator, Button.kLeftStick.value)
+        .whenPressed(() -> this.shootMode = !shootMode);
+
     // TODO Create target variables for both rotato and lifty that the default
     // commands will use
     // make a double supplier that returns those and pass it in as the target state
@@ -187,13 +199,10 @@ public class RobotContainer {
           this.lifty.setTarget(this.lifty.getRight().getLiftDistance());
         });
 
-    // new JoystickButton(operator, Button.kA.value)
-    // .whenPressed(() -> rotato.setTarget(ClimberConfig.maxRotateAngle))
-    // .whenReleased(() -> rotato.setTarget(rotato.getRight().getRotateAngle()));
-
-    // new JoystickButton(operator, Button.kB.value)
-    // .whenPressed(() -> rotato.setTarget(ClimberConfig.minRotateAngle))
-    // .whenReleased(() -> rotato.setTarget(rotato.getRight().getRotateAngle()));
+    new Trigger(() -> shootMode == false &&
+        new JoystickButton(operator, Button.kRightBumper.value).get())
+        .whenActive(() -> this.liftOutput = 0.30)
+        .whenInactive(() -> this.liftOutput = 0.00);
 
     new JoystickButton(operator, Button.kA.value)
         .whenPressed(() -> this.rotateOutput = 0.35)
@@ -223,20 +232,23 @@ public class RobotContainer {
           this.rotato.setTarget(this.rotato.getRight().getRotateAngle());
         });
 
-    // new JoystickButton(operator, Button.kStart.value)
-    // .whenPressed(new LiftTo(this.lifty, 10.0));
+    /*
+     * new Trigger(() -> shootMode == false &&
+     * new JoystickButton(operator, Button.kBack.value).get())
+     * .whenActive(new ClimbMid(lifty, rotato));
+     */
 
-    // new JoystickButton(operator, Button.kStart.value)
-    // .whenPressed(new ClimbHigh(lifty, rotato));
+    new Trigger(() -> shootMode && new JoystickButton(operator, Button.kA.value).get())
+        .whenActive(new ExtendIntake(intake))
+        .whenInactive(new RetractIntake(intake));
 
-    // new JoystickButton(operator, Button.kBack.value)
-    // .whenPressed(new ClimbRung(lifty, rotato));
-
-    // new JoystickButton(operator, Button.kRightStick.value)
-    // .whenPressed(new ExtendIntake(intake));
-
-    // new JoystickButton(operator, Button.kLeftStick.value)
-    // .whenPressed(new RetractIntake(intake));
+    new Trigger(
+        () -> shootMode && (operator.getRightTriggerAxis() >= (1.0 - DrivetrainConfig.driveThreshold)))
+        .whenActive(new ShootBallCommand(shooter, indexer))
+        .whenInactive(() -> {
+          this.shooter.disable();
+          this.indexer.disable();
+        });
   }
 
   private double getLiftPower() {
