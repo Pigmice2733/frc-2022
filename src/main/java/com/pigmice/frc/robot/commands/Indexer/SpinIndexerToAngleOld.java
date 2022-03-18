@@ -4,9 +4,6 @@
 
 package com.pigmice.frc.robot.commands.Indexer;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-
 import com.pigmice.frc.robot.Constants.IndexerConfig;
 import com.pigmice.frc.robot.subsystems.Indexer;
 
