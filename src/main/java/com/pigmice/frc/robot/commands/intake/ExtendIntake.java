@@ -12,18 +12,16 @@ public class ExtendIntake extends ProfiledPIDCommand {
 
     public ExtendIntake(Intake intake) {
         super(
-            new ProfiledPIDController(
-                IntakeConfig.extendP,
-                IntakeConfig.extendI,
-                IntakeConfig.extendD,
-                new TrapezoidProfile.Constraints(IntakeConfig.maxExtendVelocity,
-                    IntakeConfig.maxExtendAcceleration)
-            ),
-            intake::extendAngle,
-            IntakeConfig.maxExtendAngle,
-            (output, setpoint) -> intake.setExtendSpeed(output),
-            intake
-        );
+                new ProfiledPIDController(
+                        IntakeConfig.extendP,
+                        IntakeConfig.extendI,
+                        IntakeConfig.extendD,
+                        new TrapezoidProfile.Constraints(IntakeConfig.maxExtendVelocity,
+                                IntakeConfig.maxExtendAcceleration)),
+                intake::extendAngle,
+                IntakeConfig.maxExtendAngle,
+                (output, setpoint) -> intake.setExtendSpeed(output),
+                intake);
 
         this.intake = intake;
         addRequirements(intake);
@@ -32,9 +30,14 @@ public class ExtendIntake extends ProfiledPIDCommand {
     }
 
     @Override
+    public void initialize() {
+        intake.motorExtend.setSelectedSensorPosition(0.0);
+    }
+
+    @Override
     public void end(boolean interrupted) {
         intake.setExtendSpeed(0.0);
-        intake.setExtended(true);
+        intake.extend();
     }
 
     @Override

@@ -8,10 +8,10 @@ import com.pigmice.frc.robot.Constants.IntakeConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
-    private TalonSRX motorRun, motorExtend;
-    private boolean enabled, extended, backwards;
-    private static double runSpeed;
-    private double extendSpeed;
+    public TalonSRX motorExtend;
+    private TalonSRX motorRun;
+    private boolean enabled, extended, forward;
+    private double runSpeed, extendSpeed;
     private final double extendGearRatio = 0.5;
 
     /** Creates a new Intake. */
@@ -27,24 +27,25 @@ public class Intake extends SubsystemBase {
         runSpeed = IntakeConfig.intakeSpeed;
         extendSpeed = 0.0;
 
+        this.forward = true;
         this.enabled = false;
         this.extended = false;
-        this.backwards = false;
     }
 
     public void enable() {setEnabled(true);}
     public void disable() {setEnabled(false);}
     public void toggle() {this.setEnabled(!this.enabled);}
-    public void setEnabled (boolean enabled) {this.enabled = enabled;}
+    public void setEnabled(boolean enabled) {this.enabled = enabled;}
 
     @Override
     public void periodic() {
         if (!enabled) return;
 
         if (extended) {
-            if (backwards) {motorRun.set(ControlMode.PercentOutput, -runSpeed);}
-            else {motorRun.set(ControlMode.PercentOutput, runSpeed);}
-        } else {motorRun.set(ControlMode.PercentOutput, 0.0);}
+            motorRun.set(ControlMode.PercentOutput, runSpeed * (forward ? 1 : -1));
+        } else {
+            motorRun.set(ControlMode.PercentOutput, 0.0);
+        }
 
         motorExtend.set(ControlMode.PercentOutput, extendSpeed);
     }
@@ -56,12 +57,15 @@ public class Intake extends SubsystemBase {
     }
 
     public double extendAngle() {
-        return motorExtend.getSelectedSensorPosition() * extendGearRatio * 360 / 4096; 
+        return motorExtend.getSelectedSensorPosition() * extendGearRatio * 360 / 4096;
     }
 
-    public void setExtended (boolean extend) {this.extended = extend;}
-    public void setExtendSpeed (double speed) {this.extendSpeed = speed;}
+    public void extend() {this.extended = this.forward = true;}
+    public void retract() {this.forward = false;}
 
-    public void setReverse (boolean backwards) {this.backwards = backwards;}
-    public void reverseDirection() {this.backwards = !backwards;}
+    public void setExtendSpeed(double speed) {this.extendSpeed = speed;}
+
+    public void runForward() {this.forward = true;}
+    public void runBackward() {this.forward = false;}
+    public void reverseDirection() {this.forward = !forward;}
 }
