@@ -11,6 +11,7 @@ import com.pigmice.frc.robot.commands.Indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.Indexer.SpinIndexerToAngleOld;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
+import com.pigmice.frc.robot.commands.shooter.ShootBallCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
@@ -112,7 +113,7 @@ public class RobotContainer {
     // .whenPressed(this.indexer::resetEncoder)
     // .whenPressed(new SpinIndexerToAngle(indexer, 90, false));
 
-    new JoystickButton(driver, Button.kA.value)
+    /*new JoystickButton(driver, Button.kA.value)
         .whenPressed(new SequentialCommandGroup(
             new InstantCommand(() -> this.shooter.enable()),
             new WaitUntilCommand(this.shooter::isAtTargetVelocity),
@@ -124,6 +125,15 @@ public class RobotContainer {
             new InstantCommand(() -> this.indexer.enable()),
             new SpinIndexerToAngle(indexer, 200, false)))
             
+        .whenReleased(() -> {
+          this.shooter.disable();
+          this.indexer.disable();
+        });*/
+
+        new JoystickButton(driver, Button.kA.value)
+        .whileHeld(
+          new ShootBallCommand(shooter, indexer)
+        )
         .whenReleased(() -> {
           this.shooter.disable();
           this.indexer.disable();

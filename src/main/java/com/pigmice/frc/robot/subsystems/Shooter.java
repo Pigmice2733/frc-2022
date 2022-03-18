@@ -107,6 +107,7 @@ public class Shooter extends SubsystemBase {
             this.setTargetSpeeds(0, 0);
         else
         this.setTargetSpeeds(2400, 2000);
+
             //this.setTargetSpeeds(2600, 2300);
         // this.setTargetSpeeds(2000, 1750);
 
@@ -174,7 +175,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean isAtTargetVelocity() {
-        return this.atTarget;
+        return topTargetRPM != 0 && topTargetRPM != 0 && this.atTarget;
     }
 
     private double calculate(double velocity) {
