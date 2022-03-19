@@ -18,39 +18,6 @@ import edu.wpi.first.wpilibj.SPI;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static class ShooterConfig {
-        public static final int topMotorPort = 10;
-        public static final int bottomMotorPort = 9;
-
-        public static final double topMotorSpeed = 0.62;
-        public static final double bottomMotorSpeed = 0.62;
-
-        public static final double shooterP = .02D;
-        public static final double shooterS = 0;
-        public static final double shooterV = .5;
-
-        public static final double velocityThreshold = 100; // tune this
-
-        public static enum ShooterModes {
-            AUTO(-1, -1), FENDER_LOW(0, 0), FENDER_HIGH(900, 2400), TARMAC(1600, 1800), LAUNCHPAD(0, 0);
-
-            private double topRPM, bottomRPM;
-
-            private ShooterModes(double topRPM, double botRPM) {
-                this.topRPM = topRPM;
-                this.bottomRPM = botRPM;
-            }
-
-            public double getTopRPM() {
-                return topRPM;
-            }
-
-            public double getBottomRPM() {
-                return bottomRPM;
-            }
-        }
-    }
-
     public static class ClimberConfig {
         public static final int liftRightPort = 5;
         public static final int liftLeftPort = 6;
@@ -134,10 +101,28 @@ public final class Constants {
 
         public static final int navXRotationalOffsetDegrees = 0;
 
-        public static final double driveThreshold = 0.2;
+        public static final double axisThreshold = 0.2;
         public static final double boostMultiplier = 1.25;
         public static final double slowMultiplier = 0.5;
 
+    }
+
+    public static class IndexerConfig {
+        public static final int motorPort = 11;
+        public static final boolean motorInverted = false;
+        public static final double gearRatio = 1;
+
+        public static final double kP = 0.01;
+        public static final double kI = 0.0015;
+        public static final double kD = 0;
+
+        public static final double maxRotateVelocity = 50.0;
+        public static final double maxRotateAcceleration = 50000.0;
+
+        public static final double angleTolerableError = 3.0;
+        public static final double angleTolerableEndVelocity = 1.0;
+
+        public static final int angleToShoot = 200;
     }
 
     public static class IntakeConfig {
@@ -158,20 +143,37 @@ public final class Constants {
         public static final double extendTolEndVelo = 0.1;
     }
 
-    public static class IndexerConfig {
-        public static final int motorPort = 11;
-        public static final boolean motorInverted = false;
-        public static final double gearRatio = 1;
+    public static class ShooterConfig {
+        public static final int topMotorPort = 10;
+        public static final int bottomMotorPort = 9;
 
-        public static final double kP = 0.01;
-        public static final double kI = 0.0015;
-        public static final double kD = 0;
+        public static final double topMotorSpeed = 0.62;
+        public static final double bottomMotorSpeed = 0.62;
 
-        public static final double maxRotateVelocity = 50.0;
-        public static final double maxRotateAcceleration = 50000.0;
+        public static final double shooterP = .02D;
+        public static final double shooterS = 0;
+        public static final double shooterV = .5;
 
-        public static final double angleTolerableError = 3.0;
-        public static final double angleTolerableEndVelocity = 1.0;
+        public static final double velocityThreshold = 100; // tune this
+
+        public static enum ShooterModes {
+            AUTO(-1, -1), FENDER_LOW(0, 0), FENDER_HIGH(900, 2400), TARMAC(1600, 1800), LAUNCHPAD(0, 0);
+
+            private double topRPM, bottomRPM;
+
+            private ShooterModes(double topRPM, double botRPM) {
+                this.topRPM = topRPM;
+                this.bottomRPM = botRPM;
+            }
+
+            public double getTopRPM() {
+                return topRPM;
+            }
+
+            public double getBottomRPM() {
+                return bottomRPM;
+            }
+        }
     }
 
     public static class VisionConfig {

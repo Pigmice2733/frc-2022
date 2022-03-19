@@ -87,17 +87,13 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         if (!enabled) {
             this.setTargetSpeeds(0, 0);
-        } else {
-            if (mode == ShooterModes.AUTO) {
-                // calculate speeds based on distance
-            } else {
-                this.setTargetSpeeds(mode.getTopRPM(), mode.getBottomRPM());
-            }
         }
 
-        double topRPM = this.topTargetRPM == RPM_NOT_SET ? this.topRPMEntry.getDouble(ShooterConfig.topMotorSpeed)
+        double topRPM = this.topTargetRPM == RPM_NOT_SET
+                ? this.topRPMEntry.getDouble(ShooterConfig.topMotorSpeed)
                 : this.topTargetRPM;
-        double botRPM = this.botTargetRPM == RPM_NOT_SET ? this.bottomRPMEntry.getDouble(ShooterConfig.bottomMotorSpeed)
+        double botRPM = this.botTargetRPM == RPM_NOT_SET
+                ? this.bottomRPMEntry.getDouble(ShooterConfig.bottomMotorSpeed)
                 : this.botTargetRPM;
 
         double topVelocity = topMotor.getSelectedSensorVelocity();
@@ -157,7 +153,7 @@ public class Shooter extends SubsystemBase {
         this.topTargetRPM = this.botTargetRPM = 0;
         this.topController.setTargetRPM(0);
         this.botController.setTargetRPM(0);
-        this.atTarget = false; // explain why this is necessary
+        this.atTarget = false;
     }
 
     public boolean isAtTargetVelocity() {
@@ -170,5 +166,13 @@ public class Shooter extends SubsystemBase {
 
     public void setMode(ShooterModes mode) {
         this.mode = mode;
+        this.enabled = true;
+    }
+
+    public void setSpeedsByDistance(double distance) {
+        double topSpeed = -1;
+        double bottomSpeed = -1;
+        // TODO calculate speeds based on distance
+        this.setTargetSpeeds(topSpeed, bottomSpeed);
     }
 }
