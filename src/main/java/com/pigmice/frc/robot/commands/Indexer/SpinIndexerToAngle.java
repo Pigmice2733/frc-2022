@@ -18,7 +18,7 @@ public class SpinIndexerToAngle extends PIDCommand {
         super(
                 new PIDController(IndexerConfig.kP, IndexerConfig.kI, IndexerConfig.kD),
                 indexer::getRotateAngle,
-                angle,
+                angle + indexer.getRotateAngle(),
                 indexer::setMotorOutput,
                 indexer);
 

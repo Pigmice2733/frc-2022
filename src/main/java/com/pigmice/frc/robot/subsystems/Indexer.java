@@ -152,8 +152,12 @@ public class Indexer extends SubsystemBase {
               new InstantCommand(this.intake::disable),
               new SpinUpFlywheelsCommand(this.shooter, 500),
               new WaitUntilCommand(this.shooter::isAtTargetVelocity),
-              new SpinIndexerToAngle(this, 200, false),
-              new InstantCommand(this.intake::enable)));
+              new SpinIndexerToAngle(this, 400, false),
+              new WaitCommand(1.0),
+              new InstantCommand(() -> {
+                this.intake.enable();
+                this.shooter.setTargetSpeeds(0.0, 0.0);
+              })));
 
         } else if (ballTracker.getSize() == 1) {
           CommandScheduler.getInstance().schedule(new SequentialCommandGroup(

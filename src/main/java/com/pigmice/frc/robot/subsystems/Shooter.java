@@ -105,10 +105,10 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         if (!enabled)
             this.setTargetSpeeds(0, 0);
-        else
-        this.setTargetSpeeds(2400, 2000);
+        // else
+        // this.setTargetSpeeds(2400, 2000);
 
-            //this.setTargetSpeeds(2600, 2300);
+        // this.setTargetSpeeds(2600, 2300);
         // this.setTargetSpeeds(2000, 1750);
 
         double topRPM = this.topTargetRPM == RPM_NOT_SET ? this.topRPMEntry.getDouble(ShooterConfig.topMotorSpeed)

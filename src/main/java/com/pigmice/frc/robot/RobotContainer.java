@@ -46,8 +46,8 @@ public class RobotContainer {
   private final Intake intake;
   private final Indexer indexer;
   private final Shooter shooter;
-  private final Lifty lifty;
-  private final Rotato rotato;
+  // private final Lifty lifty;
+  // private final Rotato rotato;
   // private final Lights lights;
   private final Controls controls;
 
@@ -63,8 +63,8 @@ public class RobotContainer {
     intake = new Intake();
     shooter = new Shooter();
     indexer = new Indexer(this.intake, this.shooter);
-    lifty = new Lifty();
-    rotato = new Rotato();
+    // lifty = new Lifty();
+    // rotato = new Rotato();
     // lights = new Lights();
 
     driver = new XboxController(Constants.driverControllerPort);
@@ -76,9 +76,10 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
         controls::getDriveSpeed, controls::getTurnSpeed));
 
-    rotato.setDefaultCommand(new RotateTo(rotato, this::getRotatePower, true,
-        this::usePower));
-    lifty.setDefaultCommand(new LiftTo(lifty, this::getLiftPower, true, this::usePower));
+    // rotato.setDefaultCommand(new RotateTo(rotato, this::getRotatePower, true,
+    // this::usePower));
+    // lifty.setDefaultCommand(new LiftTo(lifty, this::getLiftPower, true,
+    // this::usePower));
 
     // Configure the button bindings
     try {
@@ -185,52 +186,52 @@ public class RobotContainer {
     // make a double supplier that returns those and pass it in as the target state
     // for both default commands
 
-    new JoystickButton(operator, Button.kRightBumper.value)
-        .whenPressed(() -> this.liftOutput = 0.30)
-        .whenReleased(() -> {
-          this.liftOutput = 0.00;
-          this.lifty.setTarget(this.lifty.getRight().getLiftDistance());
-        });
+    // new JoystickButton(operator, Button.kRightBumper.value)
+    // .whenPressed(() -> this.liftOutput = 0.30)
+    // .whenReleased(() -> {
+    // this.liftOutput = 0.00;
+    // this.lifty.setTarget(this.lifty.getRight().getLiftDistance());
+    // });
 
-    new JoystickButton(operator, Button.kLeftBumper.value)
-        .whenPressed(() -> this.liftOutput = -0.30)
-        .whenReleased(() -> {
-          this.liftOutput = 0.00;
-          this.lifty.setTarget(this.lifty.getRight().getLiftDistance());
-        });
+    // new JoystickButton(operator, Button.kLeftBumper.value)
+    // .whenPressed(() -> this.liftOutput = -0.30)
+    // .whenReleased(() -> {
+    // this.liftOutput = 0.00;
+    // this.lifty.setTarget(this.lifty.getRight().getLiftDistance());
+    // });
 
-    new Trigger(() -> shootMode == false &&
-        new JoystickButton(operator, Button.kRightBumper.value).get())
-        .whenActive(() -> this.liftOutput = 0.30)
-        .whenInactive(() -> this.liftOutput = 0.00);
+    // new Trigger(() -> shootMode == false &&
+    // new JoystickButton(operator, Button.kRightBumper.value).get())
+    // .whenActive(() -> this.liftOutput = 0.30)
+    // .whenInactive(() -> this.liftOutput = 0.00);
 
-    new JoystickButton(operator, Button.kA.value)
-        .whenPressed(() -> this.rotateOutput = 0.35)
-        .whenReleased(() -> {
-          this.rotateOutput = 0.0;
-          this.rotato.setTarget(this.rotato.getRight().getRotateAngle());
-        });
+    // new JoystickButton(operator, Button.kA.value)
+    // .whenPressed(() -> this.rotateOutput = 0.35)
+    // .whenReleased(() -> {
+    // this.rotateOutput = 0.0;
+    // this.rotato.setTarget(this.rotato.getRight().getRotateAngle());
+    // });
 
-    new JoystickButton(operator, Button.kB.value)
-        .whenPressed(() -> this.rotateOutput = -0.35)
-        .whenReleased(() -> {
-          this.rotateOutput = 0.0;
-          this.rotato.setTarget(this.rotato.getRight().getRotateAngle());
-        });
+    // new JoystickButton(operator, Button.kB.value)
+    // .whenPressed(() -> this.rotateOutput = -0.35)
+    // .whenReleased(() -> {
+    // this.rotateOutput = 0.0;
+    // this.rotato.setTarget(this.rotato.getRight().getRotateAngle());
+    // });
 
-    new JoystickButton(operator, Button.kX.value)
-        .whenPressed(() -> this.rotateOutput = 0.15)
-        .whenReleased(() -> {
-          this.rotateOutput = 0.0;
-          this.rotato.setTarget(this.rotato.getRight().getRotateAngle());
-        });
+    // new JoystickButton(operator, Button.kX.value)
+    // .whenPressed(() -> this.rotateOutput = 0.15)
+    // .whenReleased(() -> {
+    // this.rotateOutput = 0.0;
+    // this.rotato.setTarget(this.rotato.getRight().getRotateAngle());
+    // });
 
-    new JoystickButton(operator, Button.kY.value)
-        .whenPressed(() -> this.rotateOutput = -0.15)
-        .whenReleased(() -> {
-          this.rotateOutput = 0.0;
-          this.rotato.setTarget(this.rotato.getRight().getRotateAngle());
-        });
+    // new JoystickButton(operator, Button.kY.value)
+    // .whenPressed(() -> this.rotateOutput = -0.15)
+    // .whenReleased(() -> {
+    // this.rotateOutput = 0.0;
+    // this.rotato.setTarget(this.rotato.getRight().getRotateAngle());
+    // });
 
     /*
      * new Trigger(() -> shootMode == false &&
@@ -251,13 +252,13 @@ public class RobotContainer {
         });
   }
 
-  private double getLiftPower() {
-    return usePower() ? this.liftOutput : lifty.getTarget();
-  }
+  // private double getLiftPower() {
+  // return usePower() ? this.liftOutput : lifty.getTarget();
+  // }
 
-  private double getRotatePower() {
-    return usePower() ? this.rotateOutput : rotato.getTarget();
-  }
+  // private double getRotatePower() {
+  // return usePower() ? this.rotateOutput : rotato.getTarget();
+  // }
 
   private boolean usePower() {
     return operator.getAButton() || operator.getBButton() ||
