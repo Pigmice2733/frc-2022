@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.pigmice.frc.robot.Constants.ShooterConfig;
+import com.pigmice.frc.robot.Constants.ShooterConfig.ShooterModes;
 import com.pigmice.frc.robot.RPMPController;
 import com.pigmice.frc.robot.Utils;
 
@@ -16,26 +17,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Shooter extends SubsystemBase {
     private boolean enabled = false;
 
-    private TalonSRX topMotor;
-    private TalonSRX botMotor;
+    private TalonSRX topMotor, botMotor;
 
-    private double shooterP, shooterS, shooterV, vThresh;
+    private double shooterP, vThresh;
 
     private final RPMPController topController = new RPMPController(shooterP, 0.25);
     private final RPMPController botController = new RPMPController(shooterP, 0.25);
 
     private final ShuffleboardTab shooterTab;
 
-    private final NetworkTableEntry topRPMEntry;
-    private final NetworkTableEntry bottomRPMEntry;
-
-    private final NetworkTableEntry actualTopRPM;
-    private final NetworkTableEntry actualBottomRPM;
-
-    private final NetworkTableEntry topCalculated;
-    private final NetworkTableEntry botCalculated;
-
-    private final NetworkTableEntry atTargetEntry;
+    private final NetworkTableEntry topRPMEntry, bottomRPMEntry, actualTopRPM,
+            actualBottomRPM, topCalculated, botCalculated, atTargetEntry;
 
     private final FeedbackDevice feedbackDevice = FeedbackDevice.CTRE_MagEncoder_Absolute;
 
@@ -48,6 +40,8 @@ public class Shooter extends SubsystemBase {
     // private static final double MAX_RPS_775 = MAX_RPM_775 / 60;
 
     private boolean atTarget = false;
+
+    private ShooterModes mode;
 
     // Create a new Shooter
     public Shooter() {
@@ -66,9 +60,7 @@ public class Shooter extends SubsystemBase {
         // botMotor.setNeutralMode(NeutralMode.Coast);
 
         this.shooterP = ShooterConfig.shooterP;
-        this.shooterS = ShooterConfig.shooterS;
-        this.shooterV = ShooterConfig.shooterV;
-        this.vThresh = ShooterConfig.velocityThreshhold;
+        this.vThresh = ShooterConfig.velocityThreshold;
 
         this.shooterTab = Shuffleboard.getTab("Shooter");
 
@@ -82,6 +74,8 @@ public class Shooter extends SubsystemBase {
         this.botCalculated = shooterTab.add("Bottom Calculated Velocity", 1).getEntry();
 
         this.atTargetEntry = shooterTab.add("At Target", this.atTarget).getEntry();
+
+        this.mode = ShooterModes.AUTO;
     }
 
     public void enable() {setEnabled(true);}
@@ -94,20 +88,18 @@ public class Shooter extends SubsystemBase {
         if (!enabled) {
             this.setTargetSpeeds(0, 0);
         } else {
-            this.setTargetSpeeds(2400, 2000);
+            if (mode == ShooterModes.AUTO) {
+                // calculate speeds based on distance
+            } else {
+                this.setTargetSpeeds(mode.getTopRPM(), mode.getBottomRPM());
+            }
         }
-
-        // this.setTargetSpeeds(2600, 2300);
-        // this.setTargetSpeeds(2000, 1750);
 
         double topRPM = this.topTargetRPM == RPM_NOT_SET ? this.topRPMEntry.getDouble(ShooterConfig.topMotorSpeed)
                 : this.topTargetRPM;
         double botRPM = this.botTargetRPM == RPM_NOT_SET ? this.bottomRPMEntry.getDouble(ShooterConfig.bottomMotorSpeed)
                 : this.botTargetRPM;
-        // from tarmac edge
-        // this.setTargetSpeeds(1600, 1800);
-        // from fender
-        // this.setTargetSpeeds(900, 2400);
+
         double topVelocity = topMotor.getSelectedSensorVelocity();
         double botVelocity = botMotor.getSelectedSensorVelocity();
 
@@ -135,6 +127,11 @@ public class Shooter extends SubsystemBase {
         botMotor.set(ControlMode.PercentOutput, botTarget);
     }
 
+    @Override
+    public void simulationPeriodic() {
+        this.periodic();
+    }
+
     /**
      * Sets the target RPMs of the top and bottom shooter motors.
      * 
@@ -160,19 +157,18 @@ public class Shooter extends SubsystemBase {
         this.topTargetRPM = this.botTargetRPM = 0;
         this.topController.setTargetRPM(0);
         this.botController.setTargetRPM(0);
-        this.atTarget = false;
+        this.atTarget = false; // explain why this is necessary
     }
 
     public boolean isAtTargetVelocity() {
         return topTargetRPM != 0 && botTargetRPM != 0 && this.atTarget;
     }
 
-    private double calculate(double velocity) {
-        return shooterS * Math.signum(velocity) + shooterV * velocity;
+    public ShooterModes getMode() {
+        return mode;
     }
 
-    @Override
-    public void simulationPeriodic() {
-        periodic();
+    public void setMode(ShooterModes mode) {
+        this.mode = mode;
     }
 }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
+import com.pigmice.frc.robot.commands.ShootBallCommand;
 import com.pigmice.frc.robot.commands.Indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.Indexer.SpinIndexerToAngleOld;
 import com.pigmice.frc.robot.commands.climber.ClimbRung;
@@ -15,7 +16,6 @@ import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
-import com.pigmice.frc.robot.commands.shooter.ShootBallCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
@@ -114,7 +114,7 @@ public class RobotContainer {
     // OPERATOR CONTROLS
 
     new JoystickButton(operator, Button.kLeftStick.value)
-      .whenPressed(() -> this.shootMode = !shootMode);
+        .whenPressed(() -> this.shootMode = !shootMode);
 
     // TODO Create target variables for both rotato and lifty that the default
     // commands will use
@@ -122,55 +122,57 @@ public class RobotContainer {
     // for both default commands
 
     new Trigger(() -> shootMode == false &&
-      new JoystickButton(operator, Button.kRightBumper.value).get())
-      .whenActive(() -> this.liftOutput = 0.30)
-      .whenInactive(() -> this.liftOutput = 0.00);
+        new JoystickButton(operator, Button.kRightBumper.value).get())
+        .whenActive(() -> this.liftOutput = 0.30)
+        .whenInactive(() -> this.liftOutput = 0.00);
 
     new Trigger(() -> shootMode == false &&
-      new JoystickButton(operator, Button.kLeftBumper.value).get())
-      .whenActive(() -> this.liftOutput = -0.30)
-      .whenInactive(() -> this.liftOutput = 0.00);
+        new JoystickButton(operator, Button.kLeftBumper.value).get())
+        .whenActive(() -> this.liftOutput = -0.30)
+        .whenInactive(() -> this.liftOutput = 0.00);
 
     new Trigger(() -> shootMode == false &&
-      new JoystickButton(operator, Button.kA.value).get())
-      .whenActive(() -> this.rotateOutput = 0.35)
-      .whenInactive(() -> this.rotateOutput = 0.00);
+        new JoystickButton(operator, Button.kA.value).get())
+        .whenActive(() -> this.rotateOutput = 0.35)
+        .whenInactive(() -> this.rotateOutput = 0.00);
 
     new Trigger(() -> shootMode == false &&
-      new JoystickButton(operator, Button.kB.value).get())
-      .whenActive(() -> this.rotateOutput = -0.35)
-      .whenInactive(() -> this.rotateOutput = 0.00);
+        new JoystickButton(operator, Button.kB.value).get())
+        .whenActive(() -> this.rotateOutput = -0.35)
+        .whenInactive(() -> this.rotateOutput = 0.00);
 
     new Trigger(() -> shootMode == false &&
-      new JoystickButton(operator, Button.kX.value).get())
-      .whenActive(() -> this.rotateOutput = 0.15)
-      .whenInactive(() -> this.rotateOutput = 0.00);
-    
-    new Trigger(() -> shootMode == false &&
-      new JoystickButton(operator, Button.kY.value).get())
-      .whenActive(() -> this.rotateOutput = -0.15)
-      .whenInactive(() -> this.rotateOutput = 0.00);
-    
-    new Trigger(() -> shootMode == false &&
-      new JoystickButton(operator, Button.kRightStick.value).get())
-      .whenActive(new ClimbRung(lifty, rotato));
+        new JoystickButton(operator, Button.kX.value).get())
+        .whenActive(() -> this.rotateOutput = 0.15)
+        .whenInactive(() -> this.rotateOutput = 0.00);
 
-    /* new Trigger(() -> mode == false &&
-      new JoystickButton(operator, Button.kBack.value).get())
-      .whenActive(new ClimbMid(lifty, rotato)); */
+    new Trigger(() -> shootMode == false &&
+        new JoystickButton(operator, Button.kY.value).get())
+        .whenActive(() -> this.rotateOutput = -0.15)
+        .whenInactive(() -> this.rotateOutput = 0.00);
+
+    new Trigger(() -> shootMode == false &&
+        new JoystickButton(operator, Button.kRightStick.value).get())
+        .whenActive(new ClimbRung(lifty, rotato));
+
+    /*
+     * new Trigger(() -> mode == false &&
+     * new JoystickButton(operator, Button.kBack.value).get())
+     * .whenActive(new ClimbMid(lifty, rotato));
+     */
 
     new Trigger(() -> shootMode == true &&
-      new JoystickButton(operator, Button.kA.value).get())
-      .whenActive(new ExtendIntake(intake))
-      .whenInactive(new RetractIntake(intake));
+        new JoystickButton(operator, Button.kA.value).get())
+        .whenActive(new ExtendIntake(intake))
+        .whenInactive(new RetractIntake(intake));
 
-    new Trigger(() -> shootMode == true &&  
-      operator.getRightTriggerAxis() >= (1 - DrivetrainConfig.driveThreshold))
-      .whenActive(new ShootBallCommand(shooter, indexer))
-      .whenInactive(() -> {
-        this.shooter.disable();
-        this.indexer.disable();
-      });
+    new Trigger(() -> shootMode == true &&
+        operator.getRightTriggerAxis() >= (1 - DrivetrainConfig.driveThreshold))
+        .whenActive(new ShootBallCommand(shooter, indexer))
+        .whenInactive(() -> {
+          this.shooter.disable();
+          this.indexer.disable();
+        });
   }
 
   // private double getPower() {
