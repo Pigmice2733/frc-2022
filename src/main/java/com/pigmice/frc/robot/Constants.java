@@ -29,7 +29,26 @@ public final class Constants {
         public static final double shooterS = 0;
         public static final double shooterV = .5;
 
-        public static final double velocityThreshhold = 100; // tune this
+        public static final double velocityThreshold = 100; // tune this
+
+        public static enum ShooterModes {
+            AUTO(-1, -1), FENDER_LOW(0, 0), FENDER_HIGH(900, 2400), TARMAC(1600, 1800), LAUNCHPAD(0, 0);
+
+            private double topRPM, bottomRPM;
+
+            private ShooterModes(double topRPM, double botRPM) {
+                this.topRPM = topRPM;
+                this.bottomRPM = botRPM;
+            }
+
+            public double getTopRPM() {
+                return topRPM;
+            }
+
+            public double getBottomRPM() {
+                return bottomRPM;
+            }
+        }
     }
 
     public static class ClimberConfig {
