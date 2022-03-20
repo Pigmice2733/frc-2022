@@ -19,7 +19,7 @@ public class SpinIndexerToAngle extends PIDCommand {
         super(
                 new PIDController(IndexerConfig.kP, IndexerConfig.kI, IndexerConfig.kD),
                 indexer::getRotateAngle,
-                angle + indexer.getRotateAngle(),
+                angle,
                 indexer::setMotorOutput,
                 indexer);
 
@@ -34,7 +34,9 @@ public class SpinIndexerToAngle extends PIDCommand {
 
     @Override
     public void initialize() {
+        this.indexer.enable();
         this.indexer.setMode(IndexerMode.ANGLE);
+        this.indexer.resetEncoder();
     }
 
     @Override
@@ -44,13 +46,11 @@ public class SpinIndexerToAngle extends PIDCommand {
 
     @Override
     public boolean isFinished() {
-        /*
-         * System.out.println(
-         * "ROTATE | DISTANCE FROM SETPOINT: "
-         * + (getController().getSetpoint().position - indexer.getRotateAngle())
-         * + " SETPOINT: " + getController().getSetpoint().position + " | AT SETPOINT? "
-         * + getController().atGoal());
-         */
+        System.out.println(
+                "ROTATE | DISTANCE FROM SETPOINT: "
+                        + (getController().getSetpoint() - indexer.getRotateAngle())
+                        + " SETPOINT: " + getController().getSetpoint() + " | AT SETPOINT? "
+                        + getController().atSetpoint());
         return !this.infinite && getController().atSetpoint();
     }
 }

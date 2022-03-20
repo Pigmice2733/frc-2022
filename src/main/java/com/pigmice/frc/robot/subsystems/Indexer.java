@@ -53,8 +53,6 @@ public class Indexer extends SubsystemBase {
   private BallTracker ballTracker;
   private BallDetector ballDetector;
 
-  private boolean runWhenShooterAtSpeed = false;
-
   private IndexerMode mode = IndexerMode.FREE_SPIN;
 
   // RPM stuff for free spin
@@ -62,6 +60,8 @@ public class Indexer extends SubsystemBase {
   private final FeedbackDevice feedbackDevice = FeedbackDevice.CTRE_MagEncoder_Absolute;
 
   private static final double FREE_SPIN_POWER = 0.30;
+
+  private static final double GEAR_RATIO = 1.0 / 2.0;
 
   /** Creates a new Indexer. */
   public Indexer(Intake intake, Shooter shooter) {
@@ -122,7 +122,7 @@ public class Indexer extends SubsystemBase {
         // spin to angle command handles motor output
         break;
       case FREE_SPIN:
-        setMotorOutput(FREE_SPIN_POWER);
+        setMotorOutput(FREE_SPIN_POWER + (this.ballTracker.getSize() > 0 ? 0.15 : 0.0));
         doFreeSpin();
         break;
       case EJECT_BY_INTAKE:
@@ -138,6 +138,9 @@ public class Indexer extends SubsystemBase {
   private void doFreeSpin() {
     if (!isLookingForBalls)
       return;
+
+    System.out.println("NUM BALLS: " + this.ballTracker.getSize() + " | BALL 0: "
+        + this.ballTracker.getBallInPosition(0) + " | BALL 1: " + this.ballTracker.getBallInPosition(1));
 
     Alliance ballAlliance = this.ballDetector.getNewBall();
 
@@ -164,7 +167,7 @@ public class Indexer extends SubsystemBase {
         CommandScheduler.getInstance().schedule(new EjectBallCommand(this, this.shooter, this.intake));
       } else if (ballTracker.getSize() == 1) {
         System.out.println("WRONG COLOR! SHOULD REVERSE INTAKE!");
-        CommandScheduler.getInstance().schedule(new EjectByIntakeCommand(null, this.intake));
+        CommandScheduler.getInstance().schedule(new EjectByIntakeCommand(this, this.intake));
       }
     }
   }
@@ -179,14 +182,6 @@ public class Indexer extends SubsystemBase {
     motorOutputEntry.setDouble(output);
   }
 
-  public void setRunWhenShooterAtSpeed(boolean runWhenShooterAtSpeed) {
-    this.runWhenShooterAtSpeed = runWhenShooterAtSpeed;
-  }
-
-  public boolean getRunWhenShooterAtSpeed() {
-    return this.runWhenShooterAtSpeed;
-  }
-
   public void stopMotor() {
     setMotorOutput(0);
   }
@@ -195,8 +190,12 @@ public class Indexer extends SubsystemBase {
     return motor.getSelectedSensorPosition();
   }
 
+  public double getEncoderVelocity() {
+    return motor.getSelectedSensorVelocity() / 4096.0;
+  }
+
   public double getRotateAngle() {
-    double rotateAngle = (this.getEncoderPosition() / 4096.0) * 360.0;
+    double rotateAngle = (this.getEncoderPosition() / 4096.0) * 360.0 * GEAR_RATIO;
     rotateAngleEntry.setDouble(rotateAngle);
     return rotateAngle;
   }

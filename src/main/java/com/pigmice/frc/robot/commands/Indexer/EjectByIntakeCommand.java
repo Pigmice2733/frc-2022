@@ -22,7 +22,7 @@ public class EjectByIntakeCommand extends SequentialCommandGroup {
                     indexer.setLookingForBalls(false);
                     indexer.setMode(IndexerMode.FREE_SPIN);
                 }),
-                new WaitCommand(0.3),
+                new WaitCommand(0.5),
                 new InstantCommand(() -> {
                     indexer.setLookingForBalls(true);
                 }));

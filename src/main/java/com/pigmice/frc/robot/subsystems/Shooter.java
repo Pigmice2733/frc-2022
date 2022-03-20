@@ -18,8 +18,6 @@ public class Shooter extends SubsystemBase {
 
 	private CANSparkMax topMotor, botMotor;
 
-	private double vThresh;
-
 	// private final RPMPController topController = new RPMPController(shooterP,
 	// 0.25);
 	// private final RPMPController botController = new RPMPController(shooterP,
@@ -36,10 +34,6 @@ public class Shooter extends SubsystemBase {
 
 	// private static final double MAX_RPM_775 = 18700;
 	// private static final double MAX_RPS_775 = MAX_RPM_775 / 60;
-
-	private boolean atTarget = false;
-
-	private static final double INDEX_MODE_RPM = -200.0;
 
 	private ShooterMode mode;
 
@@ -101,7 +95,7 @@ public class Shooter extends SubsystemBase {
 		this.actualTopRPM = shooterTab.add("Actual Top RPM", 1).getEntry();
 		this.actualBottomRPM = shooterTab.add("Actual Bottom RPM", 1).getEntry();
 
-		this.atTargetEntry = shooterTab.add("At Target", this.atTarget).getEntry();
+		this.atTargetEntry = shooterTab.add("At Target", false).getEntry();
 
 		this.mode = ShooterMode.AUTO;
 	}
@@ -139,13 +133,14 @@ public class Shooter extends SubsystemBase {
 		double topActualRPM = this.topEncoder.getVelocity();
 		double botActualRPM = this.botEncoder.getVelocity();
 
-		// System.out.println("MODE: " + this.mode + " | TOP RPM: " + topActualRPM + " |
-		// BOTTOM RPM: " + botActualRPM);
+		// System.out.println("MODE: " + this.mode + " | RPM: " + topActualRPM + " - " +
+		// botActualRPM + " | TARGET: "
+		// + topRPM + " - " + botRPM);
 
 		this.actualTopRPM.setDouble(topActualRPM);
 		this.actualBottomRPM.setDouble(botActualRPM);
 
-		this.atTargetEntry.setBoolean(this.atTarget);
+		this.atTargetEntry.setBoolean(this.isAtTargetVelocity());
 	}
 
 	public double getCurrentRPM() {
@@ -160,7 +155,6 @@ public class Shooter extends SubsystemBase {
 	public void stopMotors() {
 		this.topController.setReference(0.0, ControlType.kVelocity);
 		this.botController.setReference(0.0, ControlType.kVelocity);
-		this.atTarget = false;
 	}
 
 	public boolean isAtTargetVelocity() {

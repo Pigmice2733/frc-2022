@@ -17,10 +17,14 @@ public class EjectBallCommand extends SequentialCommandGroup {
         super(
                 new InstantCommand(() -> {
                     intake.disable();
-                    indexer.setMode(IndexerMode.SHOOT);
-                    indexer.setMotorOutput(0.0);
+                    indexer.setMode(IndexerMode.ANGLE);
+                    indexer.stopMotor();
                 }),
+                new SpinIndexerToAngle(indexer, -90.0, false),
                 new SpinUpFlywheelsCommand(shooter, ShooterMode.EJECT),
+                new InstantCommand(() -> {
+                    indexer.setMode(IndexerMode.SHOOT);
+                }),
                 new WaitUntilCommand(() -> shooter.didJustShoot()).withTimeout(1.0),
                 new WaitCommand(0.25),
                 new InstantCommand(() -> {

@@ -111,12 +111,12 @@ public final class Constants {
         public static final int motorPort = 11;
         public static final double gearRatio = 1;
 
-        public static final double kP = 0.00125;
-        public static final double kI = 0.0001;
+        public static final double kP = 0.002;
+        public static final double kI = 0.00015;
         public static final double kD = 0;
 
-        public static final double freeSpin_kP = 0.1;
-        public static final double freeSpin_kS = 0;
+        public static final double freeSpin_kP = 0.25;
+        public static final double freeSpin_kS = 1e-4;
         public static final double freeSpinP_kV = 0.5;
 
         public static final double maxRotateVelocity = 50.0;
@@ -181,9 +181,9 @@ public final class Constants {
         public static final double spinUpThresholdPercent = 0.05;
         public static final double shotThresholdRPM = 200.0;
 
-        public static final double kP = 8e-5;
-        public static final double kI = 1e-7;
-        public static final double kD = 0;
+        public static final double kP = 2e-4;
+        public static final double kI = 3e-7;
+        public static final double kD = 4e-2;
         public static final double kIz = 0;
         public static final double kFF = 0.000156;
         public static final double kMaxOutput = 1;
@@ -191,8 +191,8 @@ public final class Constants {
 
         public static enum ShooterMode {
             // TODO none of these have been found yet
-            OFF(0, 0), AUTO(-1, -1), FENDER_LOW(250, 250), FENDER_HIGH(900, 2400), TARMAC(1600, 1800), LAUNCHPAD(0, 0),
-            INDEX(0, -200.0), EJECT(1000, 1000);
+            OFF(0, 0), AUTO(-1, -1), FENDER_LOW(900, 900), FENDER_HIGH(900, 2400), TARMAC(1600, 1800), LAUNCHPAD(0, 0),
+            INDEX(0, -350.0), EJECT(1000, 1000);
 
             private double topRPM, bottomRPM;
 

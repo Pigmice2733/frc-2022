@@ -8,10 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
+import com.pigmice.frc.robot.Constants.IndexerConfig.IndexerMode;
 import com.pigmice.frc.robot.Constants.ShooterConfig.ShooterMode;
 import com.pigmice.frc.robot.commands.ShootBallCommand;
 import com.pigmice.frc.robot.commands.climber.ClimbRung;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
+import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.pigmice.frc.robot.commands.shooter.SpinUpFlywheelsCommand;
@@ -29,6 +31,9 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -179,27 +184,30 @@ public class RobotContainer {
 				.whenInactive(new RetractIntake(intake));
 
 		this.shootTrigger
-				.whileActiveContinuous(new ShootBallCommand(shooter, indexer))
-				.whenInactive(() -> this.indexer.disable());
+				.whileActiveOnce(new ShootBallCommand(shooter, indexer))
+				.whenInactive(() -> this.indexer.setMode(IndexerMode.FREE_SPIN));
 
 		this.shootTarmac
-				.whenActive(new StartShooterCommand(shooter, ShooterMode.TARMAC))
+				.whenActive(getShooterModeCommands(ShooterMode.TARMAC))
 				.whenInactive(new StartShooterCommand(shooter, ShooterMode.AUTO));
 
 		this.shootLaunchpad
-				.whenActive(new StartShooterCommand(shooter, ShooterMode.LAUNCHPAD))
+				.whenActive(getShooterModeCommands(ShooterMode.LAUNCHPAD))
 				.whenInactive(new StartShooterCommand(shooter, ShooterMode.AUTO));
 
 		this.shootLow
-				.whenActive(new StartShooterCommand(shooter, ShooterMode.FENDER_LOW))
+				.whenActive(getShooterModeCommands(ShooterMode.FENDER_LOW))
 				.whenInactive(new StartShooterCommand(shooter, ShooterMode.AUTO));
 
 		this.shootFender
-				.whenActive(new StartShooterCommand(shooter, ShooterMode.FENDER_HIGH))
+				.whenActive(getShooterModeCommands(ShooterMode.FENDER_HIGH))
 				.whenInactive(new StartShooterCommand(shooter, ShooterMode.AUTO));
 
 		shootTrigger.or(shootTarmac).or(shootLaunchpad).or(shootLow).or(shootFender)
-				.whenInactive(() -> this.shooter.disable());
+				.whenInactive(() -> {
+					this.shooter.disable();
+					this.indexer.setMode(IndexerMode.FREE_SPIN);
+				});
 	}
 
 	public void onEnable() {
@@ -217,6 +225,17 @@ public class RobotContainer {
 		this.intake.disable();
 	}
 
+	public SequentialCommandGroup getShooterModeCommands(ShooterMode mode) {
+		return new SequentialCommandGroup(
+				new InstantCommand(() -> {
+					this.indexer.setMode(IndexerMode.ANGLE);
+					this.indexer.stopMotor();
+				}),
+				new WaitUntilCommand(() -> this.indexer.getEncoderVelocity() == 0),
+				new SpinIndexerToAngle(this.indexer, -90.0, false),
+				new StartShooterCommand(shooter, mode));
+	}
+
 	// private double getPower() {
 	// return usePower() ? this.rotateOutput : rotato.getTarget();
 	// }
@@ -232,7 +251,7 @@ public class RobotContainer {
 	 * @return the command to run in autonomous
 	 */
 	public Command getAutonomousCommand() {
-		return new SpinUpFlywheelsCommand(this.shooter, ShooterMode.EJECT);
+		return new SpinIndexerToAngle(this.indexer, -90.0, false);
 	}
 
 	public List<Testable> getTestables() {
