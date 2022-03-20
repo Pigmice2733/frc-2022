@@ -5,15 +5,11 @@ import com.pigmice.frc.robot.subsystems.Shooter;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class SpinUpFlywheelsCommand extends CommandBase {
+public class StartShooterCommand extends CommandBase {
     private Shooter shooter;
     private ShooterMode mode;
 
-    public SpinUpFlywheelsCommand(Shooter shooter) {
-        this(shooter, ShooterMode.AUTO);
-    }
-
-    public SpinUpFlywheelsCommand(Shooter shooter, ShooterMode mode) {
+    public StartShooterCommand(Shooter shooter, ShooterMode mode) {
         this.shooter = shooter;
         this.mode = mode;
 
@@ -22,19 +18,15 @@ public class SpinUpFlywheelsCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        this.shooter.setEnabled(true);
-        // TODO calculate speeds based on distance
-        this.shooter.setMode(this.mode);
+        this.shooter.setMode(mode);
     }
 
     @Override
     public void execute() {
-
     }
 
     @Override
     public boolean isFinished() {
-        System.out.println("IS AT TARGET VELOCITY? " + this.shooter.isAtTargetVelocity());
         return this.shooter.isAtTargetVelocity();
     }
 }

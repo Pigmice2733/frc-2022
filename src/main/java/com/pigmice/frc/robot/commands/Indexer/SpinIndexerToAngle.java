@@ -5,6 +5,7 @@
 package com.pigmice.frc.robot.commands.indexer;
 
 import com.pigmice.frc.robot.Constants.IndexerConfig;
+import com.pigmice.frc.robot.Constants.IndexerConfig.IndexerMode;
 import com.pigmice.frc.robot.subsystems.Indexer;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -29,6 +30,11 @@ public class SpinIndexerToAngle extends PIDCommand {
                 IndexerConfig.angleTolerableEndVelocity);
 
         addRequirements(indexer);
+    }
+
+    @Override
+    public void initialize() {
+        this.indexer.setMode(IndexerMode.ANGLE);
     }
 
     @Override
