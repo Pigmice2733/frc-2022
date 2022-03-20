@@ -8,7 +8,7 @@ import com.pigmice.frc.robot.Constants.IntakeConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
-    private TalonSRX motorRun, motorExtend;
+    // private TalonSRX motorRun, motorExtend;
     private boolean enabled, extended, backwards;
     private static double runSpeed;
     private double extendSpeed;
@@ -16,13 +16,13 @@ public class Intake extends SubsystemBase {
 
     /** Creates a new Intake. */
     public Intake() {
-        motorRun = new TalonSRX(IntakeConfig.intakeBottomPort);
-        motorRun.configFactoryDefault();
+        // motorRun = new TalonSRX(IntakeConfig.intakeBottomPort);
+        // motorRun.configFactoryDefault();
 
-        motorExtend = new TalonSRX(IntakeConfig.intakeTopPort);
-        motorExtend.configFactoryDefault();
-        motorExtend.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
-        motorExtend.setSelectedSensorPosition(0.0);
+        // motorExtend = new TalonSRX(IntakeConfig.intakeTopPort);
+        // motorExtend.configFactoryDefault();
+        // motorExtend.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
+        // motorExtend.setSelectedSensorPosition(0.0);
 
         runSpeed = IntakeConfig.intakeSpeed;
         extendSpeed = 0.0;
@@ -32,21 +32,38 @@ public class Intake extends SubsystemBase {
         this.backwards = false;
     }
 
-    public void enable() {setEnabled(true);}
-    public void disable() {setEnabled(false);}
-    public void toggle() {this.setEnabled(!this.enabled);}
-    public void setEnabled (boolean enabled) {this.enabled = enabled;}
+    public void enable() {
+        setEnabled(true);
+    }
+
+    public void disable() {
+        setEnabled(false);
+    }
+
+    public void toggle() {
+        this.setEnabled(!this.enabled);
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     @Override
     public void periodic() {
-        if (!enabled) return;
+        if (!enabled)
+            return;
 
         if (extended) {
-            if (backwards) {motorRun.set(ControlMode.PercentOutput, -runSpeed);}
-            else {motorRun.set(ControlMode.PercentOutput, runSpeed);}
-        } else {motorRun.set(ControlMode.PercentOutput, 0.0);}
+            if (backwards) {
+                // motorRun.set(ControlMode.PercentOutput, -runSpeed);
+            } else {
+                // motorRun.set(ControlMode.PercentOutput, runSpeed);
+            }
+        } else {
+            // motorRun.set(ControlMode.PercentOutput, 0.0);
+        }
 
-        motorExtend.set(ControlMode.PercentOutput, extendSpeed);
+        // motorExtend.set(ControlMode.PercentOutput, extendSpeed);
     }
 
     @Override
@@ -56,12 +73,29 @@ public class Intake extends SubsystemBase {
     }
 
     public double extendAngle() {
-        return motorExtend.getSelectedSensorPosition() * extendGearRatio * 360 / 4096; 
+        return 0;
+        // return motorExtend.getSelectedSensorPosition() * extendGearRatio * 360 /
+        // 4096;
     }
 
-    public void setExtended (boolean extend) {this.extended = extend;}
-    public void setExtendSpeed (double speed) {this.extendSpeed = speed;}
+    public void extend() {
+        this.extended = true;
+        this.backwards = false;
+    }
 
-    public void setReverse (boolean backwards) {this.backwards = backwards;}
-    public void reverseDirection() {this.backwards = !backwards;}
+    public void retract() {
+        this.extended = false;
+    }
+
+    public void setExtendSpeed(double speed) {
+        this.extendSpeed = speed;
+    }
+
+    public void setReverse(boolean backwards) {
+        this.backwards = backwards;
+    }
+
+    public void reverseDirection() {
+        this.backwards = !backwards;
+    }
 }

@@ -38,6 +38,8 @@ Operator - Shoot Mode:
     Dpad ← - Fender High
     Dpad → - Lanchpad High
 
+    **ADD MANUAL BALL REJECT**
+
 Operator - Climb Mode:
     Left X - N/A
     Left Y - N/A

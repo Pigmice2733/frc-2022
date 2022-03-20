@@ -8,7 +8,7 @@ public class Controls {
     XboxController driver;
     XboxController operator;
 
-    private double threshold = DrivetrainConfig.driveThreshold;
+    private double threshold = DrivetrainConfig.axisThreshold;
 
     // Create a new Controls
     public Controls(XboxController driver, XboxController operator) {
