@@ -28,8 +28,15 @@ public class VisionAlignCommand extends ProfiledPIDCommand {
 
     @Override
     public void initialize() {
+        Vision.startAligning();
         Vision.update();
         super.initialize();
+    }
+
+    @Override
+    public void execute() {
+        Vision.update();
+        super.execute();
     }
 
     @Override
