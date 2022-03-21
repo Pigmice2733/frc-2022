@@ -92,10 +92,10 @@ public class Vision {
             outputEntry.setDouble(output);
 
             // clamp output between -0.15 and 0.15
-            output = Math.min(0.15, Math.max(output, -0.15));
+            output = Math.min(VisionConfig.rotationMaxOutput, Math.max(output, VisionConfig.rotationMinOutput));
 
             // minimum power of 0.05, preserving direction
-            output = Math.max(Math.abs(output), 0.05) * Math.signum(output);
+            output = Math.max(Math.abs(output), VisionConfig.rotationMinPower) * Math.signum(output);
             return output;
         } else {
             return 0;
