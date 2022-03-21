@@ -56,5 +56,6 @@ public class VisionAlignCommand extends CommandBase {
     public void end(boolean interrupted) {
         Vision.stopAligning();
         drivetrain.arcadeDrive(0.0, 0.0);
+        super.end(interrupted);
     }
 }

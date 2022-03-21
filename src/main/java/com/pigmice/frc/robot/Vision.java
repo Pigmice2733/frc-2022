@@ -36,7 +36,6 @@ public class Vision {
     private static NetworkTableEntry outputEntry;
 
     private static PhotonTrackedTarget lastTarget;
-    private static double lastYaw = 0.0;
 
     private static Ring angleBuffer = new Ring(5);
 
@@ -60,6 +59,10 @@ public class Vision {
         currentlyAligning = false;
 
         camera = new PhotonCamera("gloworm");
+    }
+
+    public static void reset() {
+        angleBuffer = new Ring(5);
     }
 
     public static void update() {
@@ -87,11 +90,13 @@ public class Vision {
         if (hasTarget()) {
             double output = rotationController.calculate(getTargetYaw());
             outputEntry.setDouble(output);
-            if (output > 0.0) {
-                return Math.min(output, 0.15);
-            } else {
-                return Math.max(output, -0.15);
-            }
+
+            // clamp output between -0.15 and 0.15
+            output = Math.min(0.15, Math.max(output, -0.15));
+
+            // minimum power of 0.05, preserving direction
+            output = Math.max(Math.abs(output), 0.05) * Math.signum(output);
+            return output;
         } else {
             return 0;
         }
@@ -101,6 +106,7 @@ public class Vision {
         currentlyAligning = true;
         System.out.println("TURNING ON CAMERA LEDS");
         camera.setLED(VisionLEDMode.kOn);
+        Vision.reset();
     }
 
     public static void stopAligning() {
@@ -141,7 +147,6 @@ public class Vision {
             PhotonTrackedTarget target = getBestTarget();
             if (target != null) {
                 double angle = target.getYaw();
-                lastYaw = angle;
                 angleBuffer.put(angle);
                 yawEntry.setDouble(angle);
                 directionEntry.setString(angle < 0 ? "LEFT" : angle > 0 ? "RIGHT" : "STRAIGHT");

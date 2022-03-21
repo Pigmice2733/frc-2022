@@ -217,9 +217,9 @@ public final class Constants {
         public static final double cameraPitchRadians = 0;
         public static final double goalRangeMeters = 0.0;
 
-        public static final double rotationP = 0.005;
-        public static final double rotationI = 1e-7;
-        public static final double rotationD = 0.0;
+        public static final double rotationP = 0.015;
+        public static final double rotationI = 0.0;
+        public static final double rotationD = 8e-4;
 
         public static final double tolerableError = 0.1;
         public static final double tolerableEndVelocity = 0.1;

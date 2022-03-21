@@ -132,8 +132,10 @@ public class RobotContainer {
 				.whenPressed(this.drivetrain::slow)
 				.whenReleased(this.drivetrain::stopSlow);
 
+		final VisionAlignCommand visionAlign = new VisionAlignCommand(this.drivetrain);
 		new JoystickButton(driver, Button.kA.value)
-				.whenPressed(new VisionAlignCommand(this.drivetrain));
+				.whenPressed(visionAlign)
+				.whenReleased(() -> CommandScheduler.getInstance().cancel(visionAlign));
 
 		// OPERATOR CONTROLS
 
