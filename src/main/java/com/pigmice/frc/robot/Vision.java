@@ -1,5 +1,6 @@
 package com.pigmice.frc.robot;
 
+import com.pigmice.frc.lib.utils.Ring;
 import com.pigmice.frc.robot.Constants.VisionConfig;
 
 import org.photonvision.PhotonCamera;
@@ -8,11 +9,14 @@ import org.photonvision.common.hardware.VisionLEDMode;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 
 public class Vision {
     // TODO change these
@@ -23,13 +27,27 @@ public class Vision {
             VisionConfig.rotationD);
 
     private static boolean currentlyAligning = false;
-    private static double rotationOutput = 0.0;
 
     private static ShuffleboardTab visionTab;
     private static NetworkTableEntry yawEntry;
     private static NetworkTableEntry hasTargetEntry;
     private static NetworkTableEntry directionEntry;
     private static NetworkTableEntry distanceEntry;
+    private static NetworkTableEntry outputEntry;
+
+    private static PhotonTrackedTarget lastTarget;
+    private static double lastYaw = 0.0;
+
+    private static Ring angleBuffer = new Ring(5);
+
+    private static ProfiledPIDController visionController;
+
+    static {
+        visionController = new ProfiledPIDController(VisionConfig.rotationP, VisionConfig.rotationI,
+                VisionConfig.rotationD, new TrapezoidProfile.Constraints(2.0, 2.0));
+        visionController.setTolerance(VisionConfig.tolerableError, VisionConfig.tolerableEndVelocity);
+        visionController.setGoal(0.0);
+    }
 
     public static void init() {
         SmartDashboard.putBoolean("Vision Initialized", true);
@@ -38,42 +56,56 @@ public class Vision {
         hasTargetEntry = visionTab.add("Has Target", false).getEntry();
         directionEntry = visionTab.add("Direction", "N/A").getEntry();
         distanceEntry = visionTab.add("Distance", -1.0).getEntry();
+        outputEntry = visionTab.add("Output", 0.0).getEntry();
         currentlyAligning = false;
 
         camera = new PhotonCamera("gloworm");
     }
 
     public static void update() {
-        if (!currentlyAligning)
+        if (!currentlyAligning || camera.getLEDMode() != VisionLEDMode.kOn)
             return;
 
-        hasTargetEntry.setBoolean(hasTarget());
+        boolean hasTarget = hasTarget();
 
-        if (!hasTarget()) {
-            rotationOutput = 0.0;
-            return;
+        hasTargetEntry.setBoolean(hasTarget);
+
+        // if (!hasTarget) {
+        // return;
+        // }
+
+        // PhotonTrackedTarget target = getBestTarget();
+
+        // if (target == null)
+        // return;
+
+        // double distance = getDistanceFromTarget(target);
+        // distanceEntry.setDouble(distance);
+    }
+
+    public static double getOutput() {
+        if (hasTarget()) {
+            double output = rotationController.calculate(getTargetYaw());
+            outputEntry.setDouble(output);
+            if (output > 0.0) {
+                return Math.min(output, 0.15);
+            } else {
+                return Math.max(output, -0.15);
+            }
+        } else {
+            return 0;
         }
-
-        PhotonTrackedTarget target = getBestTarget();
-
-        double angle = target.getYaw();
-
-        yawEntry.setDouble(angle);
-        directionEntry.setString(angle < 0 ? "LEFT" : angle > 0 ? "RIGHT" : "STRAIGHT");
-
-        double distance = getDistanceFromTarget(target);
-        distanceEntry.setDouble(distance);
-
-        rotationOutput = -rotationController.calculate(angle, 0.0);
     }
 
     public static void startAligning() {
         currentlyAligning = true;
+        System.out.println("TURNING ON CAMERA LEDS");
         camera.setLED(VisionLEDMode.kOn);
     }
 
     public static void stopAligning() {
         if (currentlyAligning) {
+            System.out.println("TURNING OFF CAMERA LEDS");
             currentlyAligning = false;
             camera.setLED(VisionLEDMode.kOff);
         }
@@ -92,17 +124,33 @@ public class Vision {
 
     public static PhotonTrackedTarget getBestTarget() {
         if (hasTarget()) {
-            return camera.getLatestResult().getBestTarget();
+            PhotonTrackedTarget newTarget = camera.getLatestResult().getBestTarget();
+            if (newTarget != null) {
+                lastTarget = newTarget;
+            }
+            return lastTarget;
         } else {
+            if (lastTarget != null)
+                return lastTarget;
             return null;
         }
     }
 
     public static double getTargetYaw() {
         if (hasTarget()) {
-            return getBestTarget().getYaw();
+            PhotonTrackedTarget target = getBestTarget();
+            if (target != null) {
+                double angle = target.getYaw();
+                lastYaw = angle;
+                angleBuffer.put(angle);
+                yawEntry.setDouble(angle);
+                directionEntry.setString(angle < 0 ? "LEFT" : angle > 0 ? "RIGHT" : "STRAIGHT");
+            }
+        }
+        if (angleBuffer.isEmpty()) {
+            return Double.NaN;
         } else {
-            return 0.0;
+            return angleBuffer.average();
         }
     }
 
@@ -110,10 +158,6 @@ public class Vision {
         return PhotonUtils.calculateDistanceToTargetMeters(VisionConfig.cameraHeightMeters,
                 VisionConfig.targetHeightMeters,
                 VisionConfig.cameraPitchRadians, Units.degreesToRadians(target.getPitch()));
-    }
-
-    public static double getRotationOutput() {
-        return rotationOutput;
     }
 
     public static double alignmentError() {

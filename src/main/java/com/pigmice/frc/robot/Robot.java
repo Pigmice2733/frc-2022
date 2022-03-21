@@ -54,6 +54,7 @@ public class Robot extends TimedRobot {
      * Command-based framework to work.
      */
     CommandScheduler.getInstance().run();
+    Vision.update();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -102,7 +103,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    Vision.update();
   }
 
   @Override

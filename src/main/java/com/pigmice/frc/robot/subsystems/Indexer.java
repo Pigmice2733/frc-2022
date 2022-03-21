@@ -139,9 +139,6 @@ public class Indexer extends SubsystemBase {
     if (!isLookingForBalls)
       return;
 
-    System.out.println("NUM BALLS: " + this.ballTracker.getSize() + " | BALL 0: "
-        + this.ballTracker.getBallInPosition(0) + " | BALL 1: " + this.ballTracker.getBallInPosition(1));
-
     Alliance ballAlliance = this.ballDetector.getNewBall();
 
     if (ballAlliance == Alliance.Invalid)
