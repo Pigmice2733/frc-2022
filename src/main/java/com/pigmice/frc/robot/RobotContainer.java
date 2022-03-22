@@ -14,6 +14,7 @@ import com.pigmice.frc.robot.commands.ShootBallCommand;
 import com.pigmice.frc.robot.commands.VisionAlignCommand;
 import com.pigmice.frc.robot.commands.climber.ClimbRung;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
+import com.pigmice.frc.robot.commands.drivetrain.routines.SPathCommand;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
@@ -141,7 +142,7 @@ public class RobotContainer {
 
 		new JoystickButton(driver, Button.kX.value)
 				.whenPressed(new ExtendIntake(intake));
-				//.whenReleased(intake::disable);
+		// .whenReleased(intake::disable);
 
 		// OPERATOR CONTROLS
 
@@ -272,7 +273,7 @@ public class RobotContainer {
 	 * @return the command to run in autonomous
 	 */
 	public Command getAutonomousCommand() {
-		return new SpinIndexerToAngle(this.indexer, -90.0, false);
+		return new SPathCommand(this.drivetrain);
 	}
 
 	public List<Testable> getTestables() {

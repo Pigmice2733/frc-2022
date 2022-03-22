@@ -105,6 +105,20 @@ public final class Constants {
         public static final double boostMultiplier = 1.25;
         public static final double slowMultiplier = 0.5;
 
+        // auto drive constants
+
+        // TODO TUNE THESE! they have been copied from wpilib documentation
+        public static final double ksVolts = 0.22;
+        public static final double kvVoltSecondsPerMeter = 1.98;
+        public static final double kaVoltSecondsSquaredPerMeter = 0.2;
+
+        public static final double kPDriveVel = 8.5;
+
+        public static final double kMaxSpeedMetersPerSecond = 3;
+        public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+
+        public static final double kRamseteB = 2;
+        public static final double kRamseteZeta = 0.7;
     }
 
     public static class IndexerConfig {
@@ -151,7 +165,7 @@ public final class Constants {
         public static final double maxExtendVelocity = 100;
         public static final double maxExtendAcceleration = 50;
 
-        public static final double maxExtendAngle = 360*4;
+        public static final double maxExtendAngle = 360 * 4;
         public static final double extendTolError = 10;
         public static final double extendTolEndVelo = 0.1;
     }
