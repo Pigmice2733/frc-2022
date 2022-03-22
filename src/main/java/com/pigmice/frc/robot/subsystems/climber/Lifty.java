@@ -11,6 +11,7 @@ public class Lifty {
     private ShuffleboardTab liftTab;
 
     private double target = 0.0;
+    private double output = 0.0;
 
     public Lifty() {
         this.left = new LeftLift();
@@ -45,6 +46,14 @@ public class Lifty {
 
     public double getRightOutput() {
         return this.right.getOutput();
+    }
+
+    public double getOutput() {
+        return output;
+    }
+
+    public void setOutput(double output) {
+        this.output = output;
     }
 
     public double getTarget() {

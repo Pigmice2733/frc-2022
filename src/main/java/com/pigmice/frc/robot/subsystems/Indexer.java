@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Indexer extends SubsystemBase {
-  private boolean enabled = true;
+  private boolean enabled = false;
   private boolean freeSpinEnabled = true;
   private boolean isLookingForBalls = true;
 
