@@ -106,8 +106,8 @@ public class Shooter extends SubsystemBase {
 
 	public void disable() {
 		setEnabled(false);
-		this.topController.setReference(0.0, ControlType.kVelocity);
-		this.botController.setReference(0.0, ControlType.kVelocity);
+		this.setMode(ShooterMode.OFF);
+		this.stopMotors();
 	}
 
 	public void toggle() {
@@ -120,8 +120,10 @@ public class Shooter extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		if (!enabled) {
+		if (!enabled || this.mode == ShooterMode.OFF) {
 			this.setMode(ShooterMode.OFF);
+			this.stopMotors();
+			return;
 		}
 
 		double topRPM = this.mode.getTopRPM();
@@ -153,8 +155,8 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public void stopMotors() {
-		this.topController.setReference(0.0, ControlType.kVelocity);
-		this.botController.setReference(0.0, ControlType.kVelocity);
+		this.topMotor.set(0.0);
+		this.botMotor.set(0.0);
 	}
 
 	public boolean isAtTargetVelocity() {
@@ -165,9 +167,10 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public boolean didJustShoot() {
-		boolean didShoot = Math
-				.abs(this.mode.getTopRPM() - this.topEncoder.getVelocity()) >= ShooterConfig.shotThresholdRPM ||
-				Math.abs(this.mode.getBottomRPM() - this.botEncoder.getVelocity()) >= ShooterConfig.shotThresholdRPM;
+		// no absolute value because we only care about when the actual rpm is lower
+		// than target
+		boolean didShoot = (this.mode.getTopRPM() - this.topEncoder.getVelocity()) >= ShooterConfig.shotThresholdRPM ||
+				(this.mode.getBottomRPM() - this.botEncoder.getVelocity()) >= ShooterConfig.shotThresholdRPM;
 
 		if (didShoot) {
 			System.out.println(

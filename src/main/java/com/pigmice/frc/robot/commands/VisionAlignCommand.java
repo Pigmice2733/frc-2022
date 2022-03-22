@@ -4,11 +4,7 @@ import com.pigmice.frc.robot.Constants.VisionConfig;
 import com.pigmice.frc.robot.Vision;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 
 public class VisionAlignCommand extends CommandBase {
     private final Drivetrain drivetrain;
@@ -33,7 +29,6 @@ public class VisionAlignCommand extends CommandBase {
             double output = Vision.getOutput();
             if (Vision.getTargetYaw() == Double.NaN || output == Double.NaN)
                 return;
-            System.out.printf("VISION OUTPUT: %.8f | YAW: %.8f\n", output, Vision.getTargetYaw());
             this.drivetrain.arcadeDrive(0, output);
         }
 

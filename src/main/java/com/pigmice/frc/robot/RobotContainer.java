@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -203,19 +204,25 @@ public class RobotContainer {
 
 		this.shootTarmac
 				.whenActive(getShooterModeCommands(ShooterMode.TARMAC))
-				.whenInactive(new StartShooterCommand(shooter, ShooterMode.AUTO));
+				.whenInactive(new StartShooterCommand(shooter, ShooterMode.OFF));
 
 		this.shootLaunchpad
 				.whenActive(getShooterModeCommands(ShooterMode.LAUNCHPAD))
-				.whenInactive(new StartShooterCommand(shooter, ShooterMode.AUTO));
+				.whenInactive(new StartShooterCommand(shooter, ShooterMode.OFF));
 
 		this.shootLow
 				.whenActive(getShooterModeCommands(ShooterMode.FENDER_LOW))
-				.whenInactive(new StartShooterCommand(shooter, ShooterMode.AUTO));
+				.whenInactive(new StartShooterCommand(shooter, ShooterMode.OFF));
 
 		this.shootFender
 				.whenActive(getShooterModeCommands(ShooterMode.FENDER_HIGH))
-				.whenInactive(new StartShooterCommand(shooter, ShooterMode.AUTO));
+				.whenInactive(new StartShooterCommand(shooter, ShooterMode.OFF));
+
+		this.shootTrigger.whenActive(() -> {
+			if (this.shooter.getMode() == ShooterMode.OFF) {
+				this.shooter.setMode(ShooterMode.AUTO);
+			}
+		});
 
 		shootTrigger.or(shootTarmac).or(shootLaunchpad).or(shootLow).or(shootFender)
 				.whenInactive(() -> {

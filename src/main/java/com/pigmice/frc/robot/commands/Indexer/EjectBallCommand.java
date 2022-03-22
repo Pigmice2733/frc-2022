@@ -8,6 +8,7 @@ import com.pigmice.frc.robot.subsystems.Intake;
 import com.pigmice.frc.robot.subsystems.Shooter;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -20,8 +21,8 @@ public class EjectBallCommand extends SequentialCommandGroup {
                     indexer.setMode(IndexerMode.ANGLE);
                     indexer.stopMotor();
                 }),
-                new SpinIndexerToAngle(indexer, -90.0, false),
-                new SpinUpFlywheelsCommand(shooter, ShooterMode.EJECT),
+                new ParallelCommandGroup(new SpinIndexerToAngle(indexer, -5.0, false),
+                        new SpinUpFlywheelsCommand(shooter, ShooterMode.EJECT)),
                 new InstantCommand(() -> {
                     indexer.setMode(IndexerMode.SHOOT);
                 }),
@@ -30,7 +31,7 @@ public class EjectBallCommand extends SequentialCommandGroup {
                 new InstantCommand(() -> {
                     intake.enable();
                     indexer.setMode(IndexerMode.FREE_SPIN);
-                    shooter.setMode(ShooterMode.AUTO);
+                    shooter.setMode(ShooterMode.OFF);
                 }));
     }
 

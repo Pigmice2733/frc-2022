@@ -152,11 +152,11 @@ public class Indexer extends SubsystemBase {
       ballTracker.newBallStored(ballAlliance);
 
       if (ballTracker.isFull()) {
-        this.shooter.setMode(ShooterMode.AUTO);
+        this.shooter.setMode(ShooterMode.OFF);
         this.setMode(IndexerMode.HOLD);
         CommandScheduler.getInstance().schedule(new RetractIntake(this.intake));
       } else {
-        this.shooter.setMode(ShooterMode.INDEX);
+        this.shooter.setMode(ShooterMode.OFF);
       }
     } else {
       if (ballTracker.getSize() == 0) {
