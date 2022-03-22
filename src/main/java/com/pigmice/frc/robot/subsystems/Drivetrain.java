@@ -3,7 +3,6 @@ package com.pigmice.frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import com.pigmice.frc.lib.utils.Odometry;
 import com.pigmice.frc.lib.utils.Odometry.Pose;
-import com.pigmice.frc.lib.utils.Point;
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 import com.pigmice.frc.robot.Dashboard;
 import com.pigmice.frc.robot.Utils;
@@ -227,8 +226,11 @@ public class Drivetrain extends SubsystemBase {
 
     public TrajectoryConfig generateTrajectoryConfig() {
         return new TrajectoryConfig(DrivetrainConfig.kMaxSpeedMetersPerSecond,
-                                DrivetrainConfig.kMaxAccelerationMetersPerSecondSquared)
-                                .setKinematics(Drivetrain.driveKinematics).addConstraint(new DifferentialDriveVoltageConstraint(new SimpleMotorFeedforward(DrivetrainConfig.ksVolts, DrivetrainConfig.kvVoltSecondsPerMeter, DrivetrainConfig.kaVoltSecondsSquaredPerMeter), driveKinematics, 10))
+                        DrivetrainConfig.kMaxAccelerationMetersPerSecondSquared)
+                .setKinematics(Drivetrain.driveKinematics)
+                .addConstraint(new DifferentialDriveVoltageConstraint(new SimpleMotorFeedforward(DrivetrainConfig.ksVolts,
+                        DrivetrainConfig.kvVoltSecondsPerMeter,
+                        DrivetrainConfig.kaVoltSecondsSquaredPerMeter), driveKinematics, 10));
     }
 
     public void tankDriveVolts(double left, double right) {

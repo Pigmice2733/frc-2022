@@ -15,7 +15,8 @@ public class SPathCommand extends Ramsete {
     public SPathCommand(Drivetrain drivetrain) {
         super(drivetrain,
                 TrajectoryGenerator.generateTrajectory(new Pose2d(0, 0, new Rotation2d(0)),
-                        List.of(new Translation2d(1, 1), new Translation2d(2, -1)), new Pose2d(3, 0, new Rotation2d(0)),
+                        List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
+                        new Pose2d(3, 0, new Rotation2d(0)),
                         drivetrain.generateTrajectoryConfig()));
     }
 }

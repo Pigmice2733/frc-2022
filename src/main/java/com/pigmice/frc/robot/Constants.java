@@ -95,8 +95,7 @@ public final class Constants {
         public static final double wheelDiameterMeters = Units.inchesToMeters(4.125);
         public static final double gearRatio = 7.56; // 3 motor rotations to 1 wheel rotation
         public static final double rotationToDistanceConversion = (Math.PI * wheelDiameterMeters) / gearRatio; //
-        // circumference
-        // / gear ratio
+        // circumference / gear ratio
         public static final double wheelBase = 0.69;
 
         public static final int navXRotationalOffsetDegrees = 0;
@@ -114,6 +113,7 @@ public final class Constants {
 
         public static final double kPDriveVel = 8.5;
 
+        // changes here need to be copied to PathWeaver/pathweaver.json
         public static final double kMaxSpeedMetersPerSecond = 3;
         public static final double kMaxAccelerationMetersPerSecondSquared = 3;
 
@@ -205,8 +205,14 @@ public final class Constants {
 
         public static enum ShooterMode {
             // TODO none of these have been found yet
-            OFF(0, 0), AUTO(0, 0), FENDER_LOW(900, 900), FENDER_HIGH(900, 2400), TARMAC(1600, 1800), LAUNCHPAD(0, 0),
-            INDEX(-350.0, -350.0), EJECT(1000, 1000);
+            OFF(0, 0),
+            AUTO(0, 0),
+            FENDER_LOW(900, 900),
+            FENDER_HIGH(900, 2400),
+            TARMAC(1600, 1800),
+            LAUNCHPAD(0, 0),
+            INDEX(-350.0, -350.0),
+            EJECT(1000, 1000);
 
             private double topRPM, bottomRPM;
 
