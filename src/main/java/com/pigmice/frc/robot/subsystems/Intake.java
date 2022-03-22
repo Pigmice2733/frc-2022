@@ -5,24 +5,35 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.pigmice.frc.robot.Constants.IntakeConfig;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
-    // private TalonSRX motorRun, motorExtend;
+    private TalonSRX motorExtend;
     private boolean enabled, extended, backwards;
     private static double runSpeed;
     private double extendSpeed;
-    private final double extendGearRatio = 0.5;
+    private final double extendGearRatio = 1;
+
+    private final ShuffleboardTab intakeTab;
+    private final NetworkTableEntry enabledEntry;
+    private final NetworkTableEntry motorOutputEntry;
+    private final NetworkTableEntry rotateAngleEntry;
 
     /** Creates a new Intake. */
     public Intake() {
         // motorRun = new TalonSRX(IntakeConfig.intakeBottomPort);
         // motorRun.configFactoryDefault();
 
-        // motorExtend = new TalonSRX(IntakeConfig.intakeTopPort);
-        // motorExtend.configFactoryDefault();
-        // motorExtend.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
-        // motorExtend.setSelectedSensorPosition(0.0);
+        motorExtend = new TalonSRX(IntakeConfig.intakeTopPort);
+        motorExtend.configFactoryDefault();
+        motorExtend.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
+        motorExtend.setSelectedSensorPosition(0.0);
+        motorExtend.setInverted(true);
+        motorExtend.setSensorPhase(true);
 
         runSpeed = IntakeConfig.intakeSpeed;
         extendSpeed = 0.0;
@@ -30,9 +41,15 @@ public class Intake extends SubsystemBase {
         this.enabled = false;
         this.extended = false;
         this.backwards = false;
+
+        this.intakeTab = Shuffleboard.getTab("Intake");
+        this.enabledEntry = intakeTab.add("Enabled", enabled).getEntry();
+        this.motorOutputEntry = intakeTab.add("Motor Output", 0).getEntry();
+        this.rotateAngleEntry = intakeTab.add("Rotate Angle", 0).getEntry();
     }
 
     public void enable() {
+        setExtendSpeed(0);
         setEnabled(true);
     }
 
@@ -45,6 +62,7 @@ public class Intake extends SubsystemBase {
     }
 
     public void setEnabled(boolean enabled) {
+        enabledEntry.setBoolean(enabled);
         this.enabled = enabled;
     }
 
@@ -73,9 +91,10 @@ public class Intake extends SubsystemBase {
     }
 
     public double extendAngle() {
-        return 0;
-        // return motorExtend.getSelectedSensorPosition() * extendGearRatio * 360 /
-        // 4096;
+        //return 0;
+        double angle = motorExtend.getSelectedSensorPosition() * extendGearRatio * 360 / 4096;
+        this.rotateAngleEntry.setDouble(angle);
+        return angle;
     }
 
     public void extend() {
@@ -88,7 +107,15 @@ public class Intake extends SubsystemBase {
     }
 
     public void setExtendSpeed(double speed) {
-        this.extendSpeed = speed;
+        if (!enabled) {
+            motorExtend.set(ControlMode.PercentOutput, 0);
+            return;
+        }
+
+        motorOutputEntry.setDouble(speed);
+        //speed = Math.min(0.3, Math.max(-0.3, speed));
+        speed = Math.max(Math.abs(speed), 0.1) * Math.signum(speed);
+        motorExtend.set(ControlMode.PercentOutput, speed);
     }
 
     public void setReverse(boolean backwards) {
@@ -97,5 +124,9 @@ public class Intake extends SubsystemBase {
 
     public void reverseDirection() {
         this.backwards = !backwards;
+    }
+
+    public void resetEncoder() {
+        motorExtend.setSelectedSensorPosition(0);
     }
 }
