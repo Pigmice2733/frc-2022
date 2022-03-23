@@ -180,8 +180,8 @@ public final class Constants {
         public static final int intakeMotorPort = 22;
         public static final double intakeMotorSpeed = 0.2;
 
-        public static final int extendLeftPort = 21;
-        public static final int extendRightPort = 22;
+        public static final int extendLeftPort = 20;
+        public static final int extendRightPort = 21;
 
         public static final double maxExtendMotorOutput = 0.2;
 
@@ -193,10 +193,16 @@ public final class Constants {
          * public static final double extendI = 0.0002;
          * public static final double extendD = 0.0000;
          */
-        public static final double extendP = 0.0004;
-        public static final double extendI = 0.0001;
-        public static final double extendD = 0.0000;
-        public static final double extendS = 1.1157;
+        public static final double leftExtendP = 0.003;
+        public static final double leftExtendI = 0.0004;
+        public static final double leftExtendD = 0.000;
+
+        public static final double rightExtendP = 0.003;
+        public static final double rightExtendI = 0.0004;
+        public static final double rightExtendD = 0.000;
+
+        //public static final double extendS = 1.1157;
+        public static final double extendS = 0.9157;
         public static final double extendV = 0.01;
         public static final double extendA = 0.039119;
         public static final double extendG = 0.38;
@@ -204,8 +210,8 @@ public final class Constants {
         public static final double maxExtendVelocity = 100;
         public static final double maxExtendAcceleration = 50;
 
-        public static final double maxExtendAngle = 130;
-        public static final double extendTolError = 10;
+        public static final double maxExtendAngle = 75;
+        public static final double extendTolError = 5;
         public static final double extendTolEndVelo = 0.1;
         public static final double extendGearRator = 0.5;
     }

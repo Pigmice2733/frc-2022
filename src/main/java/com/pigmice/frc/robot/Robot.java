@@ -120,5 +120,6 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
     this.robotContainer.testPeriodic();
+    CommandScheduler.getInstance().run();
   }
 }

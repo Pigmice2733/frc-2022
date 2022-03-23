@@ -19,24 +19,20 @@ public class RetractIntake extends CommandBase {
 
   @Override
   public void initialize() {
+    intake.retract();
     intake.setControllerSetpoints(0);
     intake.enable();
   }
 
   @Override
   public void execute() {
-    double leftAngle = intake.getLeftExtendAngle();
-    double rightAngle = intake.getRightExtendAngle();
-
-    double leftOutput = intake.calculateLeftPID(leftAngle);
-    double rightOutput = intake.calculateLeftPID(rightAngle);
-
-    intake.setExtendMotorOutputs(leftOutput, rightOutput);
+  
   }
 
   @Override
   public void end(boolean interrupted) {
     intake.disable();
+    intake.setExtendMotorOutputs(0, 0);
   }
 
   @Override
