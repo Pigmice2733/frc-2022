@@ -22,11 +22,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Indexer extends SubsystemBase {
-  private boolean enabled = false;
+  private boolean enabled = true;
   private boolean freeSpinEnabled = true;
   private boolean isLookingForBalls = true;
 
@@ -43,12 +44,6 @@ public class Indexer extends SubsystemBase {
   private final NetworkTableEntry targetRPMEntry;
   private final NetworkTableEntry currentRPMEntry;
   private final NetworkTableEntry atTargetEntry;
-
-  private final NetworkTableEntry rEntry;
-  private final NetworkTableEntry gEntry;
-  private final NetworkTableEntry bEntry;
-  private final NetworkTableEntry irEntry;
-  private final NetworkTableEntry proximityEntry;
 
   private BallTracker ballTracker;
   private BallDetector ballDetector;
@@ -69,9 +64,10 @@ public class Indexer extends SubsystemBase {
     this.shooter = shooter;
 
     this.motor = new TalonSRX(IndexerConfig.motorPort);
-    this.motor.setInverted(true);
+    this.motor.configFactoryDefault();
+    this.motor.setInverted(false);
 
-    this.motor.setSensorPhase(true);
+    this.motor.setSensorPhase(false);
     this.motor.configSelectedFeedbackSensor(feedbackDevice);
 
     this.motor.setSelectedSensorPosition(0.0);
@@ -87,12 +83,6 @@ public class Indexer extends SubsystemBase {
     this.currentRPMEntry = indexerTab.add("Current RPM", 0).getEntry();
     this.atTargetEntry = indexerTab.add("At Target RPM", false).getEntry();
 
-    this.rEntry = indexerTab.add("Color R", 0.0).getEntry();
-    this.gEntry = indexerTab.add("Color G", 0.0).getEntry();
-    this.bEntry = indexerTab.add("Color B", 0.0).getEntry();
-    this.irEntry = indexerTab.add("Color IR", 0.0).getEntry();
-    this.proximityEntry = indexerTab.add("Color Proximity", 0.0).getEntry();
-
     this.ballTracker = new BallTracker();
     this.ballDetector = new BallDetector();
   }
@@ -103,6 +93,7 @@ public class Indexer extends SubsystemBase {
 
   @Override
   public void periodic() {
+    this.ballDetector.setColorEntries();
     if (!enabled)
       return;
 

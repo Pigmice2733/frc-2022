@@ -48,8 +48,8 @@ public final class Constants {
         public static final double maxLiftHeight = 24.5;
 
         // both in degrees
-        public static final double minRotateAngle = -45.0;
-        public static final double maxRotateAngle = 45.0;
+        public static final double minRotateAngle = 0.0;
+        public static final double maxRotateAngle = 30.0;
 
         public static final double angleToRung = 24.62;
     }
@@ -151,7 +151,7 @@ public final class Constants {
         public static final double maxExtendVelocity = 100;
         public static final double maxExtendAcceleration = 50;
 
-        public static final double maxExtendAngle = 360*4;
+        public static final double maxExtendAngle = 360 * 4;
         public static final double extendTolError = 10;
         public static final double extendTolEndVelo = 0.1;
     }
@@ -162,7 +162,7 @@ public final class Constants {
         public static final double colorThreshold = 0.100;
 
         // ~300 with ball when light is on, ~30 when light is off
-        public static final double infraredThreshold = 200.0;
+        public static final double infraredThreshold = 60.0;
     }
 
     public static class ShooterConfig {

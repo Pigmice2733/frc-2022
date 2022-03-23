@@ -131,8 +131,8 @@ public class RobotContainer {
 				.whenPressed(visionAlign)
 				.whenReleased(() -> CommandScheduler.getInstance().cancel(visionAlign));
 
-		new JoystickButton(driver, Button.kX.value)
-				.whenPressed(new ExtendIntake(intake));
+		// new JoystickButton(driver, Button.kX.value)
+		// .whenPressed(new ExtendIntake(intake));
 		// .whenReleased(intake::disable);
 
 		// OPERATOR CONTROLS
@@ -224,7 +224,7 @@ public class RobotContainer {
 	}
 
 	public void onEnable() {
-		this.shooter.setMode(ShooterMode.AUTO);
+		this.shooter.setMode(ShooterMode.OFF);
 		this.shooter.enable();
 		this.indexer.enable();
 		this.intake.enable();
