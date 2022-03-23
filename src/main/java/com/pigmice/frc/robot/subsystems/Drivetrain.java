@@ -16,15 +16,12 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Drivetrain extends SubsystemBase {
+public class Drivetrain extends Subsystem {
     private final CANSparkMax leftDrive, rightDrive, rightFollower, leftFollower;
 
     private double leftDemand, rightDemand;
     private double leftPosition, rightPosition, heading; // heading is in degrees now
-
-    private float initialHeading = 0;
 
     private boolean boost = false;
     private boolean slow = false;
@@ -89,19 +86,6 @@ public class Drivetrain extends SubsystemBase {
         rightPosition = 0.0;
         heading = 0.0;
 
-        while (navx.isCalibrating()) {
-            try {
-                Thread.sleep(100);
-                System.out.println("Calibrating NAVX...");
-            } catch (InterruptedException e) {
-
-            }
-        }
-
-        zeroHeading();
-
-        initialHeading = navx.getYaw();
-
         leftDrive.getEncoder().setPosition(0.0);
         rightDrive.getEncoder().setPosition(0.0);
 
@@ -109,9 +93,10 @@ public class Drivetrain extends SubsystemBase {
 
         leftDemand = 0.0;
         rightDemand = 0.0;
+    }
 
-        // navx.setAngleAdjustment(navx.getAngleAdjustment() - navx.getAngle() -
-        // 90.0);
+    public void init() {
+        zeroHeading();
     }
 
     @Override
@@ -138,8 +123,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void updateHeading() {
-        float headingDegrees = (navx.getYaw() +
-                DrivetrainConfig.navXRotationalOffsetDegrees - initialHeading) % 360;
+        double headingDegrees = navx.getAngle();
 
         SmartDashboard.putNumber("Heading (Degrees)", headingDegrees);
 
@@ -283,7 +267,11 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void zeroHeading() {
-        this.navx.zeroYaw();
+        this.navx.reset();
         updateHeading();
+    }
+
+    public void testPeriodic() {
+
     }
 }

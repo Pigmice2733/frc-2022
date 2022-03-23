@@ -4,7 +4,7 @@
 
 package com.pigmice.frc.robot.commands;
 
-import com.pigmice.frc.robot.commands.Indexer.SpinIndexerToAngle;
+import com.pigmice.frc.robot.Constants.IndexerConfig.IndexerMode;
 import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Shooter;
 
@@ -13,10 +13,14 @@ import edu.wpi.first.wpilibj2.command.*;
 public class ShootBallCommand extends SequentialCommandGroup {
   public ShootBallCommand(Shooter shooter, Indexer indexer) {
     super(
-        new WaitUntilCommand(shooter::isAtTargetVelocity),
-        new InstantCommand(() -> indexer.resetEncoder()),
-        new InstantCommand(() -> indexer.enable()),
-        new SpinIndexerToAngle(indexer, 200, false));
+        new InstantCommand(() -> {
+          indexer.enable();
+          indexer.setMode(IndexerMode.SHOOT);
+        }),
+        new WaitUntilCommand(() -> shooter.didJustShoot()),
+        new InstantCommand(() -> {
+          indexer.getBallTracker().ballLaunched();
+        }));
 
     addRequirements(shooter, indexer);
   }
