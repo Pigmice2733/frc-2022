@@ -134,12 +134,6 @@ public class RobotContainer {
 		new JoystickButton(driver, Button.kA.value)
 				.whenPressed(visionAlign)
 				.whenReleased(() -> CommandScheduler.getInstance().cancel(visionAlign));
-
-		 new JoystickButton(driver, Button.kX.value)
-		 	.whenPressed(new ExtendIntake(intake));
-
-		 new JoystickButton(driver, Button.kB.value)
-		 	.whenPressed(new RetractIntake(intake));
 		 
 
 		// OPERATOR CONTROLS
@@ -159,6 +153,15 @@ public class RobotContainer {
 					this.lifty.setOutput(0.30);
 				})
 				.whenInactive(() -> this.lifty.setOutput(0.0));
+
+		new Trigger(() -> shootMode == true &&
+				new JoystickButton(operator, Button.kA.value).get())
+				.whenActive(
+					new ExtendIntake(intake)
+				)
+				.whenInactive(
+					new RetractIntake(intake)
+				);
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kLeftBumper.value).get())
@@ -261,6 +264,7 @@ public class RobotContainer {
 		this.shooter.enable();
 		this.indexer.enable();
 		this.intake.enable();
+		this.intake.resetEncoders();
 	}
 
 	public void onDisable() {
