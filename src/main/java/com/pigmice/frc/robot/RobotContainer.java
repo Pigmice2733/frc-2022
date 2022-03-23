@@ -8,14 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.pigmice.frc.robot.Constants.ClimberConfig;
+import com.pigmice.frc.robot.Constants.ClimberConfig.RotatoSetpoint;
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 import com.pigmice.frc.robot.Constants.IndexerConfig.IndexerMode;
 import com.pigmice.frc.robot.Constants.ShooterConfig.ShooterMode;
 import com.pigmice.frc.robot.commands.ShootBallCommand;
 import com.pigmice.frc.robot.commands.VisionAlignCommand;
 import com.pigmice.frc.robot.commands.climber.ClimbRung;
-import com.pigmice.frc.robot.commands.climber.LiftTo;
-import com.pigmice.frc.robot.commands.climber.RotateTo;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.shooter.StartShooterCommand;
@@ -97,9 +96,10 @@ public class RobotContainer {
 		drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
 				controls::getDriveSpeed, controls::getTurnSpeed));
 
-		rotato.setDefaultCommand(new RotateTo(rotato, this.rotato::getTarget, true,
-				this::usePower));
-		lifty.setDefaultCommand(new LiftTo(lifty, this.lifty::getTarget, true, this::usePower));
+		// rotato.setDefaultCommand(new RotateTo(rotato, this.rotato::getTarget, true,
+		// this::usePower));
+		// lifty.setDefaultCommand(new LiftTo(lifty, this.lifty::getTarget, true,
+		// this::usePower));
 
 		// Configure the button bindings
 		try {
@@ -124,7 +124,7 @@ public class RobotContainer {
 				.whenPressed(this.drivetrain::slow)
 				.whenReleased(this.drivetrain::stopSlow);
 
-		final VisionAlignCommand visionAlign = new VisionAlignCommand(this.drivetrain);
+		final VisionAlignCommand visionAlign = new VisionAlignCommand(this.drivetrain, driver);
 		new JoystickButton(driver, Button.kA.value)
 				.whenPressed(visionAlign)
 				.whenReleased(() -> CommandScheduler.getInstance().cancel(visionAlign));
@@ -136,7 +136,7 @@ public class RobotContainer {
 		// OPERATOR CONTROLS
 
 		new JoystickButton(operator, Button.kLeftStick.value)
-				.whenPressed(() -> this.shootMode = !shootMode);
+				.whenPressed(this::toggleShootMode);
 
 		// TODO Create target variables for both rotato and lifty that the default
 		// commands will use
@@ -155,23 +155,39 @@ public class RobotContainer {
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kA.value).get())
-				.whenActive(() -> this.rotato.setTarget(ClimberConfig.maxRotateAngle))
-				.whenInactive(() -> this.rotato.setTarget(this.rotato.getLeft().getRotateAngle()));
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(0.30);
+				})
+				.whenInactive(() -> this.rotato.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kB.value).get())
-				.whenActive(() -> this.rotato.setTarget(ClimberConfig.minRotateAngle))
-				.whenInactive(() -> this.rotato.setTarget(this.rotato.getLeft().getRotateAngle()));
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(-0.30);
+				})
+				.whenInactive(() -> this.rotato.setOutput(0.0));
 
-		// new Trigger(() -> shootMode == false &&
-		// new JoystickButton(operator, Button.kX.value).get())
-		// .whenActive(() -> this.rotateOutput = 0.15)
-		// .whenInactive(() -> this.rotateOutput = 0.00);
+		new Trigger(() -> shootMode == false &&
+				new JoystickButton(operator, Button.kX.value).get())
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(0.15);
+				})
+				.whenInactive(() -> {
+					this.rotato.setOutput(0.0);
+				});
 
-		// new Trigger(() -> shootMode == false &&
-		// new JoystickButton(operator, Button.kY.value).get())
-		// .whenActive(() -> this.rotateOutput = -0.15)
-		// .whenInactive(() -> this.rotateOutput = 0.00);
+		new Trigger(() -> shootMode == false &&
+				new JoystickButton(operator, Button.kY.value).get())
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(-0.15);
+				})
+				.whenInactive(() -> {
+					this.rotato.setOutput(0.0);
+				});
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kRightStick.value).get())
@@ -240,6 +256,11 @@ public class RobotContainer {
 		this.intake.disable();
 	}
 
+	private void toggleShootMode() {
+		this.shootMode = !shootMode;
+		Controls.rumbleController(this.driver);
+	}
+
 	public SequentialCommandGroup getShooterModeCommands(ShooterMode mode) {
 		return new SequentialCommandGroup(
 				new InstantCommand(() -> {
@@ -249,16 +270,6 @@ public class RobotContainer {
 				new WaitUntilCommand(() -> this.indexer.getEncoderVelocity() == 0),
 				new SpinIndexerToAngle(this.indexer, 5.0, false),
 				new StartShooterCommand(shooter, mode));
-	}
-
-	// private double getPower() {
-	// return usePower() ? this.rotateOutput : rotato.getTarget();
-	// }
-
-	private boolean usePower() {
-		return false;
-		// return operator.getAButton() || operator.getBButton() ||
-		// operator.getRightBumper() || operator.getLeftBumper();
 	}
 
 	/**

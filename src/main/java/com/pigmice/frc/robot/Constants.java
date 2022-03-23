@@ -52,6 +52,39 @@ public final class Constants {
         public static final double maxRotateAngle = 30.0;
 
         public static final double angleToRung = 24.62;
+
+        public static enum RotatoSetpoint {
+            BACK(-10),
+            UP(5),
+            FORWARD(28),
+            TO_BAR(10); // TODO measure on bars, this is a guess
+
+            private double angle;
+
+            RotatoSetpoint(double angle) {
+                this.angle = angle;
+            }
+
+            public double getAngle() {
+                return angle;
+            }
+        }
+
+        public static enum LiftySetpoint {
+            UP(20),
+            MID(10),
+            DOWN(0);
+
+            private double distance;
+
+            LiftySetpoint(double distance) {
+                this.distance = distance;
+            }
+
+            public double getDistance() {
+                return distance;
+            }
+        }
     }
 
     public static class ClimberProfileConfig {
@@ -65,9 +98,14 @@ public final class Constants {
         public static final double liftI = 0.005;
         public static final double liftD = 0.;
 
-        public static final double rotateP = 0.002;
-        public static final double rotateI = 0.001;
+        public static final double liftG = 2.47;
+        public static final double liftV = 3.07;
+        public static final double liftA = 0.25;
+
+        public static final double rotateP = 0.01;
+        public static final double rotateI = 0.00;// 0.00 1;
         public static final double rotateD = 0.;
+        public static final double rotateF = 0.003;
 
         public static final double liftTolerableError = 0.2;
         public static final double liftTolerableEndVelocity = 0.1;

@@ -1,8 +1,12 @@
 package com.pigmice.frc.robot.subsystems.climber;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
+import com.pigmice.frc.robot.Constants.ClimberConfig.RotatoSetpoint;
+
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.Command;
 
 public class Rotato {
     private LeftRotate left;
@@ -10,34 +14,35 @@ public class Rotato {
 
     private ShuffleboardTab climberTab;
 
-    private double target = 0.0;
+    private boolean isInAuto = true;
+    private double output = 0.0;
 
     public Rotato() {
-        this.left = new LeftRotate();
-        this.right = new RightRotate();
+        this.left = new LeftRotate(() -> !isInAuto, () -> output);
+        this.right = new RightRotate(() -> !isInAuto, () -> output);
 
         this.climberTab = Shuffleboard.getTab("Climber");
 
         this.climberTab.addNumber("Left Angle", this.left::getRotateAngle);
         this.climberTab.addNumber("Right Angle", this.right::getRotateAngle);
 
-        this.climberTab.addNumber("Rotate Target", () -> this.target);
-
         this.climberTab.addNumber("Left Rotate Output", this::getLeftOutput);
         this.climberTab.addNumber("Right Rotate Output", this::getRightOutput);
+
+        setSetpoint(RotatoSetpoint.BACK);
     }
 
-    public void setDefaultCommand(Command command) {
-        this.left.setDefaultCommand(command);
-        this.right.setDefaultCommand(command);
+    public void setLeftSetpoint(RotatoSetpoint setpoint) {
+        left.setSetpoint(setpoint);
     }
 
-    public void setLeftOutput(double output) {
-        this.getLeft().setOutput(output);
+    public void setRightSetpoint(RotatoSetpoint setpoint) {
+        right.setSetpoint(setpoint);
     }
 
-    public void setRightOutput(double output) {
-        this.getRight().setOutput(output);
+    public void setSetpoint(RotatoSetpoint setpoint) {
+        setLeftSetpoint(setpoint);
+        setRightSetpoint(setpoint);
     }
 
     public double getLeftOutput() {
@@ -48,12 +53,28 @@ public class Rotato {
         return this.right.getOutput();
     }
 
-    public double getTarget() {
-        return target;
+    // public RotatoSetpoint getTarget() {
+    // return target;
+    // }
+
+    // public void setTarget(RotatoSetpoint target) {
+    // this.target = target;
+    // }
+
+    public void setInAuto(boolean isInAuto) {
+        this.isInAuto = isInAuto;
     }
 
-    public void setTarget(double target) {
-        this.target = target;
+    public boolean isInAuto() {
+        return this.isInAuto;
+    }
+
+    public void setOutput(double output) {
+        this.output = output;
+    }
+
+    public double getOutput() {
+        return this.output;
     }
 
     public LeftRotate getLeft() {

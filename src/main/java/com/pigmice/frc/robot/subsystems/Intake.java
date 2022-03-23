@@ -122,12 +122,11 @@ public class Intake extends SubsystemBase {
         this.leftSetpointEntry.setDouble(leftExtendPID.getSetpoint());
         this.rightSetpointEntry.setDouble(rightExtendPID.getSetpoint());
 
-        intakeMotor.set(intakeMotorOutputEntry.getDouble(0.2));
-
         if (!enabled)
             return;
 
         if (extended) {
+            intakeMotor.set(intakeMotorOutputEntry.getDouble(0.2));
             if (backwards) {
                 // motorRun.set(ControlMode.PercentOutput, -runSpeed);
             } else {

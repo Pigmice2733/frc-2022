@@ -1,12 +1,16 @@
 package com.pigmice.frc.robot.subsystems.climber;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.pigmice.frc.robot.Constants.ClimberConfig;
 
 public class RightRotate extends AbstractRotate {
 
-    public RightRotate() {
-        super(ClimberConfig.rotateRightPort, true);
+    public RightRotate(BooleanSupplier usePower, DoubleSupplier powerSupplier) {
+        super(ClimberConfig.rotateRightPort, false, usePower, powerSupplier);
+        this.motor.setInverted(false);
     }
 
     @Override
@@ -16,6 +20,6 @@ public class RightRotate extends AbstractRotate {
 
     @Override
     protected double getEncoderValue() {
-        return this.motor.getSelectedSensorPosition();
+        return -this.motor.getSelectedSensorPosition();
     }
 }

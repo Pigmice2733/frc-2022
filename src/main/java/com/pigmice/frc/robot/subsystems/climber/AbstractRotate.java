@@ -1,9 +1,16 @@
 package com.pigmice.frc.robot.subsystems.climber;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.pigmice.frc.robot.Constants.ClimberProfileConfig;
+import com.pigmice.frc.robot.Constants.ClimberConfig.RotatoSetpoint;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public abstract class AbstractRotate extends SubsystemBase {
@@ -13,7 +20,16 @@ public abstract class AbstractRotate extends SubsystemBase {
 
     protected double output = 0.0;
 
-    public AbstractRotate(int motorPort, boolean sensorPhase) {
+    private PIDController controller;
+    private RotatoSetpoint setpoint = RotatoSetpoint.BACK;
+
+    protected BooleanSupplier usePower;
+    protected DoubleSupplier powerSupplier;
+
+    public AbstractRotate(int motorPort, boolean sensorPhase, BooleanSupplier usePower, DoubleSupplier powerSupplier) {
+        this.usePower = usePower;
+        this.powerSupplier = powerSupplier;
+
         this.motor = new TalonSRX(motorPort);
 
         this.motor.configFactoryDefault();
@@ -24,11 +40,22 @@ public abstract class AbstractRotate extends SubsystemBase {
         this.motor.setSensorPhase(sensorPhase);
 
         this.motor.setSelectedSensorPosition(0.0);
+
+        controller = new PIDController(ClimberProfileConfig.rotateP, ClimberProfileConfig.rotateI,
+                ClimberProfileConfig.rotateD, ClimberProfileConfig.rotateF);
+
+        Shuffleboard.getTab("Climber").add(this.controller);
     }
 
     @Override
     public void periodic() {
-        this.useOutput(this.output);
+        if (usePower.getAsBoolean()) {
+            this.useOutput(this.powerSupplier.getAsDouble());
+        } else {
+            System.out.println("ROTATING TO SETPOINT " + this.setpoint.name() + " WITH ANGLE "
+                    + this.setpoint.getAngle() + " | CURRENT ANGLE " + getRotateAngle());
+            this.useOutput(controller.calculate(getRotateAngle(), setpoint.getAngle()));
+        }
     }
 
     protected abstract void useOutput(double output);
@@ -46,6 +73,10 @@ public abstract class AbstractRotate extends SubsystemBase {
     @Override
     public void simulationPeriodic() {
         this.periodic();
+    }
+
+    public void setSetpoint(RotatoSetpoint setpoint) {
+        this.setpoint = setpoint;
     }
 
     /**

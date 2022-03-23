@@ -158,8 +158,8 @@ public class Indexer extends SubsystemBase {
       motorOutputEntry.setDouble(0);
       return;
     }
-    motor.set(ControlMode.PercentOutput, output);
-    motorOutputEntry.setDouble(output);
+    // motor.set(ControlMode.PercentOutput, output);
+    // motorOutputEntry.setDouble(output);
   }
 
   public void stopMotor() {
