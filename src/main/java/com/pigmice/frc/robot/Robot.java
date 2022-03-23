@@ -56,6 +56,7 @@ public class Robot extends TimedRobot {
      */
     CommandScheduler.getInstance().run();
     Vision.update();
+    robotContainer.updateShuffleboard();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -80,6 +81,8 @@ public class Robot extends TimedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.schedule();
     }
+
+    this.robotContainer.nonTestInit();
   }
 
   /** This function is called periodically during autonomous. */
@@ -99,6 +102,7 @@ public class Robot extends TimedRobot {
     }
 
     this.robotContainer.onEnable();
+    this.robotContainer.nonTestInit();
   }
 
   /** This function is called periodically during operator control. */
@@ -108,21 +112,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
+    this.robotContainer.testInit();
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
-    testsRun = false;
-    for (Testable testable : robotContainer.getTestables()) {
-      testable.resetTests();
-    }
   }
 
   @Override
   public void testPeriodic() {
-    if (!testsRun) {
-      for (Testable testable : robotContainer.getTestables()) {
-        testable.runTests();
-      }
-      testsRun = true;
-    }
+    this.robotContainer.testPeriodic();
   }
 }

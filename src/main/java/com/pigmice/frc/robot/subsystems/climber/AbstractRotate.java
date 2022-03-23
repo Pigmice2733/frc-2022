@@ -6,14 +6,14 @@ import java.util.function.DoubleSupplier;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.pigmice.frc.robot.Constants.ClimberProfileConfig;
 import com.pigmice.frc.robot.Constants.ClimberConfig.RotatoSetpoint;
+import com.pigmice.frc.robot.Constants.ClimberProfileConfig;
+import com.pigmice.frc.robot.subsystems.Subsystem;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public abstract class AbstractRotate extends SubsystemBase {
+public abstract class AbstractRotate extends Subsystem {
     protected final double ROTATE_GEAR_RATIO = 1.0 / 2.0;
 
     protected TalonSRX motor;
@@ -42,18 +42,23 @@ public abstract class AbstractRotate extends SubsystemBase {
         this.motor.setSelectedSensorPosition(0.0);
 
         controller = new PIDController(ClimberProfileConfig.rotateP, ClimberProfileConfig.rotateI,
-                ClimberProfileConfig.rotateD, ClimberProfileConfig.rotateF);
+                ClimberProfileConfig.rotateD);
+
+        controller.setTolerance(ClimberProfileConfig.angleTolerableError,
+                ClimberProfileConfig.angleTolerableEndVelocity);
 
         Shuffleboard.getTab("Climber").add(this.controller);
     }
 
     @Override
     public void periodic() {
+        if (this.isTestMode()) {
+            this.useOutput(0.0);
+            return;
+        }
         if (usePower.getAsBoolean()) {
             this.useOutput(this.powerSupplier.getAsDouble());
         } else {
-            System.out.println("ROTATING TO SETPOINT " + this.setpoint.name() + " WITH ANGLE "
-                    + this.setpoint.getAngle() + " | CURRENT ANGLE " + getRotateAngle());
             this.useOutput(controller.calculate(getRotateAngle(), setpoint.getAngle()));
         }
     }
@@ -88,5 +93,11 @@ public abstract class AbstractRotate extends SubsystemBase {
     public double getRotateAngle() {
         return (this.getEncoderValue() / 4096.0)
                 * ROTATE_GEAR_RATIO * 360.0;
+    }
+
+    public void testPeriodic() {
+        this.powerSupplier = () -> 0.0;
+        this.usePower = () -> true;
+        this.periodic();
     }
 }

@@ -2,9 +2,8 @@ package com.pigmice.frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Lights extends SubsystemBase {
+public class Lights extends Subsystem {
     private AddressableLED leds;
     private AddressableLEDBuffer buffer;
     private static final int NUM_LEDS = 10;
@@ -53,5 +52,8 @@ public class Lights extends SubsystemBase {
     @Override
     public void simulationPeriodic() {
         // This method will be called once per scheduler run during simulation
+    }
+
+    public void testPeriodic() {
     }
 }

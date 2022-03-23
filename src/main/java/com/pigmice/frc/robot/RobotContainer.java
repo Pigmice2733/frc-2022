@@ -7,8 +7,6 @@ package com.pigmice.frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pigmice.frc.robot.Constants.ClimberConfig;
-import com.pigmice.frc.robot.Constants.ClimberConfig.RotatoSetpoint;
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 import com.pigmice.frc.robot.Constants.IndexerConfig.IndexerMode;
 import com.pigmice.frc.robot.Constants.ShooterConfig.ShooterMode;
@@ -21,6 +19,7 @@ import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.pigmice.frc.robot.commands.shooter.StartShooterCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
+import com.pigmice.frc.robot.subsystems.Subsystem;
 import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
 import com.pigmice.frc.robot.subsystems.Shooter;
@@ -59,6 +58,8 @@ public class RobotContainer {
 	// private final Lights lights;
 	private final Controls controls;
 
+	private List<Subsystem> subsystems;
+
 	private XboxController driver;
 	private XboxController operator;
 	private GenericHID dpad;
@@ -81,6 +82,9 @@ public class RobotContainer {
 		lifty = new Lifty();
 		rotato = new Rotato();
 		// lights = new Lights();
+
+		subsystems = List.of(drivetrain, intake, shooter, indexer, lifty.getLeft(), lifty.getRight(), rotato.getLeft(),
+				rotato.getRight());
 
 		driver = new XboxController(Constants.driverControllerPort);
 		operator = new XboxController(Constants.operatorControllerPort);
@@ -150,24 +154,22 @@ public class RobotContainer {
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kRightBumper.value).get())
-				.whenActive(() -> this.lifty.setTarget(ClimberConfig.maxLiftHeight))
-				.whenInactive(() -> this.lifty.setTarget(this.lifty.getLeft().getLiftDistance()));
+				.whenActive(() -> {
+					this.lifty.setInAuto(false);
+					this.lifty.setOutput(0.30);
+				})
+				.whenInactive(() -> this.lifty.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kLeftBumper.value).get())
-				.whenActive(() -> this.lifty.setTarget(ClimberConfig.minLiftHeight))
-				.whenInactive(() -> this.lifty.setTarget(this.lifty.getLeft().getLiftDistance()));
+				.whenActive(() -> {
+					this.lifty.setInAuto(false);
+					this.lifty.setOutput(-0.30);
+				})
+				.whenInactive(() -> this.lifty.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kA.value).get())
-				.whenActive(() -> {
-					this.rotato.setInAuto(false);
-					this.rotato.setOutput(0.30);
-				})
-				.whenInactive(() -> this.rotato.setOutput(0.0));
-
-		new Trigger(() -> shootMode == false &&
-				new JoystickButton(operator, Button.kB.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
 					this.rotato.setOutput(-0.30);
@@ -175,10 +177,18 @@ public class RobotContainer {
 				.whenInactive(() -> this.rotato.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
+				new JoystickButton(operator, Button.kB.value).get())
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(0.30);
+				})
+				.whenInactive(() -> this.rotato.setOutput(0.0));
+
+		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kX.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
-					this.rotato.setOutput(0.15);
+					this.rotato.setOutput(-0.15);
 				})
 				.whenInactive(() -> {
 					this.rotato.setOutput(0.0);
@@ -188,7 +198,7 @@ public class RobotContainer {
 				new JoystickButton(operator, Button.kY.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
-					this.rotato.setOutput(-0.15);
+					this.rotato.setOutput(0.15);
 				})
 				.whenInactive(() -> {
 					this.rotato.setOutput(0.0);
@@ -261,9 +271,31 @@ public class RobotContainer {
 		this.intake.disable();
 	}
 
+	public void nonTestInit() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.setTestMode(false);
+		});
+	}
+
+	public void testInit() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.testInit();
+		});
+	}
+
+	public void testPeriodic() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.testPeriodic();
+		});
+	}
+
+	public void updateShuffleboard() {
+		this.indexer.updateShuffleboard();
+	}
+
 	private void toggleShootMode() {
 		this.shootMode = !shootMode;
-		Controls.rumbleController(this.driver);
+		Controls.rumbleController(this.operator);
 	}
 
 	public SequentialCommandGroup getShooterModeCommands(ShooterMode mode) {

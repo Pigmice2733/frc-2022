@@ -16,9 +16,8 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Drivetrain extends SubsystemBase {
+public class Drivetrain extends Subsystem {
     private final CANSparkMax leftDrive, rightDrive, rightFollower, leftFollower;
 
     private double leftDemand, rightDemand;
@@ -270,5 +269,9 @@ public class Drivetrain extends SubsystemBase {
     public void zeroHeading() {
         this.navx.reset();
         updateHeading();
+    }
+
+    public void testPeriodic() {
+
     }
 }

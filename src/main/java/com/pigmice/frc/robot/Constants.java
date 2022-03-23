@@ -103,9 +103,8 @@ public final class Constants {
         public static final double liftA = 0.25;
 
         public static final double rotateP = 0.01;
-        public static final double rotateI = 0.00;// 0.00 1;
+        public static final double rotateI = 0.;// 0.00 1;
         public static final double rotateD = 0.;
-        public static final double rotateF = 0.003;
 
         public static final double liftTolerableError = 0.2;
         public static final double liftTolerableEndVelocity = 0.1;
@@ -172,7 +171,8 @@ public final class Constants {
             SHOOT,
             ANGLE,
             FREE_SPIN,
-            EJECT_BY_INTAKE
+            EJECT_BY_INTAKE,
+            SHUFFLEBOARD
         }
     }
 
@@ -246,7 +246,7 @@ public final class Constants {
         public static enum ShooterMode {
             // TODO none of these have been found yet
             OFF(0, 0), AUTO(0, 0), FENDER_LOW(900, 900), FENDER_HIGH(900, 2400), TARMAC(1600, 1800), LAUNCHPAD(0, 0),
-            INDEX(-350.0, -350.0), EJECT(1000, 1000);
+            INDEX(-350.0, -350.0), EJECT(1000, 1000), SHUFFLEBOARD(0, 0);
 
             private double topRPM, bottomRPM;
 
