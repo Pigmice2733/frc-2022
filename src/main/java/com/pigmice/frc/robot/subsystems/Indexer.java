@@ -37,6 +37,8 @@ public class Indexer extends SubsystemBase {
   private final NetworkTableEntry enabledEntry;
   private final NetworkTableEntry motorOutputEntry;
   private final NetworkTableEntry rotateAngleEntry;
+  private final NetworkTableEntry firstBallEntry;
+  private final NetworkTableEntry secondBallEntry;
 
   private BallTracker ballTracker;
   private BallDetector ballDetector;
@@ -71,6 +73,8 @@ public class Indexer extends SubsystemBase {
     this.enabledEntry = indexerTab.add("Enabled", enabled).getEntry();
     this.motorOutputEntry = indexerTab.add("Motor Output", 0).getEntry();
     this.rotateAngleEntry = indexerTab.add("Rotate Angle", 0).getEntry();
+    this.firstBallEntry = indexerTab.add("First Ball", false).getEntry();
+    this.secondBallEntry = indexerTab.add("Second Ball", false).getEntry();
 
     this.ballTracker = new BallTracker();
     this.ballDetector = new BallDetector();
@@ -82,11 +86,13 @@ public class Indexer extends SubsystemBase {
 
   @Override
   public void periodic() {
-    this.ballDetector.setColorEntries();
     if (!enabled)
       return;
 
-    System.out.println("INDEXER MODE IS " + this.mode);
+    if (ballTracker.getSize() == 0) {
+      this.firstBallEntry.setBoolean(false);
+      this.secondBallEntry.setBoolean(false);
+    }
 
     // switch on mode
     switch (mode) {
@@ -111,10 +117,6 @@ public class Indexer extends SubsystemBase {
         setMotorOutput(-FREE_SPIN_POWER);
         break;
     }
-
-    System.out.println("NUM BALLS: " + this.ballTracker.getSize() +
-        " | BALL 0: " + this.ballTracker.getBallInPosition(0) + " | BALL 1: " +
-        this.ballTracker.getBallInPosition(1));
   }
 
   private void doFreeSpin() {
@@ -132,6 +134,13 @@ public class Indexer extends SubsystemBase {
     if (alliance == ballAlliance) {
       System.out.println("CORRECT COLOR! SHOULD STORE!");
       ballTracker.newBallStored(ballAlliance);
+      if (ballTracker.getSize() == 1) {
+        this.firstBallEntry.setBoolean(true);
+        this.secondBallEntry.setBoolean(false);
+      } else if (ballTracker.getSize() == 2) {
+        this.firstBallEntry.setBoolean(true);
+        this.secondBallEntry.setBoolean(true);
+      }
 
       if (ballTracker.isFull()) {
         this.shooter.setMode(ShooterMode.OFF);
@@ -158,8 +167,12 @@ public class Indexer extends SubsystemBase {
       motorOutputEntry.setDouble(0);
       return;
     }
-    // motor.set(ControlMode.PercentOutput, output);
-    // motorOutputEntry.setDouble(output);
+    motor.set(ControlMode.PercentOutput, output);
+    motorOutputEntry.setDouble(output);
+  }
+
+  public void updateShuffleboard() {
+    this.ballDetector.setColorEntries();
   }
 
   public void stopMotor() {

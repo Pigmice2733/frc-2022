@@ -1,8 +1,5 @@
 package com.pigmice.frc.robot.subsystems.climber;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-
 import com.pigmice.frc.robot.Constants.ClimberConfig.RotatoSetpoint;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -52,14 +49,6 @@ public class Rotato {
     public double getRightOutput() {
         return this.right.getOutput();
     }
-
-    // public RotatoSetpoint getTarget() {
-    // return target;
-    // }
-
-    // public void setTarget(RotatoSetpoint target) {
-    // this.target = target;
-    // }
 
     public void setInAuto(boolean isInAuto) {
         this.isInAuto = isInAuto;

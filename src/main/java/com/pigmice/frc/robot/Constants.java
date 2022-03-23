@@ -103,9 +103,8 @@ public final class Constants {
         public static final double liftA = 0.25;
 
         public static final double rotateP = 0.01;
-        public static final double rotateI = 0.00;// 0.00 1;
+        public static final double rotateI = 0.;// 0.00 1;
         public static final double rotateD = 0.;
-        public static final double rotateF = 0.003;
 
         public static final double liftTolerableError = 0.2;
         public static final double liftTolerableEndVelocity = 0.1;

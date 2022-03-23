@@ -7,8 +7,6 @@ package com.pigmice.frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pigmice.frc.robot.Constants.ClimberConfig;
-import com.pigmice.frc.robot.Constants.ClimberConfig.RotatoSetpoint;
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 import com.pigmice.frc.robot.Constants.IndexerConfig.IndexerMode;
 import com.pigmice.frc.robot.Constants.ShooterConfig.ShooterMode;
@@ -145,13 +143,19 @@ public class RobotContainer {
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kRightBumper.value).get())
-				.whenActive(() -> this.lifty.setTarget(ClimberConfig.maxLiftHeight))
-				.whenInactive(() -> this.lifty.setTarget(this.lifty.getLeft().getLiftDistance()));
+				.whenActive(() -> {
+					this.lifty.setInAuto(false);
+					this.lifty.setOutput(0.30);
+				})
+				.whenInactive(() -> this.lifty.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kLeftBumper.value).get())
-				.whenActive(() -> this.lifty.setTarget(ClimberConfig.minLiftHeight))
-				.whenInactive(() -> this.lifty.setTarget(this.lifty.getLeft().getLiftDistance()));
+				.whenActive(() -> {
+					this.lifty.setInAuto(false);
+					this.lifty.setOutput(-0.30);
+				})
+				.whenInactive(() -> this.lifty.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kA.value).get())
@@ -256,9 +260,13 @@ public class RobotContainer {
 		this.intake.disable();
 	}
 
+	public void updateShuffleboard() {
+		this.indexer.updateShuffleboard();
+	}
+
 	private void toggleShootMode() {
 		this.shootMode = !shootMode;
-		Controls.rumbleController(this.driver);
+		Controls.rumbleController(this.operator);
 	}
 
 	public SequentialCommandGroup getShooterModeCommands(ShooterMode mode) {

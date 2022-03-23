@@ -42,7 +42,10 @@ public abstract class AbstractRotate extends SubsystemBase {
         this.motor.setSelectedSensorPosition(0.0);
 
         controller = new PIDController(ClimberProfileConfig.rotateP, ClimberProfileConfig.rotateI,
-                ClimberProfileConfig.rotateD, ClimberProfileConfig.rotateF);
+                ClimberProfileConfig.rotateD);
+
+        controller.setTolerance(ClimberProfileConfig.angleTolerableError,
+                ClimberProfileConfig.angleTolerableEndVelocity);
 
         Shuffleboard.getTab("Climber").add(this.controller);
     }
@@ -52,8 +55,6 @@ public abstract class AbstractRotate extends SubsystemBase {
         if (usePower.getAsBoolean()) {
             this.useOutput(this.powerSupplier.getAsDouble());
         } else {
-            System.out.println("ROTATING TO SETPOINT " + this.setpoint.name() + " WITH ANGLE "
-                    + this.setpoint.getAngle() + " | CURRENT ANGLE " + getRotateAngle());
             this.useOutput(controller.calculate(getRotateAngle(), setpoint.getAngle()));
         }
     }
