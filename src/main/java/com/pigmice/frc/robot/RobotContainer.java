@@ -245,7 +245,7 @@ public class RobotContainer {
 		this.shooter.setMode(ShooterMode.OFF);
 		this.shooter.enable();
 		this.indexer.enable();
-		// this.intake.enable();
+		this.intake.enable();
 	}
 
 	public void onDisable() {
