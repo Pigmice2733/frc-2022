@@ -3,7 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package com.pigmice.frc.robot;
-import com.pigmice.frc.robot.commands.intake.ExtendIntake;
+
 import com.pigmice.frc.robot.testmode.Testable;
 
 import edu.wpi.first.wpilibj.TimedRobot;

@@ -144,6 +144,8 @@ public final class Constants {
 
         public static final int extendRightPort = 21;
         public static final int extendLeftPort = 20;
+        public static final int intakeBottomPort = 21;
+        public static final int intakeTopPort = 20;
 
         public static final double intakeSpeed = 0.75;
 

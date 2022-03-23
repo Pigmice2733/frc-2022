@@ -8,7 +8,6 @@ public class Lights extends SubsystemBase {
     private AddressableLED leds;
     private AddressableLEDBuffer buffer;
     private static final int NUM_LEDS = 10;
-    private static final int FADE_RANGE = 4;
     private boolean enabled = false;
     // private int center = 0;
 
@@ -21,19 +20,28 @@ public class Lights extends SubsystemBase {
         leds.start();
     }
 
-    private final int getDistance(int n1, int n2) {
-        return Math.abs(n2 - n1);
-    } // is this really necessary?
+    public void enable() {
+        setEnabled(true);
+    }
 
-    public void enable() {setEnabled(true);}
-    public void disable() {setEnabled(false);}
-    public void toggle() {this.setEnabled(!this.enabled);}
-    public void setEnabled(boolean enabled) {this.enabled = enabled;}
+    public void disable() {
+        setEnabled(false);
+    }
+
+    public void toggle() {
+        this.setEnabled(!this.enabled);
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        if (!enabled) {return;}
+        if (!enabled) {
+            return;
+        }
 
         for (int i = 0; i < NUM_LEDS; i++) {
             buffer.setRGB(i, 255, 0, 255);

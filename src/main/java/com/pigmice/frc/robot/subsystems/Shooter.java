@@ -129,6 +129,9 @@ public class Shooter extends SubsystemBase {
 		double topRPM = this.mode.getTopRPM();
 		double botRPM = this.mode.getBottomRPM();
 
+		this.topRPMEntry.setDouble(topRPM);
+		this.bottomRPMEntry.setDouble(botRPM);
+
 		this.topController.setReference(topRPM, ControlType.kVelocity);
 		this.botController.setReference(botRPM, ControlType.kVelocity);
 

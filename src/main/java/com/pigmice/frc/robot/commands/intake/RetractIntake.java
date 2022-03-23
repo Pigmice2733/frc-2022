@@ -4,7 +4,6 @@
 
 package com.pigmice.frc.robot.commands.intake;
 
-import com.pigmice.frc.robot.Constants.IntakeConfig;
 import com.pigmice.frc.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -22,7 +21,7 @@ public class RetractIntake extends CommandBase {
   public void initialize() {
     intake.enable();
     intake.setControllerSetpoints(0);
-    //intake.resetEncoders();
+    // intake.resetEncoders();
   }
 
   @Override

@@ -16,7 +16,6 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 
 public class Vision {
     // TODO change these
@@ -73,6 +72,8 @@ public class Vision {
 
         hasTargetEntry.setBoolean(hasTarget);
 
+        distanceEntry.setDouble(getDistanceFromTarget(getBestTarget()));
+
         // if (!hasTarget) {
         // return;
         // }
@@ -125,7 +126,7 @@ public class Vision {
     }
 
     public static boolean hasTarget() {
-        return camera.hasTargets() && camera.getLatestResult().hasTargets();
+        return camera.getLatestResult() != null && camera.getLatestResult().hasTargets();
     }
 
     public static PhotonTrackedTarget getBestTarget() {
@@ -160,6 +161,8 @@ public class Vision {
     }
 
     public static double getDistanceFromTarget(PhotonTrackedTarget target) {
+        if (target == null)
+            return 0.0;
         return PhotonUtils.calculateDistanceToTargetMeters(VisionConfig.cameraHeightMeters,
                 VisionConfig.targetHeightMeters,
                 VisionConfig.cameraPitchRadians, Units.degreesToRadians(target.getPitch()));

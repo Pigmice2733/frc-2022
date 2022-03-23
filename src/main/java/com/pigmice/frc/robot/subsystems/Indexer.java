@@ -13,22 +13,19 @@ import com.pigmice.frc.robot.BallTracker;
 import com.pigmice.frc.robot.Constants.IndexerConfig;
 import com.pigmice.frc.robot.Constants.IndexerConfig.IndexerMode;
 import com.pigmice.frc.robot.Constants.ShooterConfig.ShooterMode;
-import com.pigmice.frc.robot.commands.indexer.EjectByIntakeCommand;
 import com.pigmice.frc.robot.commands.indexer.EjectBallCommand;
-import com.pigmice.frc.robot.commands.intake.RetractIntake;
+import com.pigmice.frc.robot.commands.indexer.EjectByIntakeCommand;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Indexer extends SubsystemBase {
   private boolean enabled = true;
-  private boolean freeSpinEnabled = true;
   private boolean isLookingForBalls = true;
 
   private TalonSRX motor;
@@ -38,12 +35,8 @@ public class Indexer extends SubsystemBase {
 
   private final ShuffleboardTab indexerTab;
   private final NetworkTableEntry enabledEntry;
-  private final NetworkTableEntry freeSpinEnabledEntry;
   private final NetworkTableEntry motorOutputEntry;
   private final NetworkTableEntry rotateAngleEntry;
-  private final NetworkTableEntry targetRPMEntry;
-  private final NetworkTableEntry currentRPMEntry;
-  private final NetworkTableEntry atTargetEntry;
 
   private BallTracker ballTracker;
   private BallDetector ballDetector;
@@ -76,12 +69,8 @@ public class Indexer extends SubsystemBase {
 
     this.indexerTab = Shuffleboard.getTab("Indexer");
     this.enabledEntry = indexerTab.add("Enabled", enabled).getEntry();
-    this.freeSpinEnabledEntry = indexerTab.add("Free Spin Enabled", freeSpinEnabled).getEntry();
     this.motorOutputEntry = indexerTab.add("Motor Output", 0).getEntry();
     this.rotateAngleEntry = indexerTab.add("Rotate Angle", 0).getEntry();
-    this.targetRPMEntry = indexerTab.add("Target RPM", targetRPM).getEntry();
-    this.currentRPMEntry = indexerTab.add("Current RPM", 0).getEntry();
-    this.atTargetEntry = indexerTab.add("At Target RPM", false).getEntry();
 
     this.ballTracker = new BallTracker();
     this.ballDetector = new BallDetector();

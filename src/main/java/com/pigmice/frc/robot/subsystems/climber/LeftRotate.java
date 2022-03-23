@@ -1,6 +1,5 @@
 package com.pigmice.frc.robot.subsystems.climber;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.pigmice.frc.robot.Constants.ClimberConfig;
 
 public class LeftRotate extends AbstractRotate {
