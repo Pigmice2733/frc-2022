@@ -19,6 +19,7 @@ import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.pigmice.frc.robot.commands.shooter.StartShooterCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
+import com.pigmice.frc.robot.subsystems.Subsystem;
 import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
 import com.pigmice.frc.robot.subsystems.Shooter;
@@ -122,7 +123,7 @@ public class RobotContainer {
 	 * it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
 	 */
 	private void configureButtonBindings(XboxController driver, XboxController operator) {
-
+	
 		// DRIVER CONTROLS
 
 		new JoystickButton(driver, Button.kY.value)
@@ -257,13 +258,11 @@ public class RobotContainer {
 
 	public void onEnable() {
 		this.shooter.setMode(ShooterMode.OFF);
-		this.shooter.enable();
 		this.indexer.enable();
 		this.intake.enable();
 	}
 
 	public void onDisable() {
-		this.shooter.setMode(ShooterMode.OFF);
 		CommandScheduler.getInstance().cancelAll();
 		this.shooter.disable();
 		this.indexer.disable();
