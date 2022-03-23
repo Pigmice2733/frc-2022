@@ -38,7 +38,6 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -63,7 +62,6 @@ public class RobotContainer {
 
 	private XboxController driver;
 	private XboxController operator;
-	private GenericHID dpad;
 
 	private boolean shootMode;
 
@@ -110,7 +108,7 @@ public class RobotContainer {
 
 		// Configure the button bindings
 		try {
-			configureButtonBindings(driver, operator, dpad);
+			configureButtonBindings(driver, operator);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -123,7 +121,7 @@ public class RobotContainer {
 	 * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
 	 * it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
 	 */
-	private void configureButtonBindings(XboxController driver, XboxController operator, GenericHID pad) {
+	private void configureButtonBindings(XboxController driver, XboxController operator) {
 
 		// DRIVER CONTROLS
 
@@ -262,14 +260,12 @@ public class RobotContainer {
 
 	public void onEnable() {
 		this.shooter.setMode(ShooterMode.OFF);
-		this.shooter.enable();
 		this.indexer.enable();
 		this.intake.enable();
 		this.intake.resetEncoders();
 	}
 
 	public void onDisable() {
-		this.shooter.setMode(ShooterMode.OFF);
 		CommandScheduler.getInstance().cancelAll();
 		this.shooter.disable();
 		this.indexer.disable();

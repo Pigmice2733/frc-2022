@@ -104,8 +104,8 @@ public class Shooter extends Subsystem {
 	}
 
 	public void disable() {
-		setEnabled(false);
 		this.setMode(ShooterMode.OFF);
+		setEnabled(false);
 		this.stopMotors();
 	}
 
