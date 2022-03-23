@@ -139,8 +139,8 @@ public class RobotContainer {
 				.whenPressed(visionAlign)
 				.whenReleased(() -> CommandScheduler.getInstance().cancel(visionAlign));
 
-		new JoystickButton(driver, Button.kX.value)
-				.whenPressed(new ExtendIntake(intake));
+		//new JoystickButton(driver, Button.kX.value)
+				//.whenPressed(new ExtendIntake(intake));
 				//.whenReleased(intake::disable);
 
 		// OPERATOR CONTROLS

@@ -139,19 +139,29 @@ public final class Constants {
     }
 
     public static class IntakeConfig {
-        public static final int intakeBottomPort = 0;
-        public static final int intakeTopPort = 20;
+        public static final int intakeMotorPort = 22;
+        public static final double intakeMotorSpeed = 0.2;
+
+        public static final int extendRightPort = 21;
+        public static final int extendLeftPort = 20;
 
         public static final double intakeSpeed = 0.75;
 
-        public static final double extendP = 0.0005;
-        public static final double extendI = 0.0;
+        /*public static final double extendP = 0.0008;
+        public static final double extendI = 0.0002;
+        public static final double extendD = 0.0000;*/
+        public static final double extendP = 0.0004;
+        public static final double extendI = 0.0001;
         public static final double extendD = 0.0000;
+        public static final double extendS = 1.1157;
+        public static final double extendV = 0.01;
+        public static final double extendA = 0.039119;
+        public static final double extendG = 0.38;
 
         public static final double maxExtendVelocity = 100;
         public static final double maxExtendAcceleration = 50;
 
-        public static final double maxExtendAngle = 360*4;
+        public static final double maxExtendAngle = 360;
         public static final double extendTolError = 10;
         public static final double extendTolEndVelo = 0.1;
     }
