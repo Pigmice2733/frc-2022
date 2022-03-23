@@ -221,6 +221,10 @@ public class RobotContainer {
 				});
 	}
 
+	public void onInit() {
+		this.drivetrain.init();
+	}
+
 	public void onEnable() {
 		this.shooter.setMode(ShooterMode.OFF);
 		this.shooter.enable();

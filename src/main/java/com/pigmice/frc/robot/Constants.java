@@ -226,9 +226,11 @@ public final class Constants {
     }
 
     public static class VisionConfig {
-        public static final double cameraHeightMeters = 0.8;
-        public static final double targetHeightMeters = 2.38; // Units.inchesToMeters(104); // 8'8"
-        public static final double cameraPitchRadians = 0;
+        public static final double cameraHeightMeters = 0.54;
+        public static final double targetHeightMeters = Units.inchesToMeters(37.0); // TEMPORARY VALUE, ACTUAL IS
+                                                                                    // Units.inchesToMeters(104); //
+                                                                                    // 8'8"
+        public static final double cameraPitchRadians = Units.degreesToRadians(28.0);
         public static final double goalRangeMeters = 0.0;
 
         public static final double rotationP = 0.018;
