@@ -24,7 +24,7 @@ public abstract class AbstractLift extends Subsystem {
     protected double output;
 
     private PIDController controller;
-    private LiftySetpoint setpoint = LiftySetpoint.DOWN;
+    private LiftySetpoint setpoint = LiftySetpoint.MID;
 
     protected BooleanSupplier usePower;
     protected DoubleSupplier powerSupplier;

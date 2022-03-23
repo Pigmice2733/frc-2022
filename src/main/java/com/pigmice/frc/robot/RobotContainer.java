@@ -167,7 +167,7 @@ public class RobotContainer {
 				new JoystickButton(operator, Button.kA.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
-					this.rotato.setOutput(0.30);
+					this.rotato.setOutput(-0.30);
 				})
 				.whenInactive(() -> this.rotato.setOutput(0.0));
 
@@ -175,7 +175,7 @@ public class RobotContainer {
 				new JoystickButton(operator, Button.kB.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
-					this.rotato.setOutput(-0.30);
+					this.rotato.setOutput(0.30);
 				})
 				.whenInactive(() -> this.rotato.setOutput(0.0));
 
@@ -183,7 +183,7 @@ public class RobotContainer {
 				new JoystickButton(operator, Button.kX.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
-					this.rotato.setOutput(0.15);
+					this.rotato.setOutput(-0.15);
 				})
 				.whenInactive(() -> {
 					this.rotato.setOutput(0.0);
@@ -193,7 +193,7 @@ public class RobotContainer {
 				new JoystickButton(operator, Button.kY.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
-					this.rotato.setOutput(-0.15);
+					this.rotato.setOutput(0.15);
 				})
 				.whenInactive(() -> {
 					this.rotato.setOutput(0.0);
