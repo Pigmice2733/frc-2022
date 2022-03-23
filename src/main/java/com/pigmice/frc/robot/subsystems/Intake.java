@@ -38,6 +38,7 @@ public class Intake extends SubsystemBase {
 
     /** Creates a new Intake. */
     public Intake() {
+        this.extended = true;
         // motorRun = new TalonSRX(IntakeConfig.intakeBottomPort);
         // motorRun.configFactoryDefault();
 
