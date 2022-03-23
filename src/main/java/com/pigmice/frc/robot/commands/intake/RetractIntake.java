@@ -19,9 +19,8 @@ public class RetractIntake extends CommandBase {
 
   @Override
   public void initialize() {
-    intake.enable();
     intake.setControllerSetpoints(0);
-    // intake.resetEncoders();
+    intake.enable();
   }
 
   @Override

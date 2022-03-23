@@ -22,10 +22,10 @@ public class Intake extends SubsystemBase {
     private final CANSparkMax intakeMotor;
 
     private boolean enabled, extended, backwards;
-    private final double extendGearRatio = 1.0;
 
     private final ShuffleboardTab intakeTab;
-    private final NetworkTableEntry enabledEntry;
+    private final NetworkTableEntry enabledEntry;   
+    private final NetworkTableEntry extendedEntry;
     private final NetworkTableEntry leftMotorOutputEntry;
     private final NetworkTableEntry leftRotateAngleEntry;
     private final NetworkTableEntry rightMotorOutputEntry;
@@ -38,7 +38,6 @@ public class Intake extends SubsystemBase {
 
     /** Creates a new Intake. */
     public Intake() {
-        this.extended = true;
         // motorRun = new TalonSRX(IntakeConfig.intakeBottomPort);
         // motorRun.configFactoryDefault();
 
@@ -59,11 +58,13 @@ public class Intake extends SubsystemBase {
         rightExtendMotor.configVoltageCompSaturation(10);
         rightExtendMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
         rightExtendMotor.setSelectedSensorPosition(0.0);
+        leftExtendMotor.setInverted(true);
+        leftExtendMotor.setSensorPhase(false);
 
         // Left Extend PID
         leftExtendPID = new PIDController(IntakeConfig.extendP, IntakeConfig.extendI, IntakeConfig.extendD);
         leftExtendPID.setTolerance(IntakeConfig.extendTolError, IntakeConfig.extendTolEndVelo);
-        // leftExtendPID.setSetpoint(0);
+        leftExtendPID.setSetpoint(0);
 
         // Right Extend PID
         rightExtendPID = new PIDController(IntakeConfig.extendP, IntakeConfig.extendI, IntakeConfig.extendD);
@@ -81,6 +82,7 @@ public class Intake extends SubsystemBase {
         // Shuffleboard Entries
         this.intakeTab = Shuffleboard.getTab("Intake");
         this.enabledEntry = intakeTab.add("Enabled", enabled).getEntry();
+        this.extendedEntry = intakeTab.add("Extended", extended).getEntry();
         this.leftMotorOutputEntry = intakeTab.add("Left Motor Output", 0).getEntry();
         this.leftRotateAngleEntry = intakeTab.add("Left Rotate Angle", 0).getEntry();
         this.rightMotorOutputEntry = intakeTab.add("Right Motor Output", 0).getEntry();
@@ -126,24 +128,22 @@ public class Intake extends SubsystemBase {
         if (!enabled)
             return;
 
-        if (extended) {
-            intakeMotor.set(intakeMotorOutputEntry.getDouble(0.2));
-            if (backwards) {
-                // motorRun.set(ControlMode.PercentOutput, -runSpeed);
-            } else {
-                // motorRun.set(ControlMode.PercentOutput, runSpeed);
-            }
-        } else {
-            // motorRun.set(ControlMode.PercentOutput, 0.0);
-        }
+        if (!extended)
+            return;
 
-        // motorExtend.set(ControlMode.PercentOutput, extendSpeed);
+        runIntakeMotor();
     }
 
     @Override
     public void simulationPeriodic() {
         // This method will be called once per scheduler run during simulation
         this.periodic();
+    }
+
+    // Sets an output to intake motor based on if reversed
+    public void runIntakeMotor() {
+        if (!backwards) intakeMotor.set(intakeMotorOutputEntry.getDouble(IntakeConfig.intakeMotorSpeed));
+        else intakeMotor.set(-intakeMotorOutputEntry.getDouble(IntakeConfig.intakeMotorSpeed));
     }
 
     public double getLeftExtendAngle() {
@@ -155,42 +155,57 @@ public class Intake extends SubsystemBase {
     }
 
     private double encoderPositionToAngle(double position) {
-        return position * extendGearRatio * 360 / 4096.0;
+        return position * IntakeConfig.extendGearRator * 360 / 4096.0;
     }
 
+    public void toggleExtended() { setExtended(!this.extended); }
+
+    public void retract() { setExtended(false); }
+    
     public void extend() {
-        this.extended = true;
+        setExtended(true);
         this.backwards = false;
     }
 
-    public void retract() {
-        this.extended = false;
+    public void setExtended(boolean extended) {
+        this.extended = extended;
+        extendedEntry.setBoolean(extended);
     }
 
+    // Feedforward values will automaticaly be added to speed, to stop motors set enabled or extended to false
     public void setExtendMotorOutputs(double left, double right) {
-        if (!enabled) {
+        if (!enabled || !extended) {
             leftExtendMotor.set(ControlMode.PercentOutput, 0);
             rightExtendMotor.set(ControlMode.PercentOutput, 0);
             return;
         }
+        
+        // Add feedForward value to outputs
+        left += 
+        (leftFeedForward.calculate(
+            leftExtendPID.getSetpoint() > 0 
+                ? IntakeConfig.maxExtendAngle * (Math.PI / 180)
+                : -IntakeConfig.maxExtendAngle * (Math.PI / 180), 
+            2) / 12);
 
+        right += 
+            (rightFeedForward.calculate(
+                rightExtendPID.getSetpoint() > 0 
+                    ? IntakeConfig.maxExtendAngle * (Math.PI / 180)
+                    : -IntakeConfig.maxExtendAngle * (Math.PI / 180), 
+                2) / 12);
+
+        // Clamp outputs to max/min value
+        left = Math.min(IntakeConfig.maxExtendMotorOutput, Math.max(IntakeConfig.maxExtendMotorOutput, left));
+        right = Math.min(IntakeConfig.maxExtendMotorOutput, Math.max(IntakeConfig.maxExtendMotorOutput, right));
+
+        // Set percent outputs to motors
+        leftExtendMotor.set(ControlMode.PercentOutput, left);
+        rightExtendMotor.set(ControlMode.PercentOutput, right);
+
+        // Update values on shuffleboard
         leftMotorOutputEntry.setDouble(left);
-        // speed = Math.min(0.3, Math.max(-0.3, speed));
-        // left = Math.max(Math.abs(left), 0.1) * Math.signum(left);
-        leftExtendMotor.set(ControlMode.PercentOutput,
-                left + (leftFeedForward
-                        .calculate(leftExtendPID.getSetpoint() > 0 ? IntakeConfig.maxExtendAngle * (Math.PI / 180)
-                                : -IntakeConfig.maxExtendAngle * (Math.PI / 180), 2)
-                        / 12));
-
         rightMotorOutputEntry.setDouble(right);
-        // speed = Math.min(0.3, Math.max(-0.3, speed));
-        // right = Math.max(Math.abs(right), 0.1) * Math.signum(right);
-        rightExtendMotor.set(ControlMode.PercentOutput,
-                right + (rightFeedForward
-                        .calculate(rightExtendPID.getSetpoint() > 0 ? IntakeConfig.maxExtendAngle * (Math.PI / 180)
-                                : -IntakeConfig.maxExtendAngle * (Math.PI / 180), 2)
-                        / 12));
     }
 
     public void setControllerSetpoints(double setpoint) {

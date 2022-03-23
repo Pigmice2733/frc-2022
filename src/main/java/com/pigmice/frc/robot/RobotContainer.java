@@ -17,6 +17,8 @@ import com.pigmice.frc.robot.commands.VisionAlignCommand;
 import com.pigmice.frc.robot.commands.climber.ClimbRung;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
+import com.pigmice.frc.robot.commands.intake.ExtendIntake;
+import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.pigmice.frc.robot.commands.shooter.StartShooterCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.subsystems.Indexer;
@@ -129,9 +131,12 @@ public class RobotContainer {
 				.whenPressed(visionAlign)
 				.whenReleased(() -> CommandScheduler.getInstance().cancel(visionAlign));
 
-		// new JoystickButton(driver, Button.kX.value)
-		// .whenPressed(new ExtendIntake(intake));
-		// .whenReleased(intake::disable);
+		 new JoystickButton(driver, Button.kX.value)
+		 	.whenPressed(new ExtendIntake(intake));
+
+		 new JoystickButton(driver, Button.kB.value)
+		 	.whenPressed(new RetractIntake(intake));
+		 
 
 		// OPERATOR CONTROLS
 

@@ -28,14 +28,12 @@ public class ExtendIntake extends CommandBase {
   @Override
   public void execute() {
     double leftAngle = intake.getLeftExtendAngle();
-    //double rightAngle = intake.getRightExtendAngle();
-
-    System.out.println(leftAngle);
+    double rightAngle = intake.getRightExtendAngle();
 
     double leftOutput = intake.calculateLeftPID(leftAngle);
-    //double rightOutput = intake.calculateLeftPID(rightAngle);
+    double rightOutput = intake.calculateLeftPID(rightAngle);
 
-    intake.setExtendMotorOutputs(leftOutput, 0);
+    intake.setExtendMotorOutputs(leftOutput, rightOutput);
   }
 
   @Override
@@ -45,9 +43,7 @@ public class ExtendIntake extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    //return intake.leftAtSetpoint() && intake.rightAtSetpoint();
-    //System.out.println(intake.leftAtSetpoint());
-    System.out.println(intake.leftExtendPID.getSetpoint() - intake.getLeftExtendAngle() + " | " + intake.leftExtendPID.getPositionError());
-    return intake.leftAtSetpoint();
+    System.out.println(intake.leftExtendPID.getPositionError() + " | " + intake.rightExtendPID.getPositionError());
+    return intake.leftAtSetpoint() && intake.rightAtSetpoint();
   }
 }

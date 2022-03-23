@@ -180,10 +180,11 @@ public final class Constants {
         public static final int intakeMotorPort = 22;
         public static final double intakeMotorSpeed = 0.2;
 
-        public static final int extendRightPort = 21;
-        public static final int extendLeftPort = 20;
-        public static final int intakeBottomPort = 21;
-        public static final int intakeTopPort = 20;
+        public static final int extendLeftPort = 21;
+        public static final int extendRightPort = 22;
+
+        public static final double maxExtendMotorOutput = 0.2;
+
 
         public static final double intakeSpeed = 0.75;
 
@@ -203,9 +204,10 @@ public final class Constants {
         public static final double maxExtendVelocity = 100;
         public static final double maxExtendAcceleration = 50;
 
-        public static final double maxExtendAngle = 360;
+        public static final double maxExtendAngle = 130;
         public static final double extendTolError = 10;
         public static final double extendTolEndVelo = 0.1;
+        public static final double extendGearRator = 0.5;
     }
 
     public static class BallDetectorConfig {
