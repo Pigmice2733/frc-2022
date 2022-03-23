@@ -97,6 +97,8 @@ public class Indexer extends SubsystemBase {
     if (!enabled)
       return;
 
+    System.out.println("INDEXER MODE IS " + this.mode);
+
     // switch on mode
     switch (mode) {
       case HOLD:
@@ -121,9 +123,9 @@ public class Indexer extends SubsystemBase {
         break;
     }
 
-    // System.out.println("NUM BALLS: " + this.ballTracker.getSize() +
-    // " | BALL 0: " + this.ballTracker.getBallInPosition(0) + " | BALL 1: " +
-    // this.ballTracker.getBallInPosition(1));
+    System.out.println("NUM BALLS: " + this.ballTracker.getSize() +
+        " | BALL 0: " + this.ballTracker.getBallInPosition(0) + " | BALL 1: " +
+        this.ballTracker.getBallInPosition(1));
   }
 
   private void doFreeSpin() {
@@ -145,7 +147,8 @@ public class Indexer extends SubsystemBase {
       if (ballTracker.isFull()) {
         this.shooter.setMode(ShooterMode.OFF);
         this.setMode(IndexerMode.HOLD);
-        CommandScheduler.getInstance().schedule(new RetractIntake(this.intake));
+        this.stopMotor();
+        // CommandScheduler.getInstance().schedule(new RetractIntake(this.intake));
       } else {
         this.shooter.setMode(ShooterMode.OFF);
       }

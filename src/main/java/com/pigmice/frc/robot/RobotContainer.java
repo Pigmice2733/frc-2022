@@ -18,8 +18,6 @@ import com.pigmice.frc.robot.commands.climber.LiftTo;
 import com.pigmice.frc.robot.commands.climber.RotateTo;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
-import com.pigmice.frc.robot.commands.intake.ExtendIntake;
-import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.pigmice.frc.robot.commands.shooter.StartShooterCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.subsystems.Indexer;
@@ -185,10 +183,10 @@ public class RobotContainer {
 		 * .whenActive(new ClimbMid(lifty, rotato));
 		 */
 
-		new Trigger(() -> shootMode == true &&
-				new JoystickButton(operator, Button.kA.value).get())
-				.whenActive(new ExtendIntake(intake))
-				.whenInactive(new RetractIntake(intake));
+		// new Trigger(() -> shootMode == true &&
+		// new JoystickButton(operator, Button.kA.value).get())
+		// .whenActive(new ExtendIntake(intake))
+		// .whenInactive(new RetractIntake(intake));
 
 		this.shootTrigger
 				.whileActiveOnce(new ShootBallCommand(shooter, indexer))
@@ -227,7 +225,7 @@ public class RobotContainer {
 		this.shooter.setMode(ShooterMode.OFF);
 		this.shooter.enable();
 		this.indexer.enable();
-		this.intake.enable();
+		// this.intake.enable();
 	}
 
 	public void onDisable() {
@@ -245,7 +243,7 @@ public class RobotContainer {
 					this.indexer.stopMotor();
 				}),
 				new WaitUntilCommand(() -> this.indexer.getEncoderVelocity() == 0),
-				new SpinIndexerToAngle(this.indexer, -90.0, false),
+				new SpinIndexerToAngle(this.indexer, 5.0, false),
 				new StartShooterCommand(shooter, mode));
 	}
 

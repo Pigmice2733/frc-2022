@@ -129,8 +129,6 @@ public class Shooter extends SubsystemBase {
 		double topRPM = this.mode.getTopRPM();
 		double botRPM = this.mode.getBottomRPM();
 
-		System.out.println(this.mode + ": " + topRPM + " | " + botRPM);
-
 		this.topController.setReference(topRPM, ControlType.kVelocity);
 		this.botController.setReference(botRPM, ControlType.kVelocity);
 
