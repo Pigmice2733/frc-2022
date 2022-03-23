@@ -1,189 +1,205 @@
 package com.pigmice.frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.pigmice.frc.robot.Constants.ShooterConfig;
-import com.pigmice.frc.robot.RPMPController;
-import com.pigmice.frc.robot.Utils;
+import com.pigmice.frc.robot.Constants.ShooterConfig.ShooterMode;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Shooter extends SubsystemBase {
-    private boolean enabled = false;
+public class Shooter extends Subsystem {
+	private boolean enabled = true;
 
-    private TalonSRX topMotor;
-    private TalonSRX botMotor;
+	private CANSparkMax topMotor, botMotor;
 
-    private final double SHOOTER_KP = .02D;
+	// private final RPMPController topController = new RPMPController(shooterP,
+	// 0.25);
+	// private final RPMPController botController = new RPMPController(shooterP,
+	// 0.25);
+	private final SparkMaxPIDController topController, botController;
+	private final RelativeEncoder topEncoder, botEncoder;
 
-    private final double SHOOTER_KS = 0;
-    private final double SHOOTER_KV = .5;
+	public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM, maxVel, minVel, maxAcc, allowedErr;
 
-    private final RPMPController topController = new RPMPController(SHOOTER_KP, 0.25);
-    private final RPMPController botController = new RPMPController(SHOOTER_KP, 0.25);
+	private final ShuffleboardTab shooterTab;
 
-    private final ShuffleboardTab shooterTab;
+	private final NetworkTableEntry topRPMEntry, bottomRPMEntry, actualTopRPM,
+			actualBottomRPM, atTargetEntry;
 
-    private final NetworkTableEntry topRPMEntry;
-    private final NetworkTableEntry bottomRPMEntry;
+	// private static final double MAX_RPM_775 = 18700;
+	// private static final double MAX_RPS_775 = MAX_RPM_775 / 60;
 
-    private final NetworkTableEntry actualTopRPM;
-    private final NetworkTableEntry actualBottomRPM;
+	private ShooterMode mode;
 
-    private final NetworkTableEntry topCalculated;
-    private final NetworkTableEntry botCalculated;
+	// Create a new Shooter
+	public Shooter() {
+		this.topMotor = new CANSparkMax(ShooterConfig.topMotorPort, MotorType.kBrushless);
+		this.botMotor = new CANSparkMax(ShooterConfig.bottomMotorPort, MotorType.kBrushless);
 
-    private final NetworkTableEntry atTargetEntry;
+		this.topController = topMotor.getPIDController();
+		this.botController = botMotor.getPIDController();
 
-    private final FeedbackDevice feedbackDevice = FeedbackDevice.CTRE_MagEncoder_Absolute;
+		this.topEncoder = this.topMotor.getEncoder();
+		this.botEncoder = this.botMotor.getEncoder();
 
-    private static final double RPM_NOT_SET = -1;
+		topMotor.setInverted(true);
 
-    private double topTargetRPM = RPM_NOT_SET;
-    private double botTargetRPM = RPM_NOT_SET;
+		maxRPM = 5700;
 
-    // private static final double MAX_RPM_775 = 18700;
-    // private static final double MAX_RPS_775 = MAX_RPM_775 / 60;
+		maxVel = 2000; // rpm
+		maxAcc = 1500;
 
-    // tune this
-    private static final double VELOCITY_THRESHOLD = 100;
+		// configure topController
+		this.topController.setP(ShooterConfig.kP);
+		this.topController.setI(ShooterConfig.kI);
+		this.topController.setD(ShooterConfig.kD);
+		this.topController.setIZone(ShooterConfig.kIz);
+		this.topController.setFF(ShooterConfig.kFF);
+		this.topController.setOutputRange(ShooterConfig.kMinOutput, ShooterConfig.kMaxOutput);
 
-    private boolean atTarget = false;
+		// configure botController
+		this.botController.setP(ShooterConfig.kP);
+		this.botController.setI(ShooterConfig.kI);
+		this.botController.setD(ShooterConfig.kD);
+		this.botController.setIZone(ShooterConfig.kIz);
+		this.botController.setFF(ShooterConfig.kFF);
+		this.botController.setOutputRange(ShooterConfig.kMinOutput, ShooterConfig.kMaxOutput);
 
-    // Create a new Shooter
-    public Shooter() {
-        this.topMotor = new TalonSRX(ShooterConfig.topMotorPort);
-        this.botMotor = new TalonSRX(ShooterConfig.bottomMotorPort);
+		// configure topController smart motion
+		int smartMotionSlot = 0;
+		this.topController.setSmartMotionMaxVelocity(maxVel, smartMotionSlot);
+		this.topController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
+		this.topController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
+		this.topController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
 
-        topMotor.setInverted(true);
+		// configure botController smart motion
+		this.botController.setSmartMotionMaxVelocity(maxVel, smartMotionSlot);
+		this.botController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
+		this.botController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
+		this.botController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
 
-        topMotor.configSelectedFeedbackSensor(feedbackDevice);
-        botMotor.configSelectedFeedbackSensor(feedbackDevice);
+		// topMotor.setNeutralMode(NeutralMode.Coast);
+		// botMotor.setNeutralMode(NeutralMode.Coast);
 
-        topMotor.setSensorPhase(true);
-        botMotor.setSensorPhase(true);
+		this.shooterTab = Shuffleboard.getTab("Shooter");
 
-        // topMotor.setNeutralMode(NeutralMode.Coast);
-        // botMotor.setNeutralMode(NeutralMode.Coast);
+		this.topRPMEntry = shooterTab.add("Top RPM", 1).getEntry();
+		this.bottomRPMEntry = shooterTab.add("Bottom RPM", 1).getEntry();
 
-        this.shooterTab = Shuffleboard.getTab("Shooter");
+		this.actualTopRPM = shooterTab.add("Actual Top RPM", 1).getEntry();
+		this.actualBottomRPM = shooterTab.add("Actual Bottom RPM", 1).getEntry();
 
-        this.topRPMEntry = shooterTab.add("Top RPM", 1).getEntry();
-        this.bottomRPMEntry = shooterTab.add("Bottom RPM", 1).getEntry();
+		this.atTargetEntry = shooterTab.add("At Target", false).getEntry();
 
-        this.actualTopRPM = shooterTab.add("Actual Top RPM", 1).getEntry();
-        this.actualBottomRPM = shooterTab.add("Actual Bottom RPM", 1).getEntry();
+		this.mode = ShooterMode.OFF;
+	}
 
-        this.topCalculated = shooterTab.add("Top Calculated Velocity", 1).getEntry();
-        this.botCalculated = shooterTab.add("Bottom Calculated Velocity", 1).getEntry();
+	public void enable() {
+		setEnabled(true);
+	}
 
-        this.atTargetEntry = shooterTab.add("At Target", this.atTarget).getEntry();
-    }
+	public void disable() {
+		this.setMode(ShooterMode.OFF);
+		setEnabled(false);
+		this.stopMotors();
+	}
 
-    public void enable() {
-        setEnabled(true);
-    }
+	public void toggle() {
+		this.setEnabled(!this.enabled);
+	}
 
-    public void disable() {
-        setEnabled(false);
-    }
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 
-    public void toggle() {
-        this.setEnabled(!this.enabled);
-    }
+	@Override
+	public void periodic() {
+		if (!this.isTestMode() && (!enabled || this.mode == ShooterMode.OFF)) {
+			this.setMode(ShooterMode.OFF);
+			this.stopMotors();
+			return;
+		}
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+		double topRPM = this.mode.getTopRPM();
+		double botRPM = this.mode.getBottomRPM();
 
-    @Override
-    public void periodic() {
-        if (!enabled)
-            this.setTargetSpeeds(0, 0);
-        else
-        this.setTargetSpeeds(2400, 2000);
+		if (this.mode == ShooterMode.SHUFFLEBOARD || this.isTestMode()) {
+			topRPM = topRPMEntry.getDouble(topRPM);
+			botRPM = bottomRPMEntry.getDouble(botRPM);
+		}
 
-            //this.setTargetSpeeds(2600, 2300);
-        // this.setTargetSpeeds(2000, 1750);
+		if (!this.isTestMode()) {
+			this.topRPMEntry.setDouble(topRPM);
+			this.bottomRPMEntry.setDouble(botRPM);
+		}
 
-        double topRPM = this.topTargetRPM == RPM_NOT_SET ? this.topRPMEntry.getDouble(ShooterConfig.topMotorSpeed)
-                : this.topTargetRPM;
-        double botRPM = this.botTargetRPM == RPM_NOT_SET ? this.bottomRPMEntry.getDouble(ShooterConfig.bottomMotorSpeed)
-                : this.botTargetRPM;
-        // from tarmac edge
-        // this.setTargetSpeeds(1600, 1800);
-        // from fender
-        // this.setTargetSpeeds(900, 2400);
-        double topVelocity = topMotor.getSelectedSensorVelocity();
-        double botVelocity = botMotor.getSelectedSensorVelocity();
+		this.topController.setReference(topRPM, ControlType.kVelocity);
+		this.botController.setReference(botRPM, ControlType.kVelocity);
 
-        SmartDashboard.putNumber("Top Raw Velocity", topVelocity);
-        SmartDashboard.putNumber("Bot Raw Velocity", botVelocity);
+		double topActualRPM = this.topEncoder.getVelocity();
+		double botActualRPM = this.botEncoder.getVelocity();
 
-        double topActualRPM = Utils.calculateRPM(topVelocity, feedbackDevice);
-        double botActualRPM = Utils.calculateRPM(botVelocity, feedbackDevice);
+		// System.out.println("MODE: " + this.mode + " | RPM: " + topActualRPM + " - " +
+		// botActualRPM + " | TARGET: "
+		// + topRPM + " - " + botRPM);
 
-        double topTarget = topController.update(topActualRPM);
-        double botTarget = botController.update(botActualRPM);
+		this.actualTopRPM.setDouble(topActualRPM);
+		this.actualBottomRPM.setDouble(botActualRPM);
 
-        this.actualTopRPM.setDouble(topActualRPM);
-        this.actualBottomRPM.setDouble(botActualRPM);
+		this.atTargetEntry.setBoolean(this.isAtTargetVelocity());
+	}
 
-        topCalculated.setDouble(topTarget);
-        botCalculated.setDouble(botTarget);
+	public double getCurrentRPM() {
+		return this.botEncoder.getVelocity();
+	}
 
-        this.atTarget = Math.abs(topRPM - topActualRPM) <= VELOCITY_THRESHOLD
-                && Math.abs(botRPM - botActualRPM) <= VELOCITY_THRESHOLD;
+	@Override
+	public void simulationPeriodic() {
+		this.periodic();
+	}
 
-        this.atTargetEntry.setBoolean(this.atTarget);
+	public void stopMotors() {
+		this.topMotor.set(0.0);
+		this.botMotor.set(0.0);
+	}
 
-        topMotor.set(ControlMode.PercentOutput, topTarget);
-        botMotor.set(ControlMode.PercentOutput, botTarget);
-    }
+	public boolean isAtTargetVelocity() {
+		return Math
+				.abs(1 - this.mode.getTopRPM() / this.topEncoder.getVelocity()) <= ShooterConfig.spinUpThresholdPercent
+				&& Math.abs(1 - this.mode.getBottomRPM()
+						/ this.botEncoder.getVelocity()) <= ShooterConfig.spinUpThresholdPercent;
+	}
 
-    /**
-     * Sets the target RPMs of the top and bottom shooter motors.
-     * 
-     * @param top    Target RPM of top motor
-     * @param bottom Target RPM of bottom motor
-     */
-    public void setTargetSpeeds(double top, double bottom) {
-        this.topController.setTargetRPM(top);
-        this.botController.setTargetRPM(bottom);
-        this.topTargetRPM = top;
-        this.botTargetRPM = bottom;
-        this.atTarget = false;
-    }
+	public boolean didJustShoot() {
+		// no absolute value because we only care about when the actual rpm is lower
+		// than target
+		boolean didShoot = (this.mode.getTopRPM() - this.topEncoder.getVelocity()) >= ShooterConfig.shotThresholdRPM ||
+				(this.mode.getBottomRPM() - this.botEncoder.getVelocity()) >= ShooterConfig.shotThresholdRPM;
 
-    /**
-     * Unsets motor target RPMs so they use the ones set in Shuffleboard.
-     */
-    public void useShuffleboardSpeeds() {
-        this.topTargetRPM = this.botTargetRPM = RPM_NOT_SET;
-    }
+		if (didShoot) {
+			System.out.println(
+					"SHOT WITH TOP: " + this.topEncoder.getVelocity() + " | BOTTOM: " + this.botEncoder.getVelocity());
+		}
 
-    public void stopMotors() {
-        this.topTargetRPM = this.botTargetRPM = 0;
-        this.topController.setTargetRPM(0);
-        this.botController.setTargetRPM(0);
-        this.atTarget = false;
-    }
+		return didShoot;
+	}
 
-    public boolean isAtTargetVelocity() {
-        return topTargetRPM != 0 && topTargetRPM != 0 && this.atTarget;
-    }
+	public ShooterMode getMode() {
+		return mode;
+	}
 
-    private double calculate(double velocity) {
-        return SHOOTER_KS * Math.signum(velocity) + SHOOTER_KV * velocity;
-    }
+	public void setMode(ShooterMode mode) {
+		this.mode = mode;
+		this.enabled = true;
+	}
 
-    @Override
-    public void simulationPeriodic() {
-        periodic();
-    }
+	public void testPeriodic() {
+		this.mode = ShooterMode.SHUFFLEBOARD;
+		this.periodic();
+	}
 }

@@ -7,13 +7,19 @@ package com.pigmice.frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pigmice.frc.robot.commands.Indexer.SpinIndexerToAngleOld;
-import com.pigmice.frc.robot.commands.climber.LiftTo;
-import com.pigmice.frc.robot.commands.climber.RotateTo;
+import com.pigmice.frc.robot.Constants.DrivetrainConfig;
+import com.pigmice.frc.robot.Constants.IndexerConfig.IndexerMode;
+import com.pigmice.frc.robot.Constants.ShooterConfig.ShooterMode;
+import com.pigmice.frc.robot.commands.ShootBallCommand;
+import com.pigmice.frc.robot.commands.VisionAlignCommand;
+import com.pigmice.frc.robot.commands.climber.ClimbRung;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
-import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
-import com.pigmice.frc.robot.commands.shooter.ShootBallCommand;
+import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
+import com.pigmice.frc.robot.commands.intake.ExtendIntake;
+import com.pigmice.frc.robot.commands.intake.RetractIntake;
+import com.pigmice.frc.robot.commands.shooter.StartShooterCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
+import com.pigmice.frc.robot.subsystems.Subsystem;
 import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
 import com.pigmice.frc.robot.subsystems.Shooter;
@@ -25,7 +31,13 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -35,233 +47,280 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  * commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  private final Drivetrain drivetrain;
-  private final Intake intake;
-  private final Indexer indexer;
-  private final Shooter shooter;
-  private final Lifty lifty;
-  private final Rotato rotato;
-  // private final Lights lights;
-  private final Controls controls;
 
-  private XboxController driver;
-  private XboxController operator;
+	// The robot's subsystems and commands are defined here...
+	private final Drivetrain drivetrain;
+	private final Intake intake;
+	private final Indexer indexer;
+	private final Shooter shooter;
+	private final Lifty lifty;
+	private final Rotato rotato;
+	// private final Lights lights;
+	private final Controls controls;
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
-    drivetrain = new Drivetrain();
-    intake = new Intake();
-    indexer = new Indexer();
-    shooter = new Shooter();
-    lifty = new Lifty();
-    rotato = new Rotato();
-    // lights = new Lights();
+	private List<Subsystem> subsystems;
 
-    driver = new XboxController(Constants.driverControllerPort);
-    operator = new XboxController(Constants.operatorControllerPort);
-    controls = new Controls(driver, operator);
+	private XboxController driver;
+	private XboxController operator;
 
-    drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
-        controls::getDriveSpeed, controls::getTurnSpeed));
+	private boolean shootMode;
 
-    rotato.setDefaultCommand(new RotateTo(rotato, this::getRotatePower, true,
-        this::usePower));
-    lifty.setDefaultCommand(new LiftTo(lifty, this::getLiftPower, true, this::usePower));
+	private Trigger shootTarmac, shootLaunchpad, shootLow, shootFender, shootTrigger;
 
-    // Configure the button bindings
-    try {
-      configureButtonBindings(driver, operator);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
+	// private final ExampleCommand m_autoCommand = new
+	// ExampleCommand(m_exampleSubsystem);
 
-  private double rotateOutput = 0.0;
-  private double liftOutput = 0.0;
+	/**
+	 * The container for the robot. Contains subsystems, OI devices, and commands.
+	 */
+	public RobotContainer() {
+		drivetrain = new Drivetrain();
+		intake = new Intake();
+		shooter = new Shooter();
+		indexer = new Indexer(this.intake, this.shooter);
+		lifty = new Lifty();
+		rotato = new Rotato();
+		// lights = new Lights();
 
-  /**
-   * Use this method to define your button -> command mappings. Buttons can be
-   * created by instantiating a {@link GenericHID} or one of its subclasses
-   * ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
-   * it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings(XboxController driver, XboxController operator) {
+		subsystems = List.of(drivetrain, intake, shooter, indexer, lifty.getLeft(), lifty.getRight(), rotato.getLeft(),
+				rotato.getRight());
 
-    // DRIVER CONTROLS
+		driver = new XboxController(Constants.driverControllerPort);
+		operator = new XboxController(Constants.operatorControllerPort);
+		controls = new Controls(driver, operator);
 
-    new JoystickButton(driver, Button.kY.value)
-        .whenPressed(this.drivetrain::slow)
-        .whenReleased(this.drivetrain::stopSlow);
+		shootMode = true;
 
-    /*
-     * new JoystickButton(driver, Button.kA.value)
-     * .whenPressed(this.indexer::enable)
-     * .whenReleased(this.indexer::disable);
-     */
+		shootTarmac = new Trigger(() -> shootMode == true && new POVButton(operator, 0).get());
+		shootLaunchpad = new Trigger(() -> shootMode == true && new POVButton(operator, 90).get());
+		shootLow = new Trigger(() -> shootMode == true && new POVButton(operator, 180).get());
+		shootFender = new Trigger(() -> shootMode == true && new POVButton(operator, 270).get());
+		shootTrigger = new Trigger(
+				() -> operator.getRightTriggerAxis() >= (1 - DrivetrainConfig.axisThreshold));
 
-    // new JoystickButton(driver, Button.kA.value)
-    // .whenPressed(this.indexer::resetEncoder)
-    // .whenPressed(new SpinIndexerToAngle(indexer, 90, false));
+		drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
+				controls::getDriveSpeed, controls::getTurnSpeed));
 
-    /*
-     * new JoystickButton(driver, Button.kA.value)
-     * .whenPressed(new SequentialCommandGroup(
-     * new InstantCommand(() -> this.shooter.enable()),
-     * new WaitUntilCommand(this.shooter::isAtTargetVelocity),
-     * new InstantCommand(() -> this.indexer.resetEncoder()),
-     * new InstantCommand(() -> this.indexer.enable()),
-     * new SpinIndexerToAngle(indexer, 200, false),
-     * new WaitUntilCommand(this.shooter::isAtTargetVelocity),
-     * new InstantCommand(() -> this.indexer.resetEncoder()),
-     * new InstantCommand(() -> this.indexer.enable()),
-     * new SpinIndexerToAngle(indexer, 200, false)))
-     * 
-     * .whenReleased(() -> {
-     * this.shooter.disable();
-     * this.indexer.disable();
-     * });
-     */
+		// rotato.setDefaultCommand(new RotateTo(rotato, this.rotato::getTarget, true,
+		// this::usePower));
+		// lifty.setDefaultCommand(new LiftTo(lifty, this.lifty::getTarget, true,
+		// this::usePower));
 
-    new JoystickButton(driver, Button.kA.value)
-        .whileHeld(
-            new ShootBallCommand(shooter, indexer))
-        .whenReleased(() -> {
-          this.shooter.disable();
-          this.indexer.disable();
-        });
+		// Configure the button bindings
+		try {
+			configureButtonBindings(driver, operator);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-    new JoystickButton(driver, Button.kX.value)
-        .whenPressed(indexer::resetEncoder)
-        .whenPressed(indexer::enable)
-        .whenPressed(new SpinIndexerToAngleOld(indexer, 360, false));
+	/**
+	 * Use this method to define your button -> command mappings. Buttons can be
+	 * created by instantiating a {@link GenericHID} or one of its subclasses
+	 * ({@link
+	 * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
+	 * it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+	 */
+	private void configureButtonBindings(XboxController driver, XboxController operator) {
 
-    // TODO remove these or move them to operator controls
+		// DRIVER CONTROLS
 
-    // new JoystickButton(driver, Button.kRightBumper.value)
-    // .whenPressed(new SequentialCommandGroup(
-    // new LiftExtendFully(this.lifty),
-    // new ParallelRaceGroup(new LiftExtendFully(this.lifty, true), new
-    // RotateAway(this.rotato)),
-    // new ParallelRaceGroup(new RotateAway(this.rotato, true), new
-    // WaitCommand(2.0)),
-    // new ParallelRaceGroup(new RotateAway(this.rotato, true), new
-    // LiftRetractFully(this.lifty)),
-    // new ParallelRaceGroup(new LiftRetractFully(this.lifty, true), new
-    // RotateTo(this.rotato, 10))));
+		new JoystickButton(driver, Button.kY.value)
+				.whenPressed(this.drivetrain::slow)
+				.whenReleased(this.drivetrain::stopSlow);
 
-    // new JoystickButton(driver, Button.kLeftBumper.value)
-    // .whenPressed(new SequentialCommandGroup(
-    // new LiftRetractFully(this.lifty),
-    // new ParallelRaceGroup(new LiftRetractFully(this.lifty, true), new
-    // RotateAway(this.rotato)),
-    // new ParallelRaceGroup(new RotateAway(this.rotato, true), new
-    // LiftExtendFully(this.lifty)),
-    // new ParallelRaceGroup(new LiftExtendFully(this.lifty, true), new
-    // WaitCommand(2.0)),
-    // new RotateToVertical(this.rotato),
-    // new LiftRetractFully(this.lifty)));
+		final VisionAlignCommand visionAlign = new VisionAlignCommand(this.drivetrain, driver);
+		new JoystickButton(driver, Button.kA.value)
+				.whenPressed(visionAlign)
+				.whenReleased(() -> CommandScheduler.getInstance().cancel(visionAlign));
+		 
 
-    // OPERATOR CONTROLS
+		// OPERATOR CONTROLS
 
-    // TODO Create target variables for both rotato and lifty that the default
-    // commands will use
-    // make a double supplier that returns those and pass it in as the target state
-    // for both default commands
+		new JoystickButton(operator, Button.kLeftStick.value)
+				.whenPressed(this::toggleShootMode);
 
-    new JoystickButton(operator, Button.kRightBumper.value)
-        .whenPressed(() -> this.liftOutput = 0.30)
-        .whenReleased(() -> {
-          this.liftOutput = 0.00;
-          this.lifty.setTarget(this.lifty.getRight().getLiftDistance());
-        });
+		// TODO Create target variables for both rotato and lifty that the default
+		// commands will use
+		// make a double supplier that returns those and pass it in as the target state
+		// for both default commands
 
-    new JoystickButton(operator, Button.kLeftBumper.value)
-        .whenPressed(() -> this.liftOutput = -0.30)
-        .whenReleased(() -> {
-          this.liftOutput = 0.00;
-          this.lifty.setTarget(this.lifty.getRight().getLiftDistance());
-        });
+		new Trigger(() -> shootMode == false &&
+				new JoystickButton(operator, Button.kRightBumper.value).get())
+				.whenActive(() -> {
+					this.lifty.setInAuto(false);
+					this.lifty.setOutput(0.30);
+				})
+				.whenInactive(() -> this.lifty.setOutput(0.0));
 
-    // new JoystickButton(operator, Button.kA.value)
-    // .whenPressed(() -> rotato.setTarget(ClimberConfig.maxRotateAngle))
-    // .whenReleased(() -> rotato.setTarget(rotato.getRight().getRotateAngle()));
+		new Trigger(() -> shootMode == true &&
+				new JoystickButton(operator, Button.kA.value).get())
+				.whenActive(
+					new ExtendIntake(intake)
+				)
+				.whenInactive(
+					new RetractIntake(intake)
+				);
 
-    // new JoystickButton(operator, Button.kB.value)
-    // .whenPressed(() -> rotato.setTarget(ClimberConfig.minRotateAngle))
-    // .whenReleased(() -> rotato.setTarget(rotato.getRight().getRotateAngle()));
+		new Trigger(() -> shootMode == false &&
+				new JoystickButton(operator, Button.kLeftBumper.value).get())
+				.whenActive(() -> {
+					this.lifty.setInAuto(false);
+					this.lifty.setOutput(-0.30);
+				})
+				.whenInactive(() -> this.lifty.setOutput(0.0));
 
-    new JoystickButton(operator, Button.kA.value)
-        .whenPressed(() -> this.rotateOutput = 0.35)
-        .whenReleased(() -> {
-          this.rotateOutput = 0.0;
-          this.rotato.setTarget(this.rotato.getRight().getRotateAngle());
-        });
+		new Trigger(() -> shootMode == false &&
+				new JoystickButton(operator, Button.kA.value).get())
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(-0.30);
+				})
+				.whenInactive(() -> this.rotato.setOutput(0.0));
 
-    new JoystickButton(operator, Button.kB.value)
-        .whenPressed(() -> this.rotateOutput = -0.35)
-        .whenReleased(() -> {
-          this.rotateOutput = 0.0;
-          this.rotato.setTarget(this.rotato.getRight().getRotateAngle());
-        });
+		new Trigger(() -> shootMode == false &&
+				new JoystickButton(operator, Button.kB.value).get())
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(0.30);
+				})
+				.whenInactive(() -> this.rotato.setOutput(0.0));
 
-    new JoystickButton(operator, Button.kX.value)
-        .whenPressed(() -> this.rotateOutput = 0.15)
-        .whenReleased(() -> {
-          this.rotateOutput = 0.0;
-          this.rotato.setTarget(this.rotato.getRight().getRotateAngle());
-        });
+		new Trigger(() -> shootMode == false &&
+				new JoystickButton(operator, Button.kX.value).get())
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(-0.15);
+				})
+				.whenInactive(() -> {
+					this.rotato.setOutput(0.0);
+				});
 
-    new JoystickButton(operator, Button.kY.value)
-        .whenPressed(() -> this.rotateOutput = -0.15)
-        .whenReleased(() -> {
-          this.rotateOutput = 0.0;
-          this.rotato.setTarget(this.rotato.getRight().getRotateAngle());
-        });
+		new Trigger(() -> shootMode == false &&
+				new JoystickButton(operator, Button.kY.value).get())
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(0.15);
+				})
+				.whenInactive(() -> {
+					this.rotato.setOutput(0.0);
+				});
 
-    // new JoystickButton(operator, Button.kStart.value)
-    // .whenPressed(new LiftTo(this.lifty, 10.0));
+		new Trigger(() -> shootMode == false &&
+				new JoystickButton(operator, Button.kRightStick.value).get())
+				.whenActive(new ClimbRung(lifty, rotato));
 
-    // new JoystickButton(operator, Button.kStart.value)
-    // .whenPressed(new ClimbHigh(lifty, rotato));
+		/*
+		 * new Trigger(() -> mode == false &&
+		 * new JoystickButton(operator, Button.kBack.value).get())
+		 * .whenActive(new ClimbMid(lifty, rotato));
+		 */
 
-    // new JoystickButton(operator, Button.kBack.value)
-    // .whenPressed(new ClimbRung(lifty, rotato));
+		// new Trigger(() -> shootMode == true &&
+		// new JoystickButton(operator, Button.kA.value).get())
+		// .whenActive(new ExtendIntake(intake))
+		// .whenInactive(new RetractIntake(intake));
 
-    // new JoystickButton(operator, Button.kRightStick.value)
-    // .whenPressed(new ExtendIntake(intake));
+		this.shootTrigger
+				.whileActiveOnce(new ShootBallCommand(shooter, indexer))
+				.whenInactive(() -> this.indexer.setMode(IndexerMode.FREE_SPIN));
 
-    // new JoystickButton(operator, Button.kLeftStick.value)
-    // .whenPressed(new RetractIntake(intake));
-  }
+		this.shootTarmac
+				.whenActive(getShooterModeCommands(ShooterMode.TARMAC))
+				.whenInactive(new StartShooterCommand(shooter, ShooterMode.OFF));
 
-  private double getLiftPower() {
-    return usePower() ? this.liftOutput : lifty.getTarget();
-  }
+		this.shootLaunchpad
+				.whenActive(getShooterModeCommands(ShooterMode.LAUNCHPAD))
+				.whenInactive(new StartShooterCommand(shooter, ShooterMode.OFF));
 
-  private double getRotatePower() {
-    return usePower() ? this.rotateOutput : rotato.getTarget();
-  }
+		this.shootLow
+				.whenActive(getShooterModeCommands(ShooterMode.FENDER_LOW))
+				.whenInactive(new StartShooterCommand(shooter, ShooterMode.OFF));
 
-  private boolean usePower() {
-    return operator.getAButton() || operator.getBButton() ||
-        operator.getRightBumper() || operator.getLeftBumper();
-  }
+		this.shootFender
+				.whenActive(getShooterModeCommands(ShooterMode.FENDER_HIGH))
+				.whenInactive(new StartShooterCommand(shooter, ShooterMode.OFF));
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   * 
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    return new DriveDistance(1.5, this.drivetrain);
-  }
+		this.shootTrigger.whenActive(() -> {
+			if (this.shooter.getMode() == ShooterMode.OFF) {
+				this.shooter.setMode(ShooterMode.AUTO);
+			}
+		});
 
-  public List<Testable> getTestables() {
-    List<Testable> result = new ArrayList<>();
-    return result;
-  }
+		shootTrigger.or(shootTarmac).or(shootLaunchpad).or(shootLow).or(shootFender)
+				.whenInactive(() -> {
+					this.shooter.disable();
+					this.indexer.setMode(IndexerMode.FREE_SPIN);
+				});
+	}
+
+	public void onInit() {
+		this.drivetrain.init();
+	}
+
+	public void onEnable() {
+		this.shooter.setMode(ShooterMode.OFF);
+		this.indexer.enable();
+		this.intake.enable();
+		this.intake.resetEncoders();
+	}
+
+	public void onDisable() {
+		CommandScheduler.getInstance().cancelAll();
+		this.shooter.disable();
+		this.indexer.disable();
+		this.intake.disable();
+	}
+
+	public void nonTestInit() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.setTestMode(false);
+		});
+	}
+
+	public void testInit() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.testInit();
+		});
+	}
+
+	public void testPeriodic() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.testPeriodic();
+		});
+	}
+
+	public void updateShuffleboard() {
+		this.indexer.updateShuffleboard();
+	}
+
+	private void toggleShootMode() {
+		this.shootMode = !shootMode;
+		Controls.rumbleController(this.operator);
+	}
+
+	public SequentialCommandGroup getShooterModeCommands(ShooterMode mode) {
+		return new SequentialCommandGroup(
+				new InstantCommand(() -> {
+					this.indexer.setMode(IndexerMode.ANGLE);
+					this.indexer.stopMotor();
+				}),
+				new WaitUntilCommand(() -> this.indexer.getEncoderVelocity() == 0),
+				new SpinIndexerToAngle(this.indexer, 5.0, false),
+				new StartShooterCommand(shooter, mode));
+	}
+
+	/**
+	 * Use this to pass the autonomous command to the main {@link Robot} class.
+	 * 
+	 * @return the command to run in autonomous
+	 */
+	public Command getAutonomousCommand() {
+		return new SpinIndexerToAngle(this.indexer, -90.0, false);
+	}
+
+	public List<Testable> getTestables() {
+		List<Testable> result = new ArrayList<>();
+		return result;
+	}
 }

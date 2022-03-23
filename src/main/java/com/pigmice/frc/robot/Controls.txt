@@ -1,6 +1,6 @@
 Driver:
     Left X - N/A
-    Left Y - Move Forward
+    Left Y - Move Forward/Backward
     Left Stick - N/A
     Right X - Turn
     Right Y - N/A
@@ -33,10 +33,12 @@ Operator - Shoot Mode:
     RT - Shoot Balls (hold)
     Start - N/A
     Back - N/A
-    DP ^ - Tarmac High
-    DP v - Fender Low
-    DP < - Fender High
-    DP > - Lanchpad High
+    Dpad ↑ - Tarmac High
+    Dpad ↓ - Fender Low
+    Dpad ← - Fender High
+    Dpad → - Lanchpad High
+
+    **ADD MANUAL BALL REJECT**
 
 Operator - Climb Mode:
     Left X - N/A
@@ -44,7 +46,7 @@ Operator - Climb Mode:
     Left Stick - Toggle Shoot / Climb Mode
     Right X - N/A
     Right Y - N/A
-    Right Stick - Climb Rung
+    Right Stick - Auto Climb Rung
     A - Rotate Forward
     B - Rotate Back
     X - Slow Rotate Forward
