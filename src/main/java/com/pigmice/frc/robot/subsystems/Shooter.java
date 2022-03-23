@@ -11,9 +11,8 @@ import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Shooter extends SubsystemBase {
+public class Shooter extends Subsystem {
 	private boolean enabled = true;
 
 	private CANSparkMax topMotor, botMotor;
@@ -97,7 +96,7 @@ public class Shooter extends SubsystemBase {
 
 		this.atTargetEntry = shooterTab.add("At Target", false).getEntry();
 
-		this.mode = ShooterMode.AUTO;
+		this.mode = ShooterMode.OFF;
 	}
 
 	public void enable() {
@@ -120,7 +119,7 @@ public class Shooter extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		if (!enabled || this.mode == ShooterMode.OFF) {
+		if (!this.isTestMode() && (!enabled || this.mode == ShooterMode.OFF)) {
 			this.setMode(ShooterMode.OFF);
 			this.stopMotors();
 			return;
@@ -128,6 +127,16 @@ public class Shooter extends SubsystemBase {
 
 		double topRPM = this.mode.getTopRPM();
 		double botRPM = this.mode.getBottomRPM();
+
+		if (this.mode == ShooterMode.SHUFFLEBOARD || this.isTestMode()) {
+			topRPM = topRPMEntry.getDouble(topRPM);
+			botRPM = bottomRPMEntry.getDouble(botRPM);
+		}
+
+		if (!this.isTestMode()) {
+			this.topRPMEntry.setDouble(topRPM);
+			this.bottomRPMEntry.setDouble(botRPM);
+		}
 
 		this.topController.setReference(topRPM, ControlType.kVelocity);
 		this.botController.setReference(botRPM, ControlType.kVelocity);
@@ -187,5 +196,10 @@ public class Shooter extends SubsystemBase {
 	public void setMode(ShooterMode mode) {
 		this.mode = mode;
 		this.enabled = true;
+	}
+
+	public void testPeriodic() {
+		this.mode = ShooterMode.SHUFFLEBOARD;
+		this.periodic();
 	}
 }

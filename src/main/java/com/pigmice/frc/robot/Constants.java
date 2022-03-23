@@ -48,10 +48,43 @@ public final class Constants {
         public static final double maxLiftHeight = 24.5;
 
         // both in degrees
-        public static final double minRotateAngle = -45.0;
-        public static final double maxRotateAngle = 45.0;
+        public static final double minRotateAngle = 0.0;
+        public static final double maxRotateAngle = 30.0;
 
         public static final double angleToRung = 24.62;
+
+        public static enum RotatoSetpoint {
+            BACK(-10),
+            UP(5),
+            FORWARD(28),
+            TO_BAR(10); // TODO measure on bars, this is a guess
+
+            private double angle;
+
+            RotatoSetpoint(double angle) {
+                this.angle = angle;
+            }
+
+            public double getAngle() {
+                return angle;
+            }
+        }
+
+        public static enum LiftySetpoint {
+            UP(20),
+            MID(10),
+            DOWN(0);
+
+            private double distance;
+
+            LiftySetpoint(double distance) {
+                this.distance = distance;
+            }
+
+            public double getDistance() {
+                return distance;
+            }
+        }
     }
 
     public static class ClimberProfileConfig {
@@ -65,8 +98,12 @@ public final class Constants {
         public static final double liftI = 0.005;
         public static final double liftD = 0.;
 
-        public static final double rotateP = 0.002;
-        public static final double rotateI = 0.001;
+        public static final double liftG = 2.47;
+        public static final double liftV = 3.07;
+        public static final double liftA = 0.25;
+
+        public static final double rotateP = 0.01;
+        public static final double rotateI = 0.;// 0.00 1;
         public static final double rotateD = 0.;
 
         public static final double liftTolerableError = 0.2;
@@ -134,26 +171,43 @@ public final class Constants {
             SHOOT,
             ANGLE,
             FREE_SPIN,
-            EJECT_BY_INTAKE
+            EJECT_BY_INTAKE,
+            SHUFFLEBOARD
         }
     }
 
     public static class IntakeConfig {
-        public static final int intakeBottomPort = 0;
-        public static final int intakeTopPort = 20;
+        public static final int intakeMotorPort = 22;
+        public static final double intakeMotorSpeed = 0.2;
+
+        public static final int extendLeftPort = 21;
+        public static final int extendRightPort = 22;
+
+        public static final double maxExtendMotorOutput = 0.2;
+
 
         public static final double intakeSpeed = 0.75;
 
-        public static final double extendP = 0.0005;
-        public static final double extendI = 0.0;
+        /*
+         * public static final double extendP = 0.0008;
+         * public static final double extendI = 0.0002;
+         * public static final double extendD = 0.0000;
+         */
+        public static final double extendP = 0.0004;
+        public static final double extendI = 0.0001;
         public static final double extendD = 0.0000;
+        public static final double extendS = 1.1157;
+        public static final double extendV = 0.01;
+        public static final double extendA = 0.039119;
+        public static final double extendG = 0.38;
 
         public static final double maxExtendVelocity = 100;
         public static final double maxExtendAcceleration = 50;
 
-        public static final double maxExtendAngle = 360*4;
+        public static final double maxExtendAngle = 130;
         public static final double extendTolError = 10;
         public static final double extendTolEndVelo = 0.1;
+        public static final double extendGearRator = 0.5;
     }
 
     public static class BallDetectorConfig {
@@ -162,7 +216,7 @@ public final class Constants {
         public static final double colorThreshold = 0.100;
 
         // ~300 with ball when light is on, ~30 when light is off
-        public static final double infraredThreshold = 200.0;
+        public static final double infraredThreshold = 60.0;
     }
 
     public static class ShooterConfig {
@@ -192,7 +246,7 @@ public final class Constants {
         public static enum ShooterMode {
             // TODO none of these have been found yet
             OFF(0, 0), AUTO(0, 0), FENDER_LOW(900, 900), FENDER_HIGH(900, 2400), TARMAC(1600, 1800), LAUNCHPAD(0, 0),
-            INDEX(-350.0, -350.0), EJECT(1000, 1000);
+            INDEX(-350.0, -350.0), EJECT(1000, 1000), SHUFFLEBOARD(0, 0);
 
             private double topRPM, bottomRPM;
 
@@ -212,9 +266,11 @@ public final class Constants {
     }
 
     public static class VisionConfig {
-        public static final double cameraHeightMeters = 0.8;
-        public static final double targetHeightMeters = 2.38; // Units.inchesToMeters(104); // 8'8"
-        public static final double cameraPitchRadians = 0;
+        public static final double cameraHeightMeters = 0.54;
+        public static final double targetHeightMeters = Units.inchesToMeters(37.0); // TEMPORARY VALUE, ACTUAL IS
+                                                                                    // Units.inchesToMeters(104); //
+                                                                                    // 8'8"
+        public static final double cameraPitchRadians = Units.degreesToRadians(28.0);
         public static final double goalRangeMeters = 0.0;
 
         public static final double rotationP = 0.018;

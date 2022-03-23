@@ -17,9 +17,9 @@ import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
-import com.pigmice.frc.robot.commands.shooter.SpinUpFlywheelsCommand;
 import com.pigmice.frc.robot.commands.shooter.StartShooterCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
+import com.pigmice.frc.robot.subsystems.Subsystem;
 import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
 import com.pigmice.frc.robot.subsystems.Shooter;
@@ -27,17 +27,12 @@ import com.pigmice.frc.robot.subsystems.climber.Lifty;
 import com.pigmice.frc.robot.subsystems.climber.Rotato;
 import com.pigmice.frc.robot.testmode.Testable;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -64,6 +59,8 @@ public class RobotContainer {
 	// private final Lights lights;
 	private final Controls controls;
 
+	private List<Subsystem> subsystems;
+
 	private XboxController driver;
 	private XboxController operator;
 	private GenericHID dpad;
@@ -87,6 +84,9 @@ public class RobotContainer {
 		rotato = new Rotato();
 		// lights = new Lights();
 
+		subsystems = List.of(drivetrain, intake, shooter, indexer, lifty.getLeft(), lifty.getRight(), rotato.getLeft(),
+				rotato.getRight());
+
 		driver = new XboxController(Constants.driverControllerPort);
 		operator = new XboxController(Constants.operatorControllerPort);
 		controls = new Controls(driver, operator);
@@ -103,10 +103,10 @@ public class RobotContainer {
 		drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
 				controls::getDriveSpeed, controls::getTurnSpeed));
 
-		// rotato.setDefaultCommand(new RotateTo(rotato, () -> this.rotateOutput, true,
-		// () -> true));
-		// lifty.setDefaultCommand(new LiftTo(lifty, () -> this.liftOutput, true, () ->
-		// true));
+		// rotato.setDefaultCommand(new RotateTo(rotato, this.rotato::getTarget, true,
+		// this::usePower));
+		// lifty.setDefaultCommand(new LiftTo(lifty, this.lifty::getTarget, true,
+		// this::usePower));
 
 		// Configure the button bindings
 		try {
@@ -115,10 +115,6 @@ public class RobotContainer {
 			e.printStackTrace();
 		}
 	}
-
-	private double rotateOutput = 0.0;
-	private double liftOutput = 0.0;
-	private double distanceToHub = 0.0d; // TODO define this
 
 	/**
 	 * Use this method to define your button -> command mappings. Buttons can be
@@ -135,19 +131,22 @@ public class RobotContainer {
 				.whenPressed(this.drivetrain::slow)
 				.whenReleased(this.drivetrain::stopSlow);
 
-		final VisionAlignCommand visionAlign = new VisionAlignCommand(this.drivetrain);
+		final VisionAlignCommand visionAlign = new VisionAlignCommand(this.drivetrain, driver);
 		new JoystickButton(driver, Button.kA.value)
 				.whenPressed(visionAlign)
 				.whenReleased(() -> CommandScheduler.getInstance().cancel(visionAlign));
 
-		new JoystickButton(driver, Button.kX.value)
-				.whenPressed(new ExtendIntake(intake));
-				//.whenReleased(intake::disable);
+		 new JoystickButton(driver, Button.kX.value)
+		 	.whenPressed(new ExtendIntake(intake));
+
+		 new JoystickButton(driver, Button.kB.value)
+		 	.whenPressed(new RetractIntake(intake));
+		 
 
 		// OPERATOR CONTROLS
 
 		new JoystickButton(operator, Button.kLeftStick.value)
-				.whenPressed(() -> this.shootMode = !shootMode);
+				.whenPressed(this::toggleShootMode);
 
 		// TODO Create target variables for both rotato and lifty that the default
 		// commands will use
@@ -156,33 +155,55 @@ public class RobotContainer {
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kRightBumper.value).get())
-				.whenActive(() -> this.liftOutput = 0.30)
-				.whenInactive(() -> this.liftOutput = 0.00);
+				.whenActive(() -> {
+					this.lifty.setInAuto(false);
+					this.lifty.setOutput(0.30);
+				})
+				.whenInactive(() -> this.lifty.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kLeftBumper.value).get())
-				.whenActive(() -> this.liftOutput = -0.30)
-				.whenInactive(() -> this.liftOutput = 0.00);
+				.whenActive(() -> {
+					this.lifty.setInAuto(false);
+					this.lifty.setOutput(-0.30);
+				})
+				.whenInactive(() -> this.lifty.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kA.value).get())
-				.whenActive(() -> this.rotateOutput = 0.35)
-				.whenInactive(() -> this.rotateOutput = 0.00);
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(-0.30);
+				})
+				.whenInactive(() -> this.rotato.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kB.value).get())
-				.whenActive(() -> this.rotateOutput = -0.35)
-				.whenInactive(() -> this.rotateOutput = 0.00);
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(0.30);
+				})
+				.whenInactive(() -> this.rotato.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kX.value).get())
-				.whenActive(() -> this.rotateOutput = 0.15)
-				.whenInactive(() -> this.rotateOutput = 0.00);
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(-0.15);
+				})
+				.whenInactive(() -> {
+					this.rotato.setOutput(0.0);
+				});
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kY.value).get())
-				.whenActive(() -> this.rotateOutput = -0.15)
-				.whenInactive(() -> this.rotateOutput = 0.00);
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(0.15);
+				})
+				.whenInactive(() -> {
+					this.rotato.setOutput(0.0);
+				});
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kRightStick.value).get())
@@ -194,10 +215,10 @@ public class RobotContainer {
 		 * .whenActive(new ClimbMid(lifty, rotato));
 		 */
 
-		new Trigger(() -> shootMode == true &&
-				new JoystickButton(operator, Button.kA.value).get())
-				.whenActive(new ExtendIntake(intake))
-				.whenInactive(new RetractIntake(intake));
+		// new Trigger(() -> shootMode == true &&
+		// new JoystickButton(operator, Button.kA.value).get())
+		// .whenActive(new ExtendIntake(intake))
+		// .whenInactive(new RetractIntake(intake));
 
 		this.shootTrigger
 				.whileActiveOnce(new ShootBallCommand(shooter, indexer))
@@ -232,8 +253,12 @@ public class RobotContainer {
 				});
 	}
 
+	public void onInit() {
+		this.drivetrain.init();
+	}
+
 	public void onEnable() {
-		this.shooter.setMode(ShooterMode.AUTO);
+		this.shooter.setMode(ShooterMode.OFF);
 		this.shooter.enable();
 		this.indexer.enable();
 		this.intake.enable();
@@ -247,6 +272,33 @@ public class RobotContainer {
 		this.intake.disable();
 	}
 
+	public void nonTestInit() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.setTestMode(false);
+		});
+	}
+
+	public void testInit() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.testInit();
+		});
+	}
+
+	public void testPeriodic() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.testPeriodic();
+		});
+	}
+
+	public void updateShuffleboard() {
+		this.indexer.updateShuffleboard();
+	}
+
+	private void toggleShootMode() {
+		this.shootMode = !shootMode;
+		Controls.rumbleController(this.operator);
+	}
+
 	public SequentialCommandGroup getShooterModeCommands(ShooterMode mode) {
 		return new SequentialCommandGroup(
 				new InstantCommand(() -> {
@@ -254,18 +306,9 @@ public class RobotContainer {
 					this.indexer.stopMotor();
 				}),
 				new WaitUntilCommand(() -> this.indexer.getEncoderVelocity() == 0),
-				new SpinIndexerToAngle(this.indexer, -90.0, false),
+				new SpinIndexerToAngle(this.indexer, 5.0, false),
 				new StartShooterCommand(shooter, mode));
 	}
-
-	// private double getPower() {
-	// return usePower() ? this.rotateOutput : rotato.getTarget();
-	// }
-
-	// private boolean usePower() {
-	// return operator.getAButton() || operator.getBButton() ||
-	// operator.getRightBumper() || operator.getLeftBumper();
-	// }
 
 	/**
 	 * Use this to pass the autonomous command to the main {@link Robot} class.

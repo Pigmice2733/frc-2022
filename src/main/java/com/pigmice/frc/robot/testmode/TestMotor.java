@@ -1,15 +1,15 @@
 package com.pigmice.frc.robot.testmode;
 
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 
 public class TestMotor extends TestBase {
 
-  private final SpeedController motor;
+  private final MotorController motor;
   private final Encoder encoder;
   private final boolean positiveIsForward;
 
-  public TestMotor(SpeedController motor, Encoder encoder, boolean positiveIsForward) {
+  public TestMotor(MotorController motor, Encoder encoder, boolean positiveIsForward) {
     this.motor = motor;
     this.encoder = encoder;
     this.positiveIsForward = positiveIsForward;
