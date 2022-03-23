@@ -12,9 +12,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Intake extends SubsystemBase {
+public class Intake extends Subsystem {
     private final TalonSRX leftExtendMotor, rightExtendMotor;
     public final PIDController leftExtendPID, rightExtendPID;
     private final ArmFeedforward leftFeedForward, rightFeedForward;
@@ -123,10 +122,10 @@ public class Intake extends SubsystemBase {
         this.leftSetpointEntry.setDouble(leftExtendPID.getSetpoint());
         this.rightSetpointEntry.setDouble(rightExtendPID.getSetpoint());
 
-        if (!enabled)
+        if (!enabled && !this.isTestMode())
             return;
 
-        if (extended) {
+        if (extended || this.isTestMode()) {
             intakeMotor.set(intakeMotorOutputEntry.getDouble(0.2));
             if (backwards) {
                 // motorRun.set(ControlMode.PercentOutput, -runSpeed);
@@ -232,5 +231,9 @@ public class Intake extends SubsystemBase {
     public void resetEncoders() {
         leftExtendMotor.setSelectedSensorPosition(0);
         rightExtendMotor.setSelectedSensorPosition(0);
+    }
+
+    public void testPeriodic() {
+        intakeMotor.set(intakeMotorOutputEntry.getDouble(0.2));
     }
 }

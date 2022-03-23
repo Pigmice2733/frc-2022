@@ -22,9 +22,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Indexer extends SubsystemBase {
+public class Indexer extends Subsystem {
   private boolean enabled = true;
   private boolean isLookingForBalls = true;
 
@@ -86,7 +85,7 @@ public class Indexer extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (!enabled)
+    if (!enabled && !this.isTestMode())
       return;
 
     if (ballTracker.getSize() == 0) {
@@ -96,6 +95,9 @@ public class Indexer extends SubsystemBase {
 
     // switch on mode
     switch (mode) {
+      case SHUFFLEBOARD:
+        setMotorOutput(this.motorOutputEntry.getDouble(FREE_SPIN_POWER));
+        break;
       case HOLD:
         setMotorOutput(0.0);
         break;
@@ -162,13 +164,14 @@ public class Indexer extends SubsystemBase {
   }
 
   public void setMotorOutput(double output) {
-    if (!enabled) {
+    if (!enabled && !this.isTestMode()) {
       motor.set(ControlMode.PercentOutput, 0);
       motorOutputEntry.setDouble(0);
       return;
     }
     motor.set(ControlMode.PercentOutput, output);
-    motorOutputEntry.setDouble(output);
+    if (!this.isTestMode())
+      motorOutputEntry.setDouble(output);
   }
 
   public void updateShuffleboard() {
@@ -236,6 +239,12 @@ public class Indexer extends SubsystemBase {
 
   @Override
   public void simulationPeriodic() {
+    this.periodic();
+  }
+
+  public void testPeriodic() {
+    this.enabled = true;
+    this.mode = IndexerMode.SHUFFLEBOARD;
     this.periodic();
   }
 }

@@ -17,6 +17,7 @@ import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.shooter.StartShooterCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
+import com.pigmice.frc.robot.subsystems.Subsystem;
 import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
 import com.pigmice.frc.robot.subsystems.Shooter;
@@ -55,6 +56,8 @@ public class RobotContainer {
 	// private final Lights lights;
 	private final Controls controls;
 
+	private List<Subsystem> subsystems;
+
 	private XboxController driver;
 	private XboxController operator;
 	private GenericHID dpad;
@@ -77,6 +80,9 @@ public class RobotContainer {
 		lifty = new Lifty();
 		rotato = new Rotato();
 		// lights = new Lights();
+
+		subsystems = List.of(drivetrain, intake, shooter, indexer, lifty.getLeft(), lifty.getRight(), rotato.getLeft(),
+				rotato.getRight());
 
 		driver = new XboxController(Constants.driverControllerPort);
 		operator = new XboxController(Constants.operatorControllerPort);
@@ -258,6 +264,24 @@ public class RobotContainer {
 		this.shooter.disable();
 		this.indexer.disable();
 		this.intake.disable();
+	}
+
+	public void nonTestInit() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.setTestMode(false);
+		});
+	}
+
+	public void testInit() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.testInit();
+		});
+	}
+
+	public void testPeriodic() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.testPeriodic();
+		});
 	}
 
 	public void updateShuffleboard() {

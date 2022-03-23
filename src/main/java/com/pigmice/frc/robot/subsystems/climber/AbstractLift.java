@@ -3,8 +3,9 @@ package com.pigmice.frc.robot.subsystems.climber;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-import com.pigmice.frc.robot.Constants.ClimberProfileConfig;
 import com.pigmice.frc.robot.Constants.ClimberConfig.LiftySetpoint;
+import com.pigmice.frc.robot.Constants.ClimberProfileConfig;
+import com.pigmice.frc.robot.subsystems.Subsystem;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -12,9 +13,8 @@ import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public abstract class AbstractLift extends SubsystemBase {
+public abstract class AbstractLift extends Subsystem {
     protected final double LIFT_GEAR_RATIO = 12.0 / 68.0;
     protected final double LIFT_GEAR_CIRC = Math.PI * 1.273; // diameter 1.273 inches
 
@@ -53,6 +53,10 @@ public abstract class AbstractLift extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (this.isTestMode()) {
+            this.useOutput(0.0);
+            return;
+        }
         if (usePower.getAsBoolean()) {
             this.useOutput(this.powerSupplier.getAsDouble());
         } else {
@@ -90,5 +94,11 @@ public abstract class AbstractLift extends SubsystemBase {
     public double getLiftDistance() {
         // encoder position 1:1 with rotations
         return this.getEncoderValue() * LIFT_GEAR_RATIO * LIFT_GEAR_CIRC;
+    }
+
+    public void testPeriodic() {
+        this.powerSupplier = () -> 0.0;
+        this.usePower = () -> true;
+        this.periodic();
     }
 }
