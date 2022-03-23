@@ -4,47 +4,53 @@ import com.pigmice.frc.robot.Constants.VisionConfig;
 import com.pigmice.frc.robot.Vision;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class VisionAlignCommand extends ProfiledPIDCommand {
+public class VisionAlignCommand extends CommandBase {
     private final Drivetrain drivetrain;
 
     public VisionAlignCommand(Drivetrain drivetrain) {
-        super(new ProfiledPIDController(VisionConfig.rotationP, VisionConfig.rotationI, VisionConfig.rotationD,
-                new TrapezoidProfile.Constraints(0.5, 0.5)),
-                Vision::getTargetYaw,
-                0.0,
-                (output, setpoint) -> drivetrain.arcadeDrive(0.0, output),
-                drivetrain);
         this.drivetrain = drivetrain;
 
-        this.addRequirements(drivetrain);
-
-        getController().setTolerance(VisionConfig.tolerableError,
-                VisionConfig.tolerableEndVelocity);
+        addRequirements(drivetrain);
     }
 
     @Override
     public void initialize() {
+        Vision.startAligning();
         Vision.update();
+
         super.initialize();
     }
 
     @Override
+    public void execute() {
+        if (Vision.hasTarget()) {
+            double output = Vision.getOutput();
+            if (Vision.getTargetYaw() == Double.NaN || output == Double.NaN)
+                return;
+            this.drivetrain.arcadeDrive(0, output);
+        }
+
+        super.execute();
+    }
+
+    @Override
     public boolean isFinished() {
-        // System.out.println(
-        // "VISION ANGLE: " + Vision.getBestTarget().getYaw() + " | GOAL: "
-        // + this.getController().getGoal().position + " | ERROR: "
-        // + this.getController().getPositionError() + " | AT GOAL: " +
-        // this.getController().atGoal());
-        return this.getController().atGoal();
+        double yaw = Vision.getTargetYaw();
+        if (yaw != Double.NaN && Math.abs(yaw) < VisionConfig.tolerableError) {
+            Vision.stopAligning();
+            this.drivetrain.arcadeDrive(0.0, 0.0);
+            return true;
+        }
+
+        return false;
     }
 
     @Override
     public void end(boolean interrupted) {
         Vision.stopAligning();
         drivetrain.arcadeDrive(0.0, 0.0);
+        super.end(interrupted);
     }
 }

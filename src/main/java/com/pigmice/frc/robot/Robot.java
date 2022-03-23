@@ -3,7 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package com.pigmice.frc.robot;
-
+import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.testmode.Testable;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -54,11 +54,13 @@ public class Robot extends TimedRobot {
      * Command-based framework to work.
      */
     CommandScheduler.getInstance().run();
+    Vision.update();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
+    this.robotContainer.onDisable();
   }
 
   @Override
@@ -94,12 +96,13 @@ public class Robot extends TimedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+
+    this.robotContainer.onEnable();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    Vision.update();
   }
 
   @Override
