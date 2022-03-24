@@ -133,8 +133,8 @@ public class Shooter extends Subsystem {
 
 		if(this.mode == ShooterMode.AUTO){
 			hubDistance = Vision.getDistanceFromTarget(Vision.getBestTarget());
-			topRPM = ShooterDistances.getTopSpeed(hubDistance);
-			botRPM = ShooterDistances.getBottomSpeed(hubDistance);
+			topRPM = ShooterDistances.findTopSpeed(hubDistance);
+			botRPM = ShooterDistances.findBottomSpeed(hubDistance);
 		}
 
 		if (this.mode == ShooterMode.SHUFFLEBOARD || this.isTestMode()) {

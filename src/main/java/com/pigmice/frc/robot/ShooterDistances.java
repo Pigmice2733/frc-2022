@@ -1,43 +1,71 @@
 package com.pigmice.frc.robot;
 
+import java.util.List;
+
+import edu.wpi.first.math.MathUtil;
+
 public class ShooterDistances {
-    private static int[] topSpeeds = {};
-    private static int[] bottomSpeeds = {};
-    private static int[] distances = new int[31]; { // distances in inches
-    for(int a = 0; a < 31; a++) {
-        distances[a] = a*6;
-    }}
-
-    private static int find(int[] a, double i) {
-        int k = (int) i;
-        for(int j = 0; j < a.length; j++) {
-            if(a[j] == k) {return j;}
+    public static class ShooterPoint {
+        public double distance, topSpeed, bottomSpeed;
+        
+        ShooterPoint(double dist, double tSpeed, double bSpeed){
+            distance = dist;
+            topSpeed = tSpeed;
+            bottomSpeed = bSpeed;
         }
-        return -1;
+
+		public double getDistance() {
+			return distance;
+		}
+
+		public void setDistance(double distance) {
+			this.distance = distance;
+		}
+
+		public double getTopSpeed() {
+			return topSpeed;
+		}
+
+		public void setTopSpeed(double topSpeed) {
+			this.topSpeed = topSpeed;
+		}
+
+		public double getBottomSpeed() {
+			return bottomSpeed;
+		}
+
+		public void setBottomSpeed(double bottomSpeed) {
+			this.bottomSpeed = bottomSpeed;
+		}
     }
 
-    public static double getTopSpeed(double distance) {
-        if(distance % 6 == 0) {
-            return topSpeeds[find(distances, distance)];
-        } else {
-            double remainder = distance % 6;
-            int lowerBound = topSpeeds[find(distances, distance - remainder)];
-            int upperBound = topSpeeds[find(distances, distance + 6 - remainder)];
-            return ((lowerBound * (6 - remainder)) + (upperBound * remainder)) / 6;
+    private static final List<ShooterPoint> pointList = List.of(new ShooterPoint(0,0,0), new ShooterPoint(0,0,0));
+
+    private static ShooterPoint calcSpeeds (double distance) {
+        ShooterPoint speeds = new ShooterPoint(distance, 0, 0);
+        ShooterPoint lowerBound, upperBound;
+        lowerBound = upperBound = speeds;
+
+        for(ShooterPoint i : pointList){
+            if(i.getDistance() > distance){
+                upperBound = i;
+                lowerBound = pointList.get(pointList.indexOf(i) - 1);
+                break;
+            }
         }
+
+        double betweenPortion = (distance - lowerBound.getDistance()) / (upperBound.getDistance() - lowerBound.getDistance());
+        speeds.setTopSpeed(MathUtil.interpolate(lowerBound.getTopSpeed(), upperBound.getTopSpeed(), betweenPortion));
+        speeds.setBottomSpeed(MathUtil.interpolate(lowerBound.getBottomSpeed(), upperBound.getBottomSpeed(), betweenPortion));
+        
+        return speeds;
     }
 
-    public static double getBottomSpeed(double distance) {
-        if(distance % 6 == 0) {
-            return bottomSpeeds[find(distances, distance)];
-        } else {
-            double remainder = distance % 6;
-            int lowerBound = bottomSpeeds[find(distances, distance - remainder)];
-            int upperBound = bottomSpeeds[find(distances, distance + 6 - remainder)];
-            return ((lowerBound * (6 - remainder)) + (upperBound * remainder)) / 6;
-        }
+    public static double findTopSpeed (double distance) {
+        return calcSpeeds(distance).getTopSpeed();
     }
 
-    public static int[] listTopSpeeds() {return topSpeeds;}
-    public static int[] listBottomSpeeds() {return bottomSpeeds;}
+    public static double findBottomSpeed (double distance) {
+        return calcSpeeds(distance).getBottomSpeed();
+    }
 }
