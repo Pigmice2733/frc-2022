@@ -21,7 +21,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class Indexer extends Subsystem {
   private boolean enabled = true;
@@ -36,8 +38,6 @@ public class Indexer extends Subsystem {
   private final NetworkTableEntry enabledEntry;
   private final NetworkTableEntry motorOutputEntry;
   private final NetworkTableEntry rotateAngleEntry;
-  private final NetworkTableEntry firstBallEntry;
-  private final NetworkTableEntry secondBallEntry;
 
   private BallTracker ballTracker;
   private BallDetector ballDetector;
@@ -72,8 +72,8 @@ public class Indexer extends Subsystem {
     this.enabledEntry = indexerTab.add("Enabled", enabled).getEntry();
     this.motorOutputEntry = indexerTab.add("Motor Output", 0).getEntry();
     this.rotateAngleEntry = indexerTab.add("Rotate Angle", 0).getEntry();
-    this.firstBallEntry = indexerTab.add("First Ball", false).getEntry();
-    this.secondBallEntry = indexerTab.add("Second Ball", false).getEntry();
+    setBalls(false, false);
+    SmartDashboard.putData("Reset Balls", new InstantCommand(() -> this.ballTracker.clear()));
 
     this.ballTracker = new BallTracker();
     this.ballDetector = new BallDetector();
@@ -83,14 +83,25 @@ public class Indexer extends Subsystem {
     return enabled;
   }
 
+  private void setBalls(boolean first, boolean second) {
+    SmartDashboard.putBoolean("First Ball", first);
+    SmartDashboard.putBoolean("Second Ball", second);
+  }
+
+  public void clearBalls() {
+    this.ballTracker.clear();
+  }
+
   @Override
   public void periodic() {
-    if (!enabled && !this.isTestMode())
+    boolean disabled = !enabled && !this.isTestMode();
+    if (disabled) {
+      this.setMotorOutput(0.0);
       return;
+    }
 
     if (ballTracker.getSize() == 0) {
-      this.firstBallEntry.setBoolean(false);
-      this.secondBallEntry.setBoolean(false);
+      setBalls(false, false);
     }
 
     // switch on mode
@@ -137,11 +148,9 @@ public class Indexer extends Subsystem {
       System.out.println("CORRECT COLOR! SHOULD STORE!");
       ballTracker.newBallStored(ballAlliance);
       if (ballTracker.getSize() == 1) {
-        this.firstBallEntry.setBoolean(true);
-        this.secondBallEntry.setBoolean(false);
+        setBalls(true, false);
       } else if (ballTracker.getSize() == 2) {
-        this.firstBallEntry.setBoolean(true);
-        this.secondBallEntry.setBoolean(true);
+        setBalls(true, true);
       }
 
       if (ballTracker.isFull()) {

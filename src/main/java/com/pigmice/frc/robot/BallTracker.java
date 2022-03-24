@@ -42,4 +42,8 @@ public class BallTracker {
     public int getSize() {
         return balls.size();
     }
+
+    public void clear() {
+        this.balls.clear();
+    }
 }

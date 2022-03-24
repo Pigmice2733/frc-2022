@@ -14,12 +14,12 @@ import com.pigmice.frc.robot.commands.ShootBallCommand;
 import com.pigmice.frc.robot.commands.VisionAlignCommand;
 import com.pigmice.frc.robot.commands.climber.ClimbRung;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
+import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.pigmice.frc.robot.commands.shooter.StartShooterCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
-import com.pigmice.frc.robot.subsystems.Subsystem;
 import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
 import com.pigmice.frc.robot.subsystems.Shooter;
@@ -68,6 +68,9 @@ public class RobotContainer {
 
 	private Trigger shootTarmac, shootLaunchpad, shootLow, shootFender, shootTrigger;
 
+	private static final double liftPower = 0.30;
+	private static final double rotatePower = 0.50;
+
 	// private final ExampleCommand m_autoCommand = new
 	// ExampleCommand(m_exampleSubsystem);
 
@@ -102,11 +105,6 @@ public class RobotContainer {
 		drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
 				controls::getDriveSpeed, controls::getTurnSpeed));
 
-		// rotato.setDefaultCommand(new RotateTo(rotato, this.rotato::getTarget, true,
-		// this::usePower));
-		// lifty.setDefaultCommand(new LiftTo(lifty, this.lifty::getTarget, true,
-		// this::usePower));
-
 		// Configure the button bindings
 		try {
 			configureButtonBindings(driver, operator);
@@ -126,48 +124,58 @@ public class RobotContainer {
 		
 		// DRIVER CONTROLS
 
+		// [driver] slow mode makes the robot move and turn more slowly
 		new JoystickButton(driver, Button.kY.value)
 				.whenPressed(this.drivetrain::slow)
 				.whenReleased(this.drivetrain::stopSlow);
 
-		final VisionAlignCommand visionAlign = new VisionAlignCommand(this.drivetrain, driver);
+		// [driver] align to hub using gloworm
+		final VisionAlignCommand visionAlign = new VisionAlignCommand(this.drivetrain, driver, operator);
 		new JoystickButton(driver, Button.kA.value)
 				.whenPressed(visionAlign)
 				.whenReleased(() -> CommandScheduler.getInstance().cancel(visionAlign));
-		 
 
 		// OPERATOR CONTROLS
 
+		// [operator] toggle shoot mode
 		new JoystickButton(operator, Button.kLeftStick.value)
 				.whenPressed(this::toggleShootMode);
 
-		// TODO Create target variables for both rotato and lifty that the default
-		// commands will use
-		// make a double supplier that returns those and pass it in as the target state
-		// for both default commands
+		// [operator] extend and retract intake
+		new Trigger(() -> shootMode == true &&
+				new JoystickButton(operator, Button.kA.value).get())
+				.whenActive(
+						new ExtendIntake(intake))
+				.whenInactive(
+						new RetractIntake(intake));
 
+		// [operator] manually eject all balls
+		new Trigger(() -> shootMode == true &&
+				new JoystickButton(operator, Button.kBack.value).get())
+				.whenActive(() -> {
+					this.indexer.setMode(IndexerMode.EJECT_BY_INTAKE);
+					this.intake.setReverse(true);
+				})
+				.whenInactive(() -> {
+					this.indexer.setMode(IndexerMode.FREE_SPIN);
+					this.intake.setReverse(false);
+					this.indexer.clearBalls();
+				});
+
+		// [operator] manual climb keybinds
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kRightBumper.value).get())
 				.whenActive(() -> {
 					this.lifty.setInAuto(false);
-					this.lifty.setOutput(0.30);
+					this.lifty.setOutput(liftPower);
 				})
 				.whenInactive(() -> this.lifty.setOutput(0.0));
-
-		new Trigger(() -> shootMode == true &&
-				new JoystickButton(operator, Button.kA.value).get())
-				.whenActive(
-					new ExtendIntake(intake)
-				)
-				.whenInactive(
-					new RetractIntake(intake)
-				);
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kLeftBumper.value).get())
 				.whenActive(() -> {
 					this.lifty.setInAuto(false);
-					this.lifty.setOutput(-0.30);
+					this.lifty.setOutput(-liftPower);
 				})
 				.whenInactive(() -> this.lifty.setOutput(0.0));
 
@@ -175,7 +183,7 @@ public class RobotContainer {
 				new JoystickButton(operator, Button.kA.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
-					this.rotato.setOutput(-0.30);
+					this.rotato.setOutput(-rotatePower);
 				})
 				.whenInactive(() -> this.rotato.setOutput(0.0));
 
@@ -183,7 +191,7 @@ public class RobotContainer {
 				new JoystickButton(operator, Button.kB.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
-					this.rotato.setOutput(0.30);
+					this.rotato.setOutput(rotatePower);
 				})
 				.whenInactive(() -> this.rotato.setOutput(0.0));
 
@@ -191,7 +199,7 @@ public class RobotContainer {
 				new JoystickButton(operator, Button.kX.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
-					this.rotato.setOutput(-0.15);
+					this.rotato.setOutput(-rotatePower / 2.0);
 				})
 				.whenInactive(() -> {
 					this.rotato.setOutput(0.0);
@@ -201,31 +209,23 @@ public class RobotContainer {
 				new JoystickButton(operator, Button.kY.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
-					this.rotato.setOutput(0.15);
+					this.rotato.setOutput(rotatePower / 2.0);
 				})
 				.whenInactive(() -> {
 					this.rotato.setOutput(0.0);
 				});
 
+		// ! UNUSED [operator] automatically climb a rung
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kRightStick.value).get())
 				.whenActive(new ClimbRung(lifty, rotato));
 
-		/*
-		 * new Trigger(() -> mode == false &&
-		 * new JoystickButton(operator, Button.kBack.value).get())
-		 * .whenActive(new ClimbMid(lifty, rotato));
-		 */
-
-		// new Trigger(() -> shootMode == true &&
-		// new JoystickButton(operator, Button.kA.value).get())
-		// .whenActive(new ExtendIntake(intake))
-		// .whenInactive(new RetractIntake(intake));
-
+		// [operator] shoot a ball
 		this.shootTrigger
 				.whileActiveOnce(new ShootBallCommand(shooter, indexer))
 				.whenInactive(() -> this.indexer.setMode(IndexerMode.FREE_SPIN));
 
+		// [operator] settings to spin up flywheels
 		this.shootTarmac
 				.whenActive(getShooterModeCommands(ShooterMode.TARMAC))
 				.whenInactive(new StartShooterCommand(shooter, ShooterMode.OFF));
@@ -242,12 +242,16 @@ public class RobotContainer {
 				.whenActive(getShooterModeCommands(ShooterMode.FENDER_HIGH))
 				.whenInactive(new StartShooterCommand(shooter, ShooterMode.OFF));
 
+		// turn shooter to auto mode when only trigger is pressed, and no shoot modes
 		this.shootTrigger.whenActive(() -> {
+			// only ever == ShooterMode.OFF when no other mode buttons are pressed
 			if (this.shooter.getMode() == ShooterMode.OFF) {
 				this.shooter.setMode(ShooterMode.AUTO);
 			}
 		});
 
+		// disable shooter and reset indexer when no shoot trigger or mode buttons are
+		// pressed
 		shootTrigger.or(shootTarmac).or(shootLaunchpad).or(shootLow).or(shootFender)
 				.whenInactive(() -> {
 					this.shooter.disable();
@@ -276,6 +280,7 @@ public class RobotContainer {
 	public void nonTestInit() {
 		this.subsystems.forEach(subsystem -> {
 			subsystem.setTestMode(false);
+			subsystem.nonTestInit();
 		});
 	}
 
@@ -296,7 +301,14 @@ public class RobotContainer {
 	}
 
 	private void toggleShootMode() {
-		this.shootMode = !shootMode;
+		this.shootMode = !this.shootMode;
+		if (this.shootMode) {
+			this.intake.enable();
+			this.indexer.enable();
+		} else {
+			this.intake.disable();
+			this.indexer.disable();
+		}
 		Controls.rumbleController(this.operator);
 	}
 
@@ -317,7 +329,7 @@ public class RobotContainer {
 	 * @return the command to run in autonomous
 	 */
 	public Command getAutonomousCommand() {
-		return new SpinIndexerToAngle(this.indexer, -90.0, false);
+		return new DriveDistance(this.drivetrain, 2.0);
 	}
 
 	public List<Testable> getTestables() {

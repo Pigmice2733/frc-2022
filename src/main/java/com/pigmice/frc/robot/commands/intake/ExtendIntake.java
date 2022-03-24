@@ -21,19 +21,20 @@ public class ExtendIntake extends CommandBase {
   @Override
   public void initialize() {
     intake.setControllerSetpoints(IntakeConfig.maxExtendAngle);
-    //intake.resetEncoders();
+    // intake.resetEncoders();
     intake.enable();
     intake.extend();
   }
 
   @Override
   public void execute() {
-    
+
   }
 
   @Override
   public void end(boolean interrupted) {
     intake.setExtendMotorOutputs(0, 0);
+    intake.setFullyExtended(true);
   }
 
   @Override

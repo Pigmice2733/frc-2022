@@ -83,10 +83,14 @@ public class Vision {
             double output = rotationController.calculate(getTargetYaw());
             outputEntry.setDouble(output);
 
+            if (output == Double.NaN) {
+                return 0.0;
+            }
+
             // clamp output between -0.15 and 0.15
             output = MathUtil.clamp(output, VisionConfig.rotationMinOutput, VisionConfig.rotationMaxOutput);
 
-            // minimum power of 0.05, preserving direction
+            // minimum power defined in Constants.java, preserving direction
             output = Math.max(Math.abs(output), VisionConfig.rotationMinPower) * Math.signum(output);
             return output;
         } else {
@@ -150,9 +154,11 @@ public class Vision {
     public static double getDistanceFromTarget(PhotonTrackedTarget target) {
         if (target == null)
             return 0.0;
+        // gloworm distance is distance to front of hub
         return PhotonUtils.calculateDistanceToTargetMeters(VisionConfig.cameraHeightMeters,
                 VisionConfig.targetHeightMeters,
-                VisionConfig.cameraPitchRadians, Units.degreesToRadians(target.getPitch()));
+                VisionConfig.cameraPitchRadians, Units.degreesToRadians(target.getPitch()))
+                + (VisionConfig.upperHubDiameterMeters / 2.0) + VisionConfig.cameraOffsetFromFrontMeters;
     }
 
     public static double alignmentError() {

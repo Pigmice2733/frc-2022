@@ -64,6 +64,11 @@ public abstract class AbstractLift extends Subsystem {
         }
     }
 
+    @Override
+    public void nonTestInit() {
+        this.motor.getEncoder().setPosition(0.0);
+    }
+
     protected abstract void useOutput(double output);
 
     protected abstract double getEncoderValue();

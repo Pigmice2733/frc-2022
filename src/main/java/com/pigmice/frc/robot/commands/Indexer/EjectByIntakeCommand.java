@@ -10,13 +10,15 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 public class EjectByIntakeCommand extends SequentialCommandGroup {
+
     public EjectByIntakeCommand(Indexer indexer, Intake intake) {
         super(
                 new InstantCommand(() -> {
                     indexer.setMode(IndexerMode.EJECT_BY_INTAKE);
                     intake.setReverse(true);
                 }),
-                new WaitUntilCommand(indexer.getBallDetector()::isSameAlliance).withTimeout(5.0),
+                new WaitUntilCommand(indexer.getBallDetector()::isSameAlliance)
+                        .withTimeout(5.0),
                 new InstantCommand(() -> {
                     intake.setReverse(false);
                     indexer.setLookingForBalls(false);

@@ -4,17 +4,21 @@
 
 package com.pigmice.frc.robot.commands.intake;
 
+import com.pigmice.frc.robot.Constants.IndexerConfig.IndexerMode;
+import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class RetractIntake extends CommandBase {
   private final Intake intake;
+  private final Indexer indexer;
 
-  public RetractIntake(Intake intake) {
+  public RetractIntake(Intake intake, Indexer indexer) {
     this.intake = intake;
+    this.indexer = indexer;
 
-    addRequirements(intake);
+    addRequirements(intake, indexer);
   }
 
   @Override
@@ -22,11 +26,17 @@ public class RetractIntake extends CommandBase {
     intake.retract();
     intake.setControllerSetpoints(0);
     intake.enable();
+    intake.setFullyExtended(false);
+    if (indexer.getBallTracker().getSize() < 2) {
+      indexer.setMode(IndexerMode.FREE_SPIN);
+    } else {
+      indexer.setMode(IndexerMode.HOLD);
+    }
   }
 
   @Override
   public void execute() {
-  
+
   }
 
   @Override

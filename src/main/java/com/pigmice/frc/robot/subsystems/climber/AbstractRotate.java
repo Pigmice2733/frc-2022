@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.pigmice.frc.robot.Constants.ClimberConfig.RotatoSetpoint;
+import com.pigmice.frc.robot.Constants.ClimberConfig;
 import com.pigmice.frc.robot.Constants.ClimberProfileConfig;
 import com.pigmice.frc.robot.subsystems.Subsystem;
 
@@ -57,10 +58,21 @@ public abstract class AbstractRotate extends Subsystem {
             return;
         }
         if (usePower.getAsBoolean()) {
-            this.useOutput(this.powerSupplier.getAsDouble());
+            double power = this.powerSupplier.getAsDouble();
+            if ((power > 0 && this.getRotateAngle() < ClimberConfig.maxRotateAngle)
+                    || (power < 0 && this.getRotateAngle() > ClimberConfig.minRotateAngle)) {
+                this.useOutput(this.powerSupplier.getAsDouble());
+            } else {
+                this.useOutput(0.0);
+            }
         } else {
             this.useOutput(controller.calculate(getRotateAngle(), setpoint.getAngle()));
         }
+    }
+
+    @Override
+    public void nonTestInit() {
+        this.motor.setSelectedSensorPosition(0.0);
     }
 
     protected abstract void useOutput(double output);

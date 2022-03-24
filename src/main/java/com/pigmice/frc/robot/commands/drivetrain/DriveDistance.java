@@ -11,7 +11,7 @@ public class DriveDistance extends ProfiledPIDCommand {
     private final double maxError = 0.01;
     private final double maxVelocity = 1.0;
 
-    public DriveDistance(double distance, Drivetrain drivetrain) {
+    public DriveDistance(Drivetrain drivetrain, double distance) {
         super(
                 new ProfiledPIDController(1.5, 0.5, 0.3, new TrapezoidProfile.Constraints(1.0, 1.5)),
                 drivetrain::getDistanceFromStart,

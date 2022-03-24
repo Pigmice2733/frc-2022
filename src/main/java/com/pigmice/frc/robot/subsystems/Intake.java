@@ -9,25 +9,22 @@ import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Intake extends Subsystem {
     private final TalonSRX leftExtendMotor, rightExtendMotor;
     public final PIDController leftExtendPID, rightExtendPID;
-    private final ArmFeedforward leftFeedForward, rightFeedForward;
 
     private final CANSparkMax intakeMotor;
 
-    private boolean enabled, extended, backwards;
+    private boolean enabled, extended, backwards, fullyExtended;
 
     private final ShuffleboardTab intakeTab;
-    private final NetworkTableEntry enabledEntry;   
+    private final NetworkTableEntry enabledEntry;
     private final NetworkTableEntry extendedEntry;
     private final NetworkTableEntry leftMotorOutputEntry;
     private final NetworkTableEntry leftRotateAngleEntry;
@@ -71,17 +68,15 @@ public class Intake extends Subsystem {
         leftExtendPID.setSetpoint(0);
 
         // Right Extend PID
-        rightExtendPID = new PIDController(IntakeConfig.rightExtendP, IntakeConfig.rightExtendI, IntakeConfig.rightExtendD);
+        rightExtendPID = new PIDController(IntakeConfig.rightExtendP, IntakeConfig.rightExtendI,
+                IntakeConfig.rightExtendD);
         rightExtendPID.setTolerance(IntakeConfig.extendTolError, IntakeConfig.extendTolEndVelo);
         rightExtendPID.setSetpoint(0);
-
-        // Feed Forward
-        leftFeedForward = new ArmFeedforward(IntakeConfig.extendS, IntakeConfig.extendG, IntakeConfig.extendV);
-        rightFeedForward = new ArmFeedforward(IntakeConfig.extendS, IntakeConfig.extendG, IntakeConfig.extendV);
 
         this.enabled = false;
         this.extended = false;
         this.backwards = false;
+        this.fullyExtended = false;
 
         // Shuffleboard Entries
         this.intakeTab = Shuffleboard.getTab("Intake");
@@ -126,8 +121,6 @@ public class Intake extends Subsystem {
 
     @Override
     public void periodic() {
-        //rightExtendMotor.set(ControlMode.PercentOutput, 0.2);
-        //leftExtendMotor.set(ControlMode.PercentOutput, 0.2);
         // write to Shuffleboard
         this.leftRotateAngleEntry.setDouble(getLeftExtendAngle());
         this.rightRotateAngleEntry.setDouble(getRightExtendAngle());
@@ -143,12 +136,12 @@ public class Intake extends Subsystem {
         double leftOutput = this.calculateLeftPID(leftAngle);
         double rightOutput = this.calculateRightPID(rightAngle);
 
-    this.setExtendMotorOutputs(leftOutput, rightOutput);
+        this.setExtendMotorOutputs(leftOutput, rightOutput);
 
-        if (extended || this.isTestMode()) {
+        if (fullyExtended || this.isTestMode()) {
             runIntakeMotor();
-        }
-        else intakeMotor.set(0);
+        } else
+            intakeMotor.set(0);
     }
 
     @Override
@@ -159,8 +152,10 @@ public class Intake extends Subsystem {
 
     // Sets an output to intake motor based on if reversed
     public void runIntakeMotor() {
-        if (!backwards) intakeMotor.set(intakeMotorOutputEntry.getDouble(IntakeConfig.intakeMotorSpeed));
-        else intakeMotor.set(-intakeMotorOutputEntry.getDouble(IntakeConfig.intakeMotorSpeed));
+        if (!backwards)
+            intakeMotor.set(intakeMotorOutputEntry.getDouble(IntakeConfig.intakeMotorSpeed));
+        else
+            intakeMotor.set(-intakeMotorOutputEntry.getDouble(IntakeConfig.intakeMotorSpeed));
     }
 
     public double getLeftExtendAngle() {
@@ -175,10 +170,14 @@ public class Intake extends Subsystem {
         return position * IntakeConfig.extendGearRator * 360 / 4096.0;
     }
 
-    public void toggleExtended() { setExtended(!this.extended); }
+    public void toggleExtended() {
+        setExtended(!this.extended);
+    }
 
-    public void retract() { setExtended(false); }
-    
+    public void retract() {
+        setExtended(false);
+    }
+
     public void extend() {
         setExtended(true);
         this.backwards = false;
@@ -189,38 +188,18 @@ public class Intake extends Subsystem {
         extendedEntry.setBoolean(extended);
     }
 
-    // Feedforward values will automaticaly be added to speed, to stop motors set enabled or extended to false
+    // Feedforward values will automaticaly be added to speed, to stop motors set
+    // enabled or extended to false
     public void setExtendMotorOutputs(double left, double right) {
         if (!enabled) {
             leftExtendMotor.set(ControlMode.PercentOutput, 0);
             rightExtendMotor.set(ControlMode.PercentOutput, 0);
             return;
         }
-        
-        // Add feedForward value to outputs
-        /*left += 
-        (leftFeedForward.calculate(
-            leftExtendPID.getSetpoint() > 0 
-                ? IntakeConfig.maxExtendAngle * (Math.PI / 180)
-                : -IntakeConfig.maxExtendAngle * (Math.PI / 180), 
-            2) / 12);*/
-
-        /*right += 
-            (rightFeedForward.calculate(
-                rightExtendPID.getSetpoint() > 0 
-                    ? IntakeConfig.maxExtendAngle * (Math.PI / 180)
-                    : -IntakeConfig.maxExtendAngle * (Math.PI / 180), 
-                2) / 12);*/
-
-        // Clamp outputs to max/min value
-        //left = Math.min(IntakeConfig.maxExtendMotorOutput, Math.max(IntakeConfig.maxExtendMotorOutput, left));
-        //right = Math.min(IntakeConfig.maxExtendMotorOutput, Math.max(IntakeConfig.maxExtendMotorOutput, right));
 
         // Set percent outputs to motors
         leftExtendMotor.set(ControlMode.PercentOutput, left);
         rightExtendMotor.set(ControlMode.PercentOutput, right);
-
-        //System.out.println(left + "|" + right);
 
         // Update values on shuffleboard
         leftMotorOutputEntry.setDouble(left);
@@ -263,26 +242,29 @@ public class Intake extends Subsystem {
         this.backwards = !backwards;
     }
 
+    public void setFullyExtended(boolean fullyExtended) {
+        this.fullyExtended = fullyExtended;
+    }
+
     public void resetEncoders() {
         leftExtendMotor.setSelectedSensorPosition(0);
         rightExtendMotor.setSelectedSensorPosition(0);
     }
 
     boolean prevToggleValue = false;
+
     public void testPeriodic() {
         intakeMotor.set(intakeMotorOutputEntry.getDouble(0.2));
 
         if (toggleIntakeEntry.getBoolean(false) != prevToggleValue) {
-            if (!extended) { 
+            if (!extended) {
                 CommandScheduler.getInstance().schedule(new ExtendIntake(this));
-            }
-            else if (extended) { 
+            } else if (extended) {
                 CommandScheduler.getInstance().schedule(new RetractIntake(this));
             }
 
             System.out.println("Value Toggled");
             prevToggleValue = toggleIntakeEntry.getBoolean(false);
         }
-        
     }
 }
