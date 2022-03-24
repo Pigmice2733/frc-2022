@@ -1,5 +1,7 @@
 package com.pigmice.frc.robot.subsystems;
 
+import com.pigmice.frc.robot.ShooterDistances;
+import com.pigmice.frc.robot.Vision;
 import com.pigmice.frc.robot.Constants.ShooterConfig;
 import com.pigmice.frc.robot.Constants.ShooterConfig.ShooterMode;
 import com.revrobotics.CANSparkMax;
@@ -26,6 +28,7 @@ public class Shooter extends Subsystem {
 	private final RelativeEncoder topEncoder, botEncoder;
 
 	public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM, maxVel, minVel, maxAcc, allowedErr;
+	private double hubDistance;
 
 	private final ShuffleboardTab shooterTab;
 
@@ -135,6 +138,12 @@ public class Shooter extends Subsystem {
 
 		double topRPM = this.mode.getTopRPM();
 		double botRPM = this.mode.getBottomRPM();
+
+		if(this.mode == ShooterMode.AUTO){
+			hubDistance = Vision.getDistanceFromTarget(Vision.getBestTarget());
+			topRPM = ShooterDistances.findTopSpeed(hubDistance);
+			botRPM = ShooterDistances.findBottomSpeed(hubDistance);
+		}
 
 		if (this.mode == ShooterMode.SHUFFLEBOARD || this.isTestMode()) {
 			topRPM = topRPMEntry.getDouble(topRPM);

@@ -121,7 +121,7 @@ public class RobotContainer {
 	 * it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
 	 */
 	private void configureButtonBindings(XboxController driver, XboxController operator) {
-
+		
 		// DRIVER CONTROLS
 
 		// [driver] slow mode makes the robot move and turn more slowly
@@ -147,7 +147,7 @@ public class RobotContainer {
 				.whenActive(
 						new ExtendIntake(intake))
 				.whenInactive(
-						new RetractIntake(intake));
+						new RetractIntake(intake, indexer));
 
 		// [operator] manually eject all balls
 		new Trigger(() -> shootMode == true &&
