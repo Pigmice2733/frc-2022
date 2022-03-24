@@ -247,7 +247,8 @@ public final class Constants {
 
         public static enum ShooterMode {
             // TODO none of these have been found yet
-            OFF(0, 0), AUTO(0, 0), FENDER_LOW(900, 900), FENDER_HIGH(1550, 2600), TARMAC(3650, 1700), LAUNCHPAD(0, 0),
+            OFF(0, 0), AUTO(0, 0), FENDER_LOW(1100, 900), FENDER_HIGH(1550, 2600), TARMAC(3650, 1700),
+            LAUNCHPAD(3800, 1900),
             INDEX(-350.0, -350.0), EJECT(1000, 1000), SHUFFLEBOARD(0, 0);
 
             private double topRPM, bottomRPM;

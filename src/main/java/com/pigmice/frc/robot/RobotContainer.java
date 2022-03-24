@@ -14,6 +14,7 @@ import com.pigmice.frc.robot.commands.ShootBallCommand;
 import com.pigmice.frc.robot.commands.VisionAlignCommand;
 import com.pigmice.frc.robot.commands.climber.ClimbRung;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
+import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
@@ -104,11 +105,6 @@ public class RobotContainer {
 		drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
 				controls::getDriveSpeed, controls::getTurnSpeed));
 
-		// rotato.setDefaultCommand(new RotateTo(rotato, this.rotato::getTarget, true,
-		// this::usePower));
-		// lifty.setDefaultCommand(new LiftTo(lifty, this.lifty::getTarget, true,
-		// this::usePower));
-
 		// Configure the button bindings
 		try {
 			configureButtonBindings(driver, operator);
@@ -147,6 +143,7 @@ public class RobotContainer {
 		// make a double supplier that returns those and pass it in as the target state
 		// for both default commands
 
+		// [operator] extend and retract intake
 		new Trigger(() -> shootMode == true &&
 				new JoystickButton(operator, Button.kA.value).get())
 				.whenActive(
@@ -154,6 +151,7 @@ public class RobotContainer {
 				.whenInactive(
 						new RetractIntake(intake));
 
+		// [operator] manually eject all balls
 		new Trigger(() -> shootMode == true &&
 				new JoystickButton(operator, Button.kBack.value).get())
 				.whenActive(() -> {
@@ -166,10 +164,10 @@ public class RobotContainer {
 					this.indexer.clearBalls();
 				});
 
+		// [operator] manual climb keybinds
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kRightBumper.value).get())
 				.whenActive(() -> {
-					System.out.println("RIGHT BUMPER PRESSED!");
 					this.lifty.setInAuto(false);
 					this.lifty.setOutput(liftPower);
 				})
@@ -178,7 +176,6 @@ public class RobotContainer {
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kLeftBumper.value).get())
 				.whenActive(() -> {
-					System.out.println("LEFT BUMPER PRESSED!");
 					this.lifty.setInAuto(false);
 					this.lifty.setOutput(-liftPower);
 				})
@@ -220,25 +217,17 @@ public class RobotContainer {
 					this.rotato.setOutput(0.0);
 				});
 
+		// ! UNUSED [operator] automatically climb a rung
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kRightStick.value).get())
 				.whenActive(new ClimbRung(lifty, rotato));
 
-		/*
-		 * new Trigger(() -> mode == false &&
-		 * new JoystickButton(operator, Button.kBack.value).get())
-		 * .whenActive(new ClimbMid(lifty, rotato));
-		 */
-
-		// new Trigger(() -> shootMode == true &&
-		// new JoystickButton(operator, Button.kA.value).get())
-		// .whenActive(new ExtendIntake(intake))
-		// .whenInactive(new RetractIntake(intake));
-
+		// [operator] shoot a ball
 		this.shootTrigger
 				.whileActiveOnce(new ShootBallCommand(shooter, indexer))
 				.whenInactive(() -> this.indexer.setMode(IndexerMode.FREE_SPIN));
 
+		// [operator] settings to spin up flywheels
 		this.shootTarmac
 				.whenActive(getShooterModeCommands(ShooterMode.TARMAC))
 				.whenInactive(new StartShooterCommand(shooter, ShooterMode.OFF));
@@ -255,12 +244,16 @@ public class RobotContainer {
 				.whenActive(getShooterModeCommands(ShooterMode.FENDER_HIGH))
 				.whenInactive(new StartShooterCommand(shooter, ShooterMode.OFF));
 
+		// turn shooter to auto mode when only trigger is pressed, and no shoot modes
 		this.shootTrigger.whenActive(() -> {
+			// only ever == ShooterMode.OFF when no other mode buttons are pressed
 			if (this.shooter.getMode() == ShooterMode.OFF) {
 				this.shooter.setMode(ShooterMode.AUTO);
 			}
 		});
 
+		// disable shooter and reset indexer when no shoot trigger or mode buttons are
+		// pressed
 		shootTrigger.or(shootTarmac).or(shootLaunchpad).or(shootLow).or(shootFender)
 				.whenInactive(() -> {
 					this.shooter.disable();
@@ -338,7 +331,7 @@ public class RobotContainer {
 	 * @return the command to run in autonomous
 	 */
 	public Command getAutonomousCommand() {
-		return new SpinIndexerToAngle(this.indexer, -90.0, false);
+		return new DriveDistance(this.drivetrain, 2.0);
 	}
 
 	public List<Testable> getTestables() {

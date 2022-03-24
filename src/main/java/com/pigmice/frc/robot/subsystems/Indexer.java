@@ -94,8 +94,10 @@ public class Indexer extends Subsystem {
 
   @Override
   public void periodic() {
-    if (!enabled && !this.isTestMode())
+    if (!enabled && !this.isTestMode()) {
+      this.setMotorOutput(0.0);
       return;
+    }
 
     if (ballTracker.getSize() == 0) {
       setBalls(false, false);
