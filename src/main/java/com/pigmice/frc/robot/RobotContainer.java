@@ -17,6 +17,7 @@ import com.pigmice.frc.robot.commands.VisionAlignCommand;
 import com.pigmice.frc.robot.commands.climber.ClimbRung;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.drivetrain.Ramsete;
+import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
@@ -25,18 +26,14 @@ import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
 import com.pigmice.frc.robot.subsystems.Shooter;
+import com.pigmice.frc.robot.subsystems.Subsystem;
 import com.pigmice.frc.robot.subsystems.climber.Lifty;
 import com.pigmice.frc.robot.subsystems.climber.Rotato;
 import com.pigmice.frc.robot.testmode.Testable;
 
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryUtil;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -65,9 +62,10 @@ public class RobotContainer {
 	// private final Lights lights;
 	private final Controls controls;
 
+	private List<Subsystem> subsystems;
+
 	private XboxController driver;
 	private XboxController operator;
-	private GenericHID dpad;
 
 	private boolean shootMode;
 
@@ -76,6 +74,8 @@ public class RobotContainer {
 	private SendableChooser<String> autoTrajectories;
 	String trajectoryJSON = "";
 	Trajectory trajectory;
+	private static final double liftPower = 0.30;
+	private static final double rotatePower = 0.50;
 
 	// private final ExampleCommand m_autoCommand = new
 	// ExampleCommand(m_exampleSubsystem);
@@ -91,6 +91,9 @@ public class RobotContainer {
 		lifty = new Lifty();
 		rotato = new Rotato();
 		// lights = new Lights();
+
+		subsystems = List.of(drivetrain, intake, shooter, indexer, lifty.getLeft(), lifty.getRight(), rotato.getLeft(),
+				rotato.getRight());
 
 		driver = new XboxController(Constants.driverControllerPort);
 		operator = new XboxController(Constants.operatorControllerPort);
@@ -108,14 +111,9 @@ public class RobotContainer {
 		drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
 				controls::getDriveSpeed, controls::getTurnSpeed));
 
-		// rotato.setDefaultCommand(new RotateTo(rotato, () -> this.rotateOutput, true,
-		// () -> true));
-		// lifty.setDefaultCommand(new LiftTo(lifty, () -> this.liftOutput, true, () ->
-		// true));
-
 		// Configure the button bindings
 		try {
-			configureButtonBindings(driver, operator, dpad);
+			configureButtonBindings(driver, operator);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -129,10 +127,6 @@ public class RobotContainer {
 		trajectory = new Trajectory();
 	}
 
-	private double rotateOutput = 0.0;
-	private double liftOutput = 0.0;
-	private double distanceToHub = 0.0d; // TODO define this
-
 	/**
 	 * Use this method to define your button -> command mappings. Buttons can be
 	 * created by instantiating a {@link GenericHID} or one of its subclasses
@@ -140,82 +134,112 @@ public class RobotContainer {
 	 * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
 	 * it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
 	 */
-	private void configureButtonBindings(XboxController driver, XboxController operator, GenericHID pad) {
+	private void configureButtonBindings(XboxController driver, XboxController operator) {
 
 		// DRIVER CONTROLS
 
+		// [driver] slow mode makes the robot move and turn more slowly
 		new JoystickButton(driver, Button.kY.value)
 				.whenPressed(this.drivetrain::slow)
 				.whenReleased(this.drivetrain::stopSlow);
 
-		final VisionAlignCommand visionAlign = new VisionAlignCommand(this.drivetrain);
+		// [driver] align to hub using gloworm
+		final VisionAlignCommand visionAlign = new VisionAlignCommand(this.drivetrain, driver, operator);
 		new JoystickButton(driver, Button.kA.value)
 				.whenPressed(visionAlign)
 				.whenReleased(() -> CommandScheduler.getInstance().cancel(visionAlign));
 
-		new JoystickButton(driver, Button.kX.value)
-				.whenPressed(new ExtendIntake(intake));
-		// .whenReleased(intake::disable);
-
 		// OPERATOR CONTROLS
 
+		// [operator] toggle shoot mode
 		new JoystickButton(operator, Button.kLeftStick.value)
-				.whenPressed(() -> this.shootMode = !shootMode);
+				.whenPressed(this::toggleShootMode);
 
-		// TODO Create target variables for both rotato and lifty that the default
-		// commands will use
-		// make a double supplier that returns those and pass it in as the target state
-		// for both default commands
+		// [operator] extend and retract intake
+		new Trigger(() -> shootMode == true &&
+				new JoystickButton(operator, Button.kA.value).get())
+				.whenActive(
+						new ExtendIntake(intake))
+				.whenInactive(
+						new RetractIntake(intake));
 
+		// [operator] manually eject all balls
+		new Trigger(() -> shootMode == true &&
+				new JoystickButton(operator, Button.kBack.value).get())
+				.whenActive(() -> {
+					this.indexer.setMode(IndexerMode.EJECT_BY_INTAKE);
+					this.intake.setReverse(true);
+				})
+				.whenInactive(() -> {
+					this.indexer.setMode(IndexerMode.FREE_SPIN);
+					this.intake.setReverse(false);
+					this.indexer.clearBalls();
+				});
+
+		// [operator] manual climb keybinds
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kRightBumper.value).get())
-				.whenActive(() -> this.liftOutput = 0.30)
-				.whenInactive(() -> this.liftOutput = 0.00);
+				.whenActive(() -> {
+					this.lifty.setInAuto(false);
+					this.lifty.setOutput(liftPower);
+				})
+				.whenInactive(() -> this.lifty.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kLeftBumper.value).get())
-				.whenActive(() -> this.liftOutput = -0.30)
-				.whenInactive(() -> this.liftOutput = 0.00);
+				.whenActive(() -> {
+					this.lifty.setInAuto(false);
+					this.lifty.setOutput(-liftPower);
+				})
+				.whenInactive(() -> this.lifty.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kA.value).get())
-				.whenActive(() -> this.rotateOutput = 0.35)
-				.whenInactive(() -> this.rotateOutput = 0.00);
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(-rotatePower);
+				})
+				.whenInactive(() -> this.rotato.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kB.value).get())
-				.whenActive(() -> this.rotateOutput = -0.35)
-				.whenInactive(() -> this.rotateOutput = 0.00);
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(rotatePower);
+				})
+				.whenInactive(() -> this.rotato.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kX.value).get())
-				.whenActive(() -> this.rotateOutput = 0.15)
-				.whenInactive(() -> this.rotateOutput = 0.00);
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(-rotatePower / 2.0);
+				})
+				.whenInactive(() -> {
+					this.rotato.setOutput(0.0);
+				});
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kY.value).get())
-				.whenActive(() -> this.rotateOutput = -0.15)
-				.whenInactive(() -> this.rotateOutput = 0.00);
+				.whenActive(() -> {
+					this.rotato.setInAuto(false);
+					this.rotato.setOutput(rotatePower / 2.0);
+				})
+				.whenInactive(() -> {
+					this.rotato.setOutput(0.0);
+				});
 
+		// ! UNUSED [operator] automatically climb a rung
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kRightStick.value).get())
 				.whenActive(new ClimbRung(lifty, rotato));
 
-		/*
-		 * new Trigger(() -> mode == false &&
-		 * new JoystickButton(operator, Button.kBack.value).get())
-		 * .whenActive(new ClimbMid(lifty, rotato));
-		 */
-
-		new Trigger(() -> shootMode == true &&
-				new JoystickButton(operator, Button.kA.value).get())
-				.whenActive(new ExtendIntake(intake))
-				.whenInactive(new RetractIntake(intake));
-
+		// [operator] shoot a ball
 		this.shootTrigger
 				.whileActiveOnce(new ShootBallCommand(shooter, indexer))
 				.whenInactive(() -> this.indexer.setMode(IndexerMode.FREE_SPIN));
 
+		// [operator] settings to spin up flywheels
 		this.shootTarmac
 				.whenActive(getShooterModeCommands(ShooterMode.TARMAC))
 				.whenInactive(new StartShooterCommand(shooter, ShooterMode.OFF));
@@ -232,12 +256,16 @@ public class RobotContainer {
 				.whenActive(getShooterModeCommands(ShooterMode.FENDER_HIGH))
 				.whenInactive(new StartShooterCommand(shooter, ShooterMode.OFF));
 
+		// turn shooter to auto mode when only trigger is pressed, and no shoot modes
 		this.shootTrigger.whenActive(() -> {
+			// only ever == ShooterMode.OFF when no other mode buttons are pressed
 			if (this.shooter.getMode() == ShooterMode.OFF) {
 				this.shooter.setMode(ShooterMode.AUTO);
 			}
 		});
 
+		// disable shooter and reset indexer when no shoot trigger or mode buttons are
+		// pressed
 		shootTrigger.or(shootTarmac).or(shootLaunchpad).or(shootLow).or(shootFender)
 				.whenInactive(() -> {
 					this.shooter.disable();
@@ -245,19 +273,57 @@ public class RobotContainer {
 				});
 	}
 
+	public void onInit() {
+		this.drivetrain.init();
+	}
+
 	public void onEnable() {
-		this.shooter.setMode(ShooterMode.AUTO);
-		this.shooter.enable();
+		this.shooter.setMode(ShooterMode.OFF);
 		this.indexer.enable();
 		this.intake.enable();
+		this.intake.resetEncoders();
 	}
 
 	public void onDisable() {
-		this.shooter.setMode(ShooterMode.OFF);
 		CommandScheduler.getInstance().cancelAll();
 		this.shooter.disable();
 		this.indexer.disable();
 		this.intake.disable();
+	}
+
+	public void nonTestInit() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.setTestMode(false);
+			subsystem.nonTestInit();
+		});
+	}
+
+	public void testInit() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.testInit();
+		});
+	}
+
+	public void testPeriodic() {
+		this.subsystems.forEach(subsystem -> {
+			subsystem.testPeriodic();
+		});
+	}
+
+	public void updateShuffleboard() {
+		this.indexer.updateShuffleboard();
+	}
+
+	private void toggleShootMode() {
+		this.shootMode = !this.shootMode;
+		if (this.shootMode) {
+			this.intake.enable();
+			this.indexer.enable();
+		} else {
+			this.intake.disable();
+			this.indexer.disable();
+		}
+		Controls.rumbleController(this.operator);
 	}
 
 	public SequentialCommandGroup getShooterModeCommands(ShooterMode mode) {
@@ -267,18 +333,9 @@ public class RobotContainer {
 					this.indexer.stopMotor();
 				}),
 				new WaitUntilCommand(() -> this.indexer.getEncoderVelocity() == 0),
-				new SpinIndexerToAngle(this.indexer, -90.0, false),
+				new SpinIndexerToAngle(this.indexer, 5.0, false),
 				new StartShooterCommand(shooter, mode));
 	}
-
-	// private double getPower() {
-	// return usePower() ? this.rotateOutput : rotato.getTarget();
-	// }
-
-	// private boolean usePower() {
-	// return operator.getAButton() || operator.getBButton() ||
-	// operator.getRightBumper() || operator.getLeftBumper();
-	// }
 
 	/**
 	 * Use this to pass the autonomous command to the main {@link Robot} class.

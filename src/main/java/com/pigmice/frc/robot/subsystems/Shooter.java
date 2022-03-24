@@ -4,6 +4,7 @@ import com.pigmice.frc.robot.Constants.ShooterConfig;
 import com.pigmice.frc.robot.Constants.ShooterConfig.ShooterMode;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -11,9 +12,8 @@ import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Shooter extends SubsystemBase {
+public class Shooter extends Subsystem {
 	private boolean enabled = true;
 
 	private CANSparkMax topMotor, botMotor;
@@ -31,6 +31,7 @@ public class Shooter extends SubsystemBase {
 
 	private final NetworkTableEntry topRPMEntry, bottomRPMEntry, actualTopRPM,
 			actualBottomRPM, atTargetEntry;
+	// topTargetEntry, botTargetEntry;
 
 	// private static final double MAX_RPM_775 = 18700;
 	// private static final double MAX_RPS_775 = MAX_RPM_775 / 60;
@@ -41,6 +42,9 @@ public class Shooter extends SubsystemBase {
 	public Shooter() {
 		this.topMotor = new CANSparkMax(ShooterConfig.topMotorPort, MotorType.kBrushless);
 		this.botMotor = new CANSparkMax(ShooterConfig.bottomMotorPort, MotorType.kBrushless);
+
+		this.topMotor.setIdleMode(IdleMode.kCoast);
+		this.botMotor.setIdleMode(IdleMode.kCoast);
 
 		this.topController = topMotor.getPIDController();
 		this.botController = botMotor.getPIDController();
@@ -95,9 +99,12 @@ public class Shooter extends SubsystemBase {
 		this.actualTopRPM = shooterTab.add("Actual Top RPM", 1).getEntry();
 		this.actualBottomRPM = shooterTab.add("Actual Bottom RPM", 1).getEntry();
 
+		// this.topTargetEntry = shooterTab.add("Target Bottom RPM", 0.0).getEntry();
+		// this.botTargetEntry = shooterTab.add("Target Bottom RPM", 0.0).getEntry();
+
 		this.atTargetEntry = shooterTab.add("At Target", false).getEntry();
 
-		this.mode = ShooterMode.AUTO;
+		this.mode = ShooterMode.OFF;
 	}
 
 	public void enable() {
@@ -105,8 +112,8 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public void disable() {
-		setEnabled(false);
 		this.setMode(ShooterMode.OFF);
+		setEnabled(false);
 		this.stopMotors();
 	}
 
@@ -120,7 +127,7 @@ public class Shooter extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		if (!enabled || this.mode == ShooterMode.OFF) {
+		if (!this.isTestMode() && !enabled) {
 			this.setMode(ShooterMode.OFF);
 			this.stopMotors();
 			return;
@@ -128,6 +135,16 @@ public class Shooter extends SubsystemBase {
 
 		double topRPM = this.mode.getTopRPM();
 		double botRPM = this.mode.getBottomRPM();
+
+		if (this.mode == ShooterMode.SHUFFLEBOARD || this.isTestMode()) {
+			topRPM = topRPMEntry.getDouble(topRPM);
+			botRPM = bottomRPMEntry.getDouble(botRPM);
+		}
+
+		if (!this.isTestMode()) {
+			this.topRPMEntry.setDouble(topRPM);
+			this.bottomRPMEntry.setDouble(botRPM);
+		}
 
 		this.topController.setReference(topRPM, ControlType.kVelocity);
 		this.botController.setReference(botRPM, ControlType.kVelocity);
@@ -187,5 +204,10 @@ public class Shooter extends SubsystemBase {
 	public void setMode(ShooterMode mode) {
 		this.mode = mode;
 		this.enabled = true;
+	}
+
+	public void testPeriodic() {
+		this.mode = ShooterMode.SHUFFLEBOARD;
+		this.periodic();
 	}
 }

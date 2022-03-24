@@ -4,8 +4,6 @@
 
 package com.pigmice.frc.robot;
 
-import com.pigmice.frc.robot.testmode.Testable;
-
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -21,8 +19,6 @@ public class Robot extends TimedRobot {
   private Command autonomousCommand;
 
   private RobotContainer robotContainer;
-  private boolean testsRun = false;
-  
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
@@ -32,6 +28,7 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
+    robotContainer.onInit();
     Vision.init();
   }
 
@@ -55,6 +52,7 @@ public class Robot extends TimedRobot {
      */
     CommandScheduler.getInstance().run();
     Vision.update();
+    robotContainer.updateShuffleboard();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -79,6 +77,8 @@ public class Robot extends TimedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.schedule();
     }
+
+    this.robotContainer.nonTestInit();
   }
 
   /** This function is called periodically during autonomous. */
@@ -98,6 +98,7 @@ public class Robot extends TimedRobot {
     }
 
     this.robotContainer.onEnable();
+    this.robotContainer.nonTestInit();
   }
 
   /** This function is called periodically during operator control. */
@@ -107,21 +108,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
+    this.robotContainer.testInit();
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
-    testsRun = false;
-    for (Testable testable : robotContainer.getTestables()) {
-      testable.resetTests();
-    }
   }
 
   @Override
   public void testPeriodic() {
-    if (!testsRun) {
-      for (Testable testable : robotContainer.getTestables()) {
-        testable.runTests();
-      }
-      testsRun = true;
-    }
+    this.robotContainer.testPeriodic();
+    CommandScheduler.getInstance().run();
   }
 }

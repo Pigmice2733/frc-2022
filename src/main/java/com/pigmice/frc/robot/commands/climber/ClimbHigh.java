@@ -11,13 +11,17 @@ public class ClimbHigh extends SequentialCommandGroup {
 
     public ClimbHigh(Lifty lifty, Rotato rotato) {
 
-        addCommands(
-                new LiftExtendFully(lifty),
-                new ParallelRaceGroup(new LiftExtendFully(lifty, true), new RotateAway(rotato)),
-                new ParallelRaceGroup(new RotateAway(rotato, true), new WaitCommand(2.0)),
-                // driver should drive forwards into the bar
-                new ParallelRaceGroup(new RotateAway(rotato, true), new LiftRetractFully(lifty)),
-                new ParallelRaceGroup(new LiftRetractFully(lifty, true), new RotateToVertical(rotato)),
-                new ParallelRaceGroup(new RotateToVertical(rotato, true), new ClimbRung(lifty, rotato)));
+        // addCommands(
+        // new LiftExtendFully(lifty),
+        // new ParallelRaceGroup(new LiftExtendFully(lifty, true), new
+        // RotateAway(rotato)),
+        // new ParallelRaceGroup(new RotateAway(rotato, true), new WaitCommand(2.0)),
+        // // driver should drive forwards into the bar
+        // new ParallelRaceGroup(new RotateAway(rotato, true), new
+        // LiftRetractFully(lifty)),
+        // new ParallelRaceGroup(new LiftRetractFully(lifty, true), new
+        // RotateToVertical(rotato)),
+        // new ParallelRaceGroup(new RotateToVertical(rotato, true), new
+        // ClimbRung(lifty, rotato)));
     }
 }

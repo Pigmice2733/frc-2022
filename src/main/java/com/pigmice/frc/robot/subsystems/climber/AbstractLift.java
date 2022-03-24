@@ -1,13 +1,20 @@
 package com.pigmice.frc.robot.subsystems.climber;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
+import com.pigmice.frc.robot.Constants.ClimberConfig.LiftySetpoint;
+import com.pigmice.frc.robot.Constants.ClimberProfileConfig;
+import com.pigmice.frc.robot.subsystems.Subsystem;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
-public abstract class AbstractLift extends SubsystemBase {
+public abstract class AbstractLift extends Subsystem {
     protected final double LIFT_GEAR_RATIO = 12.0 / 68.0;
     protected final double LIFT_GEAR_CIRC = Math.PI * 1.273; // diameter 1.273 inches
 
@@ -16,7 +23,13 @@ public abstract class AbstractLift extends SubsystemBase {
 
     protected double output;
 
-    public AbstractLift(int motorPort) {
+    private PIDController controller;
+    private LiftySetpoint setpoint = LiftySetpoint.DOWN;
+
+    protected BooleanSupplier usePower;
+    protected DoubleSupplier powerSupplier;
+
+    public AbstractLift(int motorPort, BooleanSupplier usePower, DoubleSupplier powerSupplier) {
         this.motor = new CANSparkMax(motorPort, MotorType.kBrushless);
 
         this.motor.restoreFactoryDefaults();
@@ -26,11 +39,34 @@ public abstract class AbstractLift extends SubsystemBase {
         this.encoder = this.motor.getEncoder();
 
         this.encoder.setPosition(0.0);
+
+        this.usePower = usePower;
+        this.powerSupplier = powerSupplier;
+
+        controller = new PIDController(ClimberProfileConfig.liftP, ClimberProfileConfig.liftI,
+                ClimberProfileConfig.liftD);
+
+        controller.setTolerance(ClimberProfileConfig.liftTolerableError, ClimberProfileConfig.liftTolerableEndVelocity);
+
+        Shuffleboard.getTab("Climber").add(this.controller);
     }
 
     @Override
     public void periodic() {
-        this.useOutput(output);
+        if (this.isTestMode()) {
+            this.useOutput(0.0);
+            return;
+        }
+        if (usePower.getAsBoolean()) {
+            this.useOutput(this.powerSupplier.getAsDouble());
+        } else {
+            this.useOutput(controller.calculate(getLiftDistance(), setpoint.getDistance()));
+        }
+    }
+
+    @Override
+    public void nonTestInit() {
+        this.motor.getEncoder().setPosition(0.0);
     }
 
     protected abstract void useOutput(double output);
@@ -50,6 +86,10 @@ public abstract class AbstractLift extends SubsystemBase {
         this.periodic();
     }
 
+    public void setSetpoint(LiftySetpoint setpoint) {
+        this.setpoint = setpoint;
+    }
+
     /**
      * Converts total angular displacement of lift arm motor to linear displacement
      * of arm.
@@ -59,5 +99,11 @@ public abstract class AbstractLift extends SubsystemBase {
     public double getLiftDistance() {
         // encoder position 1:1 with rotations
         return this.getEncoderValue() * LIFT_GEAR_RATIO * LIFT_GEAR_CIRC;
+    }
+
+    public void testPeriodic() {
+        this.powerSupplier = () -> 0.0;
+        this.usePower = () -> true;
+        this.periodic();
     }
 }

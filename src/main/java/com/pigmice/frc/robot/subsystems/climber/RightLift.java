@@ -1,11 +1,14 @@
 package com.pigmice.frc.robot.subsystems.climber;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
 import com.pigmice.frc.robot.Constants.ClimberConfig;
 
 public class RightLift extends AbstractLift {
 
-    public RightLift() {
-        super(ClimberConfig.liftRightPort);
+    public RightLift(BooleanSupplier usePower, DoubleSupplier powerSupplier) {
+        super(ClimberConfig.liftRightPort, usePower, powerSupplier);
     }
 
     @Override
