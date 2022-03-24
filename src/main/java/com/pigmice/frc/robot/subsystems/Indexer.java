@@ -94,7 +94,8 @@ public class Indexer extends Subsystem {
 
   @Override
   public void periodic() {
-    if (!enabled && !this.isTestMode()) {
+    boolean disabled = !enabled && !this.isTestMode();
+    if (disabled) {
       this.setMotorOutput(0.0);
       return;
     }
