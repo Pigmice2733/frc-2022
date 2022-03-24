@@ -147,7 +147,7 @@ public class RobotContainer {
 				.whenActive(
 						new ExtendIntake(intake))
 				.whenInactive(
-						new RetractIntake(intake));
+						new RetractIntake(intake, indexer));
 
 		// [operator] manually eject all balls
 		new Trigger(() -> shootMode == true &&
