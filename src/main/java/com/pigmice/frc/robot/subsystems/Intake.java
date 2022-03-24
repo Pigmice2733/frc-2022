@@ -260,7 +260,7 @@ public class Intake extends Subsystem {
             if (!extended) {
                 CommandScheduler.getInstance().schedule(new ExtendIntake(this));
             } else if (extended) {
-                CommandScheduler.getInstance().schedule(new RetractIntake(this));
+                CommandScheduler.getInstance().schedule(new RetractIntake(this, null));
             }
 
             System.out.println("Value Toggled");

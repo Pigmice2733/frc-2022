@@ -53,7 +53,7 @@ public class Drivetrain extends Subsystem {
 
     private final DifferentialDrive drive;
 
-    private final DifferentialDriveOdometry diffOdometry;
+    private DifferentialDriveOdometry diffOdometry;
 
     public Drivetrain() {
         rightDrive = new CANSparkMax(DrivetrainConfig.frontLeftMotorPort,
