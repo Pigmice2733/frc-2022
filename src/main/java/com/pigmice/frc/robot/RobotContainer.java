@@ -15,6 +15,8 @@ import com.pigmice.frc.robot.commands.ShootBallCommand;
 import com.pigmice.frc.robot.commands.VisionAlignCommand;
 import com.pigmice.frc.robot.commands.climber.ClimbRung;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
+import com.pigmice.frc.robot.commands.drivetrain.Auto2BallFender;
+import com.pigmice.frc.robot.commands.drivetrain.Auto2BallShootFirst;
 import com.pigmice.frc.robot.commands.drivetrain.Ramsete;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.intake.ExtendIntake;
@@ -74,9 +76,10 @@ public class RobotContainer {
 
 	private Trigger shootTarmac, shootLaunchpad, shootLow, shootFender, shootTrigger;
 
-	private SendableChooser<String> autoTrajectories;
-	String trajectoryJSON = "";
-	Trajectory trajectory;
+	private SendableChooser<Command> autoCommands;
+	// String trajectoryJSON = "";
+	// Trajectory trajectory;
+
 	private static final double liftPower = 0.30;
 	private static final double rotatePower = 0.50;
 
@@ -121,13 +124,15 @@ public class RobotContainer {
 			e.printStackTrace();
 		}
 
-		autoTrajectories = new SendableChooser<String>();
-		autoTrajectories.addOption("1 ball, left position", "PathWeaver/Autos/oneBallLeft");
-		autoTrajectories.addOption("2 balls, center position, shoot first", "PathWeaver/Autos/threeBallsCenter");
-		autoTrajectories.addOption("2 balls, right position, shoot first", "PathWeaver/Autos/threeBallsRight");
-		autoTrajectories.addOption("2 balls, center position, pick up first", "PathWeaver/Autos/twoBallsCenter");
-		autoTrajectories.addOption("2 balls, right position, pick up first", "PathWeaver/Autos/twoBallsRight");
-		trajectory = new Trajectory();
+		autoCommands = new SendableChooser<Command>();
+		autoCommands.addOption("2 balls, shoot first",
+			new Auto2BallShootFirst(indexer, shooter, intake, drivetrain));
+		autoCommands.addOption("2 balls, pick up first",
+			new Auto2BallFender(indexer, shooter, intake, drivetrain));
+		// autoCommands.addOption("1 ball, left position", "PathWeaver/Autos/oneBallLeft");
+		// autoCommands.addOption("2 balls, right position, shoot first", "PathWeaver/Autos/threeBallsRight");
+		// autoCommands.addOption("2 balls, right position, pick up first", "PathWeaver/Autos/twoBallsRight");
+		// trajectory = new Trajectory();
 	}
 
 	/**
@@ -348,6 +353,7 @@ public class RobotContainer {
 	public Command getAutonomousCommand() {
 		// return new SPathCommand(this.drivetrain);
 
+		/*
 		trajectoryJSON = autoTrajectories.getSelected();
 		try {
 			trajectory = TrajectoryUtil.fromPathweaverJson(
@@ -355,7 +361,9 @@ public class RobotContainer {
 		} catch (IOException ex) {
 			DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
 		}
-		return new Ramsete(this.drivetrain, trajectory);
+		return new Ramsete(this.drivetrain, trajectory); */
+
+		return autoCommands.getSelected();
 	}
 
 	public List<Testable> getTestables() {

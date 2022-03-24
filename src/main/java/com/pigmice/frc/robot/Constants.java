@@ -136,6 +136,7 @@ public final class Constants {
         public static final double rotationToDistanceConversion = (Math.PI * wheelDiameterMeters) / gearRatio; //
         // circumference / gear ratio
         public static final double wheelBase = 0.69;
+        public static final double robotLength = Units.inchesToMeters(30.0);
 
         public static final int navXRotationalOffsetDegrees = 0;
 
