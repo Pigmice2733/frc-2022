@@ -150,9 +150,11 @@ public class Vision {
     public static double getDistanceFromTarget(PhotonTrackedTarget target) {
         if (target == null)
             return 0.0;
+        // gloworm distance is distance to front of hub
         return PhotonUtils.calculateDistanceToTargetMeters(VisionConfig.cameraHeightMeters,
                 VisionConfig.targetHeightMeters,
-                VisionConfig.cameraPitchRadians, Units.degreesToRadians(target.getPitch()));
+                VisionConfig.cameraPitchRadians, Units.degreesToRadians(target.getPitch()))
+                + (VisionConfig.upperHubDiameterMeters / 2.0) + VisionConfig.cameraOffsetFromFrontMeters;
     }
 
     public static double alignmentError() {

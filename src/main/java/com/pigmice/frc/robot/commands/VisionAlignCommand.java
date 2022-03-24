@@ -11,14 +11,16 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 public class VisionAlignCommand extends CommandBase {
     private final Drivetrain drivetrain;
     private final XboxController driver;
+    private final XboxController operator;
 
     public VisionAlignCommand(Drivetrain drivetrain) {
-        this(drivetrain, null);
+        this(drivetrain, null, null);
     }
 
-    public VisionAlignCommand(Drivetrain drivetrain, XboxController driver) {
+    public VisionAlignCommand(Drivetrain drivetrain, XboxController driver, XboxController operator) {
         this.drivetrain = drivetrain;
         this.driver = driver;
+        this.operator = operator;
 
         addRequirements(drivetrain);
     }
@@ -49,7 +51,12 @@ public class VisionAlignCommand extends CommandBase {
         if (yaw != Double.NaN && Math.abs(yaw) < VisionConfig.tolerableError) {
             Vision.stopAligning();
             this.drivetrain.arcadeDrive(0.0, 0.0);
-            Controls.rumbleController(driver);
+            if (driver != null) {
+                Controls.rumbleController(driver);
+            }
+            if (operator != null) {
+                Controls.rumbleController(operator, 0.25);
+            }
             return true;
         }
 

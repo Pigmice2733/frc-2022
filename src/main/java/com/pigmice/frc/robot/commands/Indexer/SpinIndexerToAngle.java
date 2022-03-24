@@ -46,11 +46,6 @@ public class SpinIndexerToAngle extends PIDCommand {
 
     @Override
     public boolean isFinished() {
-        System.out.println(
-                "ROTATE | DISTANCE FROM SETPOINT: "
-                        + (getController().getSetpoint() - indexer.getRotateAngle())
-                        + " SETPOINT: " + getController().getSetpoint() + " | AT SETPOINT? "
-                        + getController().atSetpoint());
         return !this.infinite && getController().atSetpoint();
     }
 }

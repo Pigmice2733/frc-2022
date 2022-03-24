@@ -4,6 +4,7 @@ import com.pigmice.frc.robot.Constants.ShooterConfig;
 import com.pigmice.frc.robot.Constants.ShooterConfig.ShooterMode;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -30,6 +31,7 @@ public class Shooter extends Subsystem {
 
 	private final NetworkTableEntry topRPMEntry, bottomRPMEntry, actualTopRPM,
 			actualBottomRPM, atTargetEntry;
+	// topTargetEntry, botTargetEntry;
 
 	// private static final double MAX_RPM_775 = 18700;
 	// private static final double MAX_RPS_775 = MAX_RPM_775 / 60;
@@ -40,6 +42,9 @@ public class Shooter extends Subsystem {
 	public Shooter() {
 		this.topMotor = new CANSparkMax(ShooterConfig.topMotorPort, MotorType.kBrushless);
 		this.botMotor = new CANSparkMax(ShooterConfig.bottomMotorPort, MotorType.kBrushless);
+
+		this.topMotor.setIdleMode(IdleMode.kCoast);
+		this.botMotor.setIdleMode(IdleMode.kCoast);
 
 		this.topController = topMotor.getPIDController();
 		this.botController = botMotor.getPIDController();
@@ -94,6 +99,9 @@ public class Shooter extends Subsystem {
 		this.actualTopRPM = shooterTab.add("Actual Top RPM", 1).getEntry();
 		this.actualBottomRPM = shooterTab.add("Actual Bottom RPM", 1).getEntry();
 
+		// this.topTargetEntry = shooterTab.add("Target Bottom RPM", 0.0).getEntry();
+		// this.botTargetEntry = shooterTab.add("Target Bottom RPM", 0.0).getEntry();
+
 		this.atTargetEntry = shooterTab.add("At Target", false).getEntry();
 
 		this.mode = ShooterMode.OFF;
@@ -119,7 +127,7 @@ public class Shooter extends Subsystem {
 
 	@Override
 	public void periodic() {
-		if (!this.isTestMode() && (!enabled || this.mode == ShooterMode.OFF)) {
+		if (!this.isTestMode() && !enabled) {
 			this.setMode(ShooterMode.OFF);
 			this.stopMotors();
 			return;

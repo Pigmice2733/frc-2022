@@ -19,10 +19,10 @@ import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.pigmice.frc.robot.commands.shooter.StartShooterCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
-import com.pigmice.frc.robot.subsystems.Subsystem;
 import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
 import com.pigmice.frc.robot.subsystems.Shooter;
+import com.pigmice.frc.robot.subsystems.Subsystem;
 import com.pigmice.frc.robot.subsystems.climber.Lifty;
 import com.pigmice.frc.robot.subsystems.climber.Rotato;
 import com.pigmice.frc.robot.testmode.Testable;
@@ -66,6 +66,9 @@ public class RobotContainer {
 	private boolean shootMode;
 
 	private Trigger shootTarmac, shootLaunchpad, shootLow, shootFender, shootTrigger;
+
+	private static final double liftPower = 0.30;
+	private static final double rotatePower = 0.50;
 
 	// private final ExampleCommand m_autoCommand = new
 	// ExampleCommand(m_exampleSubsystem);
@@ -129,11 +132,10 @@ public class RobotContainer {
 				.whenPressed(this.drivetrain::slow)
 				.whenReleased(this.drivetrain::stopSlow);
 
-		final VisionAlignCommand visionAlign = new VisionAlignCommand(this.drivetrain, driver);
+		final VisionAlignCommand visionAlign = new VisionAlignCommand(this.drivetrain, driver, operator);
 		new JoystickButton(driver, Button.kA.value)
 				.whenPressed(visionAlign)
 				.whenReleased(() -> CommandScheduler.getInstance().cancel(visionAlign));
-		 
 
 		// OPERATOR CONTROLS
 
@@ -145,28 +147,40 @@ public class RobotContainer {
 		// make a double supplier that returns those and pass it in as the target state
 		// for both default commands
 
-		new Trigger(() -> shootMode == false &&
-				new JoystickButton(operator, Button.kRightBumper.value).get())
-				.whenActive(() -> {
-					this.lifty.setInAuto(false);
-					this.lifty.setOutput(0.30);
-				})
-				.whenInactive(() -> this.lifty.setOutput(0.0));
-
 		new Trigger(() -> shootMode == true &&
 				new JoystickButton(operator, Button.kA.value).get())
 				.whenActive(
-					new ExtendIntake(intake)
-				)
+						new ExtendIntake(intake))
 				.whenInactive(
-					new RetractIntake(intake)
-				);
+						new RetractIntake(intake));
+
+		new Trigger(() -> shootMode == true &&
+				new JoystickButton(operator, Button.kBack.value).get())
+				.whenActive(() -> {
+					this.indexer.setMode(IndexerMode.EJECT_BY_INTAKE);
+					this.intake.setReverse(true);
+				})
+				.whenInactive(() -> {
+					this.indexer.setMode(IndexerMode.FREE_SPIN);
+					this.intake.setReverse(false);
+					this.indexer.clearBalls();
+				});
+
+		new Trigger(() -> shootMode == false &&
+				new JoystickButton(operator, Button.kRightBumper.value).get())
+				.whenActive(() -> {
+					System.out.println("RIGHT BUMPER PRESSED!");
+					this.lifty.setInAuto(false);
+					this.lifty.setOutput(liftPower);
+				})
+				.whenInactive(() -> this.lifty.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
 				new JoystickButton(operator, Button.kLeftBumper.value).get())
 				.whenActive(() -> {
+					System.out.println("LEFT BUMPER PRESSED!");
 					this.lifty.setInAuto(false);
-					this.lifty.setOutput(-0.30);
+					this.lifty.setOutput(-liftPower);
 				})
 				.whenInactive(() -> this.lifty.setOutput(0.0));
 
@@ -174,7 +188,7 @@ public class RobotContainer {
 				new JoystickButton(operator, Button.kA.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
-					this.rotato.setOutput(-0.30);
+					this.rotato.setOutput(-rotatePower);
 				})
 				.whenInactive(() -> this.rotato.setOutput(0.0));
 
@@ -182,7 +196,7 @@ public class RobotContainer {
 				new JoystickButton(operator, Button.kB.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
-					this.rotato.setOutput(0.30);
+					this.rotato.setOutput(rotatePower);
 				})
 				.whenInactive(() -> this.rotato.setOutput(0.0));
 
@@ -190,7 +204,7 @@ public class RobotContainer {
 				new JoystickButton(operator, Button.kX.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
-					this.rotato.setOutput(-0.15);
+					this.rotato.setOutput(-rotatePower / 2.0);
 				})
 				.whenInactive(() -> {
 					this.rotato.setOutput(0.0);
@@ -200,7 +214,7 @@ public class RobotContainer {
 				new JoystickButton(operator, Button.kY.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
-					this.rotato.setOutput(0.15);
+					this.rotato.setOutput(rotatePower / 2.0);
 				})
 				.whenInactive(() -> {
 					this.rotato.setOutput(0.0);
@@ -275,6 +289,7 @@ public class RobotContainer {
 	public void nonTestInit() {
 		this.subsystems.forEach(subsystem -> {
 			subsystem.setTestMode(false);
+			subsystem.nonTestInit();
 		});
 	}
 
@@ -295,7 +310,14 @@ public class RobotContainer {
 	}
 
 	private void toggleShootMode() {
-		this.shootMode = !shootMode;
+		this.shootMode = !this.shootMode;
+		if (this.shootMode) {
+			this.intake.enable();
+			this.indexer.enable();
+		} else {
+			this.intake.disable();
+			this.indexer.disable();
+		}
 		Controls.rumbleController(this.operator);
 	}
 

@@ -22,11 +22,12 @@ public class RetractIntake extends CommandBase {
     intake.retract();
     intake.setControllerSetpoints(0);
     intake.enable();
+    intake.setFullyExtended(false);
   }
 
   @Override
   public void execute() {
-  
+
   }
 
   @Override

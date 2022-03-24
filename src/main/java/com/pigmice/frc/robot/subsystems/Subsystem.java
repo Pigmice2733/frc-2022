@@ -13,6 +13,10 @@ public class Subsystem extends SubsystemBase {
         this.isTestMode = isTestMode;
     }
 
+    public void nonTestInit() {
+
+    }
+
     public void testInit() {
         this.isTestMode = true;
     }

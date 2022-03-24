@@ -46,10 +46,12 @@ public final class Constants {
         // both in inches
         public static final double minLiftHeight = 0;
         public static final double maxLiftHeight = 24.5;
+        public static final double liftEndThreshold = 0.0; // meters?
 
         // both in degrees
-        public static final double minRotateAngle = 0.0;
+        public static final double minRotateAngle = -10.0;
         public static final double maxRotateAngle = 30.0;
+        public static final double rotateEndThreshold = 2.0; // degrees
 
         public static final double angleToRung = 24.62;
 
@@ -185,23 +187,17 @@ public final class Constants {
 
         public static final double maxExtendMotorOutput = 0.2;
 
-
         public static final double intakeSpeed = 0.75;
 
-        /*
-         * public static final double extendP = 0.0008;
-         * public static final double extendI = 0.0002;
-         * public static final double extendD = 0.0000;
-         */
-        public static final double leftExtendP = 0.003;
+        public static final double leftExtendP = 0.008;
         public static final double leftExtendI = 0.0004;
-        public static final double leftExtendD = 0.000;
+        public static final double leftExtendD = 0.0002;
 
-        public static final double rightExtendP = 0.003;
+        public static final double rightExtendP = 0.009;
         public static final double rightExtendI = 0.0004;
-        public static final double rightExtendD = 0.000;
+        public static final double rightExtendD = 0.0002;
 
-        //public static final double extendS = 1.1157;
+        // public static final double extendS = 1.1157;
         public static final double extendS = 0.9157;
         public static final double extendV = 0.01;
         public static final double extendA = 0.039119;
@@ -222,7 +218,7 @@ public final class Constants {
         public static final double colorThreshold = 0.100;
 
         // ~300 with ball when light is on, ~30 when light is off
-        public static final double infraredThreshold = 60.0;
+        public static final double infraredThreshold = 250.0;
     }
 
     public static class ShooterConfig {
@@ -251,7 +247,7 @@ public final class Constants {
 
         public static enum ShooterMode {
             // TODO none of these have been found yet
-            OFF(0, 0), AUTO(0, 0), FENDER_LOW(900, 900), FENDER_HIGH(900, 2400), TARMAC(1600, 1800), LAUNCHPAD(0, 0),
+            OFF(0, 0), AUTO(0, 0), FENDER_LOW(900, 900), FENDER_HIGH(1550, 2600), TARMAC(3650, 1700), LAUNCHPAD(0, 0),
             INDEX(-350.0, -350.0), EJECT(1000, 1000), SHUFFLEBOARD(0, 0);
 
             private double topRPM, bottomRPM;
@@ -273,10 +269,10 @@ public final class Constants {
 
     public static class VisionConfig {
         public static final double cameraHeightMeters = 0.54;
-        public static final double targetHeightMeters = Units.inchesToMeters(37.0); // TEMPORARY VALUE, ACTUAL IS
-                                                                                    // Units.inchesToMeters(104); //
-                                                                                    // 8'8"
+        public static final double targetHeightMeters = Units.feetToMeters(8) + Units.inchesToMeters(7);
         public static final double cameraPitchRadians = Units.degreesToRadians(28.0);
+        public static final double upperHubDiameterMeters = Units.feetToMeters(4.0);
+        public static final double cameraOffsetFromFrontMeters = Units.inchesToMeters(6.0);
         public static final double goalRangeMeters = 0.0;
 
         public static final double rotationP = 0.018;

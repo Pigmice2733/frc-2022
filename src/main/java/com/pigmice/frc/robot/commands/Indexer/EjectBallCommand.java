@@ -29,9 +29,9 @@ public class EjectBallCommand extends SequentialCommandGroup {
                 new WaitUntilCommand(() -> shooter.didJustShoot()).withTimeout(1.0),
                 new WaitCommand(0.25),
                 new InstantCommand(() -> {
+                    shooter.setMode(ShooterMode.OFF);
                     intake.enable();
                     indexer.setMode(IndexerMode.FREE_SPIN);
-                    shooter.setMode(ShooterMode.OFF);
                 }));
     }
 
