@@ -9,7 +9,6 @@ import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -73,10 +72,6 @@ public class Intake extends Subsystem {
                 IntakeConfig.rightExtendD);
         rightExtendPID.setTolerance(IntakeConfig.extendTolError, IntakeConfig.extendTolEndVelo);
         rightExtendPID.setSetpoint(0);
-
-        // Feed Forward
-        leftFeedForward = new ArmFeedforward(IntakeConfig.extendS, IntakeConfig.extendG, IntakeConfig.extendV);
-        rightFeedForward = new ArmFeedforward(IntakeConfig.extendS, IntakeConfig.extendG, IntakeConfig.extendV);
 
         this.enabled = false;
         this.extended = false;
@@ -271,6 +266,5 @@ public class Intake extends Subsystem {
             System.out.println("Value Toggled");
             prevToggleValue = toggleIntakeEntry.getBoolean(false);
         }
-
     }
 }
