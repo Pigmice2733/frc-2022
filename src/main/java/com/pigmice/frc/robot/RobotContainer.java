@@ -124,10 +124,12 @@ public class RobotContainer {
 
 		// DRIVER CONTROLS
 
+		// [driver] slow mode makes the robot move and turn more slowly
 		new JoystickButton(driver, Button.kY.value)
 				.whenPressed(this.drivetrain::slow)
 				.whenReleased(this.drivetrain::stopSlow);
 
+		// [driver] align to hub using gloworm
 		final VisionAlignCommand visionAlign = new VisionAlignCommand(this.drivetrain, driver, operator);
 		new JoystickButton(driver, Button.kA.value)
 				.whenPressed(visionAlign)
@@ -135,13 +137,9 @@ public class RobotContainer {
 
 		// OPERATOR CONTROLS
 
+		// [operator] toggle shoot mode
 		new JoystickButton(operator, Button.kLeftStick.value)
 				.whenPressed(this::toggleShootMode);
-
-		// TODO Create target variables for both rotato and lifty that the default
-		// commands will use
-		// make a double supplier that returns those and pass it in as the target state
-		// for both default commands
 
 		// [operator] extend and retract intake
 		new Trigger(() -> shootMode == true &&

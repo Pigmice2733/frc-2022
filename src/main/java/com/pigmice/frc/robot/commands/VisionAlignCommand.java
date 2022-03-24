@@ -39,6 +39,11 @@ public class VisionAlignCommand extends CommandBase {
             double output = Vision.getOutput();
             if (Vision.getTargetYaw() == Double.NaN || output == Double.NaN)
                 return;
+            /*
+             * if output is somehow Double.NaN, it might be unsigned and then will remain
+             * positive when negated
+             * this could be why the robot drives straight backwards instead of spinning
+             */
             this.drivetrain.arcadeDrive(0, output);
         }
 
