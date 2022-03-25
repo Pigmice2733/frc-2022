@@ -18,13 +18,13 @@ public class Auto2BallFender extends SequentialCommandGroup {
         super(
             new ParallelCommandGroup(
                 new ExtendIntake(intake),
-                new DriveDistance(drivetrain, 29.0)
+                new DriveDistance(drivetrain, 0.7366)
             ),
-            new DriveDistance(drivetrain, 12.0),
+            new DriveDistance(drivetrain, 0.3048),
             new RetractIntake(intake, indexer),
-            new DriveDistance(drivetrain, -41.0),
-            new TurnToAngle(20, false, drivetrain),
-            new DriveDistance(drivetrain, -86.0),
+            new DriveDistance(drivetrain, -1.0414),
+            new TurnToAngle(20.0, false, drivetrain),
+            new DriveDistance(drivetrain, -2.23),
             new ShootBallWithModeCommand(indexer, shooter, intake, ShooterMode.FENDER_HIGH)
         );
     }
