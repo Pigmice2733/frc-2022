@@ -14,11 +14,18 @@ public class RetractIntake extends CommandBase {
   private final Intake intake;
   private final Indexer indexer;
 
+  public RetractIntake(Intake intake) {
+    this(intake, null);
+  }
+
   public RetractIntake(Intake intake, Indexer indexer) {
     this.intake = intake;
     this.indexer = indexer;
 
-    addRequirements(intake, indexer);
+    addRequirements(intake);
+
+    if (indexer != null)
+      addRequirements(indexer);
   }
 
   @Override
@@ -27,10 +34,12 @@ public class RetractIntake extends CommandBase {
     intake.setControllerSetpoints(0);
     intake.enable();
     intake.setFullyExtended(false);
-    if (indexer.getBallTracker().getSize() < 2) {
-      indexer.setMode(IndexerMode.FREE_SPIN);
-    } else {
-      indexer.setMode(IndexerMode.HOLD);
+    if (this.indexer != null) {
+      if (indexer.getBallTracker().getSize() < 2) {
+        indexer.setMode(IndexerMode.FREE_SPIN);
+      } else {
+        indexer.setMode(IndexerMode.HOLD);
+      }
     }
   }
 

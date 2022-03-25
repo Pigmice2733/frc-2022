@@ -24,4 +24,8 @@ public class Subsystem extends SubsystemBase {
     public void testPeriodic() {
 
     }
+
+    public void updateShuffleboard() {
+
+    }
 }

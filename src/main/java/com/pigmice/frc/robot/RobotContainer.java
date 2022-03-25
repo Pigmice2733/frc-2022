@@ -14,6 +14,7 @@ import com.pigmice.frc.robot.commands.ShootBallCommand;
 import com.pigmice.frc.robot.commands.VisionAlignCommand;
 import com.pigmice.frc.robot.commands.climber.ClimbRung;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
+import com.pigmice.frc.robot.commands.drivetrain.Auto2BallTarmac;
 import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.intake.ExtendIntake;
@@ -31,9 +32,11 @@ import com.pigmice.frc.robot.testmode.Testable;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -85,6 +88,8 @@ public class RobotContainer {
 		lifty = new Lifty();
 		rotato = new Rotato();
 		// lights = new Lights();
+
+		SmartDashboard.putBoolean("Shoot Mode", shootMode);
 
 		subsystems = List.of(drivetrain, intake, shooter, indexer, lifty.getLeft(), lifty.getRight(), rotato.getLeft(),
 				rotato.getRight());
@@ -145,9 +150,9 @@ public class RobotContainer {
 		new Trigger(() -> shootMode == true &&
 				new JoystickButton(operator, Button.kA.value).get())
 				.whenActive(
-						new ExtendIntake(intake))
+						new ExtendIntake(intake, indexer))
 				.whenInactive(
-						new RetractIntake(intake));
+						new RetractIntake(intake, indexer));
 
 		// [operator] manually eject all balls
 		new Trigger(() -> shootMode == true &&
@@ -222,7 +227,7 @@ public class RobotContainer {
 
 		// [operator] shoot a ball
 		this.shootTrigger
-				.whileActiveOnce(new ShootBallCommand(shooter, indexer))
+				.whileActiveContinuous(new ShootBallCommand(shooter, indexer))
 				.whenInactive(() -> this.indexer.setMode(IndexerMode.FREE_SPIN));
 
 		// [operator] settings to spin up flywheels
@@ -297,11 +302,12 @@ public class RobotContainer {
 	}
 
 	public void updateShuffleboard() {
-		this.indexer.updateShuffleboard();
+		this.subsystems.forEach(subsystem -> subsystem.updateShuffleboard());
 	}
 
 	private void toggleShootMode() {
 		this.shootMode = !this.shootMode;
+		SmartDashboard.putBoolean("Shoot Mode", shootMode);
 		if (this.shootMode) {
 			this.intake.enable();
 			this.indexer.enable();
@@ -319,7 +325,7 @@ public class RobotContainer {
 					this.indexer.stopMotor();
 				}),
 				new WaitUntilCommand(() -> this.indexer.getEncoderVelocity() == 0),
-				new SpinIndexerToAngle(this.indexer, 5.0, false),
+				new SpinIndexerToAngle(this.indexer, -90.0, false).withTimeout(1.0),
 				new StartShooterCommand(shooter, mode));
 	}
 
@@ -329,7 +335,7 @@ public class RobotContainer {
 	 * @return the command to run in autonomous
 	 */
 	public Command getAutonomousCommand() {
-		return new DriveDistance(this.drivetrain, 2.0);
+		return new Auto2BallTarmac(indexer, shooter, intake, drivetrain);
 	}
 
 	public List<Testable> getTestables() {

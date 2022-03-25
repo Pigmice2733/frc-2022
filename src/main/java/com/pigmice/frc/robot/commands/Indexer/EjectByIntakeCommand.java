@@ -20,12 +20,12 @@ public class EjectByIntakeCommand extends SequentialCommandGroup {
                 new WaitUntilCommand(indexer.getBallDetector()::isSameAlliance)
                         .withTimeout(5.0),
                 new InstantCommand(() -> {
-                    intake.setReverse(false);
                     indexer.setLookingForBalls(false);
                     indexer.setMode(IndexerMode.FREE_SPIN);
                 }),
                 new WaitCommand(0.5),
                 new InstantCommand(() -> {
+                    intake.setReverse(false);
                     indexer.setLookingForBalls(true);
                 }));
     }

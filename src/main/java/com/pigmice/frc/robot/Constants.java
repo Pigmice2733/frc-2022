@@ -150,7 +150,7 @@ public final class Constants {
         public static final int motorPort = 11;
         public static final double gearRatio = 1;
 
-        public static final double kP = 0.002;
+        public static final double kP = 0.004;
         public static final double kI = 0.00015;
         public static final double kD = 0;
 
@@ -161,7 +161,7 @@ public final class Constants {
         public static final double maxRotateVelocity = 50.0;
         public static final double maxRotateAcceleration = 50000.0;
 
-        public static final double angleTolerableError = 20.0;
+        public static final double angleTolerableError = 15.0;
         public static final double angleTolerableEndVelocity = 1.0;
 
         public static final double velocityThreshold = 100;
@@ -180,22 +180,21 @@ public final class Constants {
 
     public static class IntakeConfig {
         public static final int intakeMotorPort = 22;
-        public static final double intakeMotorSpeed = 0.2;
 
         public static final int extendLeftPort = 20;
         public static final int extendRightPort = 21;
 
         public static final double maxExtendMotorOutput = 0.2;
 
-        public static final double intakeSpeed = 0.75;
+        public static final double intakeSpeed = 0.50;
 
-        public static final double leftExtendP = 0.008;
+        public static final double leftExtendP = 0.006;
         public static final double leftExtendI = 0.0004;
-        public static final double leftExtendD = 0.0002;
+        public static final double leftExtendD = 0.000;
 
-        public static final double rightExtendP = 0.009;
+        public static final double rightExtendP = 0.005;
         public static final double rightExtendI = 0.0004;
-        public static final double rightExtendD = 0.0002;
+        public static final double rightExtendD = 0.000;
 
         // public static final double extendS = 1.1157;
         public static final double extendS = 0.9157;
@@ -247,9 +246,9 @@ public final class Constants {
 
         public static enum ShooterMode {
             // TODO none of these have been found yet
-            OFF(0, 0), AUTO(0, 0), FENDER_LOW(1100, 900), FENDER_HIGH(1550, 2600), TARMAC(3650, 1700),
+            OFF(0, 0), AUTO(0, 0), FENDER_LOW(1100, 900), FENDER_HIGH(1550, 2600), TARMAC(3750, 1600),
             LAUNCHPAD(3800, 1900),
-            INDEX(-350.0, -350.0), EJECT(1000, 1000), SHUFFLEBOARD(0, 0);
+            INDEX(-350.0, -350.0), EJECT(500, 500), SHUFFLEBOARD(0, 0);
 
             private double topRPM, bottomRPM;
 

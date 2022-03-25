@@ -60,6 +60,9 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     this.robotContainer.onDisable();
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
+    }
   }
 
   @Override

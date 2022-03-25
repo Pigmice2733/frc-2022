@@ -16,6 +16,7 @@ import com.pigmice.frc.robot.Constants.ShooterConfig.ShooterMode;
 import com.pigmice.frc.robot.commands.indexer.EjectBallCommand;
 import com.pigmice.frc.robot.commands.indexer.EjectByIntakeCommand;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -61,7 +62,7 @@ public class Indexer extends Subsystem {
     this.motor.configFactoryDefault();
     this.motor.setInverted(false);
 
-    this.motor.setSensorPhase(false);
+    this.motor.setSensorPhase(true);
     this.motor.configSelectedFeedbackSensor(feedbackDevice);
 
     this.motor.setSelectedSensorPosition(0.0);
@@ -94,6 +95,7 @@ public class Indexer extends Subsystem {
 
   @Override
   public void periodic() {
+    System.out.println("MODE IS " + this.mode + " | ENABLED? " + this.enabled);
     boolean disabled = !enabled && !this.isTestMode();
     if (disabled) {
       this.setMotorOutput(0.0);
@@ -147,19 +149,16 @@ public class Indexer extends Subsystem {
     if (alliance == ballAlliance) {
       System.out.println("CORRECT COLOR! SHOULD STORE!");
       ballTracker.newBallStored(ballAlliance);
-      if (ballTracker.getSize() == 1) {
-        setBalls(true, false);
-      } else if (ballTracker.getSize() == 2) {
-        setBalls(true, true);
-      }
 
       if (ballTracker.isFull()) {
+        setBalls(true, true);
         this.shooter.setMode(ShooterMode.OFF);
         this.setMode(IndexerMode.HOLD);
         this.stopMotor();
         // CommandScheduler.getInstance().schedule(new RetractIntake(this.intake));
       } else {
-        this.shooter.setMode(ShooterMode.OFF);
+        setBalls(true, false);
+        this.shooter.setMode(ShooterMode.INDEX);
       }
     } else {
       if (ballTracker.getSize() == 0) {
@@ -178,11 +177,13 @@ public class Indexer extends Subsystem {
       motorOutputEntry.setDouble(0);
       return;
     }
+    output = MathUtil.clamp(output, -0.50, 0.50);
     motor.set(ControlMode.PercentOutput, output);
     if (!this.isTestMode())
       motorOutputEntry.setDouble(output);
   }
 
+  @Override
   public void updateShuffleboard() {
     this.ballDetector.setColorEntries();
   }
