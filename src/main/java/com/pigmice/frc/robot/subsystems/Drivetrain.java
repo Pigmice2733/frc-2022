@@ -69,6 +69,8 @@ public class Drivetrain extends Subsystem {
         leftDrive.getEncoder().setPositionConversionFactor(DrivetrainConfig.rotationToDistanceConversion);
         rightDrive.getEncoder().setPositionConversionFactor(DrivetrainConfig.rotationToDistanceConversion);
 
+        setCoastMode(false);
+
         ShuffleboardLayout odometryLayout = Shuffleboard.getTab(Dashboard.developmentTabName)
                 .getLayout("Odometry", BuiltInLayouts.kList).withSize(2, 5)
                 .withPosition(Dashboard.drivetrainDisplayPosition, 0);

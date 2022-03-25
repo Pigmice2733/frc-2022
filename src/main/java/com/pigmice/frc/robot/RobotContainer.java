@@ -15,7 +15,6 @@ import com.pigmice.frc.robot.commands.VisionAlignCommand;
 import com.pigmice.frc.robot.commands.climber.ClimbRung;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.drivetrain.Auto2BallTarmac;
-import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
@@ -29,14 +28,17 @@ import com.pigmice.frc.robot.subsystems.climber.Lifty;
 import com.pigmice.frc.robot.subsystems.climber.Rotato;
 import com.pigmice.frc.robot.testmode.Testable;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -110,6 +112,18 @@ public class RobotContainer {
 		drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
 				controls::getDriveSpeed, controls::getTurnSpeed));
 
+		List<Command> autoCommands = List.of(new Auto2BallTarmac(indexer, shooter, intake, drivetrain));
+
+		SendableChooser<Command> autoChooser = new SendableChooser<>();
+
+		autoCommands.forEach(command -> {
+			autoChooser.addOption(command.getName(), command);
+		});
+
+		Shuffleboard.getTab("Driver").add("Auto", autoChooser).withWidget(BuiltInWidgets.kComboBoxChooser);
+
+		autoChooser.close();
+
 		// Configure the button bindings
 		try {
 			configureButtonBindings(driver, operator);
@@ -138,7 +152,17 @@ public class RobotContainer {
 		final VisionAlignCommand visionAlign = new VisionAlignCommand(this.drivetrain, driver, operator);
 		new JoystickButton(driver, Button.kA.value)
 				.whenPressed(visionAlign)
-				.whenReleased(() -> CommandScheduler.getInstance().cancel(visionAlign));
+				.whenReleased(() -> {
+					visionAlign.stop();
+					visionAlign.cancel();
+					this.drivetrain.stop();
+				});
+
+		// [driver] emergency stop
+		new JoystickButton(driver, Button.kStart.value)
+				.whenPressed(() -> {
+					this.drivetrain.stop();
+				});
 
 		// OPERATOR CONTROLS
 
@@ -335,6 +359,8 @@ public class RobotContainer {
 	 * @return the command to run in autonomous
 	 */
 	public Command getAutonomousCommand() {
+		this.indexer.getBallTracker().newBallStored(DriverStation.getAlliance());
+		this.shooter.setMode(ShooterMode.INDEX);
 		return new Auto2BallTarmac(indexer, shooter, intake, drivetrain);
 	}
 

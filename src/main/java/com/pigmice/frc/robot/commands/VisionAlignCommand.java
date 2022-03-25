@@ -35,6 +35,8 @@ public class VisionAlignCommand extends CommandBase {
 
     @Override
     public void execute() {
+        // TODO maybe make it so that the command only outputs to the drivetrain when A
+        // is pressed
         if (Vision.hasTarget()) {
             double output = Vision.getOutput();
             if (Vision.getTargetYaw() == Double.NaN || output == Double.NaN)
@@ -66,6 +68,12 @@ public class VisionAlignCommand extends CommandBase {
         }
 
         return false;
+    }
+
+    public void stop() {
+        Vision.stopAligning();
+        drivetrain.arcadeDrive(0, 0);
+        drivetrain.stop();
     }
 
     @Override
