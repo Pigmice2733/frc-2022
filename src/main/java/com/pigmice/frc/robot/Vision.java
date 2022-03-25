@@ -57,6 +57,7 @@ public class Vision {
         currentlyAligning = false;
 
         gloworm = new PhotonCamera("gloworm");
+        gloworm.setLED(VisionLEDMode.kOff);
     }
 
     public static void reset() {

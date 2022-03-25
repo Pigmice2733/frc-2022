@@ -21,7 +21,7 @@ public class ShootBallWithModeCommand extends SequentialCommandGroup {
             intake.disable();
             indexer.setMode(IndexerMode.ANGLE);
             indexer.stopMotor();
-        }), new ParallelCommandGroup(new SpinIndexerToAngle(indexer, -5.0, false),
+        }), new ParallelCommandGroup(new SpinIndexerToAngle(indexer, -90.0, false),
                 new SpinUpFlywheelsCommand(shooter, shooterMode)), new InstantCommand(() -> {
                     indexer.setMode(IndexerMode.SHOOT);
                 }), new WaitUntilCommand(() -> shooter.didJustShoot()).withTimeout(1.0),

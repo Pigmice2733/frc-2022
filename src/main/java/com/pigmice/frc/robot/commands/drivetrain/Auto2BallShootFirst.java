@@ -17,7 +17,7 @@ public class Auto2BallShootFirst extends SequentialCommandGroup {
             new ShootBallWithModeCommand(indexer, shooter, intake, ShooterMode.FENDER_HIGH),
             new DriveDistance(drivetrain, 2.16 - DrivetrainConfig.robotLength),
             new TurnToAngle(-22.5, false, drivetrain),
-            new Auto2BallFender(indexer, shooter, intake, drivetrain)
+            new Auto2BallTarmac(indexer, shooter, intake, drivetrain)
         );
     }
 }

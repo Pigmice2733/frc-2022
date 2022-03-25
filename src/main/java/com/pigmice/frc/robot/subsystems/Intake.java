@@ -4,16 +4,14 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.pigmice.frc.robot.Constants.IntakeConfig;
-import com.pigmice.frc.robot.commands.intake.ExtendIntake;
-import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Intake extends Subsystem {
     private final TalonSRX leftExtendMotor, rightExtendMotor;
@@ -90,7 +88,7 @@ public class Intake extends Subsystem {
         this.rightAtSetpointEntry = intakeTab.add("Right at Setpoint", false).getEntry();
         this.leftSetpointEntry = intakeTab.add("Left Setpoint", 0).getEntry();
         this.rightSetpointEntry = intakeTab.add("Right Setpoint", 0).getEntry();
-        this.intakeMotorOutputEntry = intakeTab.add("Intake Motor Ouput", IntakeConfig.intakeMotorSpeed).getEntry();
+        this.intakeMotorOutputEntry = intakeTab.add("Intake Motor Ouput", IntakeConfig.intakeSpeed).getEntry();
         this.toggleIntakeEntry = intakeTab.add("Toggle Intake", false).getEntry();
         intakeTab.add("Left PID", leftExtendPID);
         intakeTab.add("Right PID", rightExtendPID);
@@ -133,12 +131,14 @@ public class Intake extends Subsystem {
         double leftAngle = this.getLeftExtendAngle();
         double rightAngle = this.getRightExtendAngle();
 
-        double leftOutput = this.calculateLeftPID(leftAngle);
-        double rightOutput = this.calculateRightPID(rightAngle);
+        final double limit = 0.30;
+
+        double leftOutput = MathUtil.clamp(this.calculateLeftPID(leftAngle), -limit, limit);
+        double rightOutput = MathUtil.clamp(this.calculateRightPID(rightAngle), -limit, limit);
 
         this.setExtendMotorOutputs(leftOutput, rightOutput);
 
-        if (fullyExtended || this.isTestMode()) {
+        if (extended || this.isTestMode()) {
             runIntakeMotor();
         } else
             intakeMotor.set(0);
@@ -152,10 +152,13 @@ public class Intake extends Subsystem {
 
     // Sets an output to intake motor based on if reversed
     public void runIntakeMotor() {
+        double output = IntakeConfig.intakeSpeed;
+        if (isTestMode())
+            output = intakeMotorOutputEntry.getDouble(output);
         if (!backwards)
-            intakeMotor.set(intakeMotorOutputEntry.getDouble(IntakeConfig.intakeMotorSpeed));
+            intakeMotor.set(output);
         else
-            intakeMotor.set(-intakeMotorOutputEntry.getDouble(IntakeConfig.intakeMotorSpeed));
+            intakeMotor.set(-output);
     }
 
     public double getLeftExtendAngle() {
@@ -176,11 +179,14 @@ public class Intake extends Subsystem {
 
     public void retract() {
         setExtended(false);
+        this.backwards = false;
+        this.setControllerSetpoints(0.0);
     }
 
     public void extend() {
         setExtended(true);
         this.backwards = false;
+        this.setControllerSetpoints(IntakeConfig.maxExtendAngle);
     }
 
     public void setExtended(boolean extended) {
@@ -244,6 +250,7 @@ public class Intake extends Subsystem {
 
     public void setFullyExtended(boolean fullyExtended) {
         this.fullyExtended = fullyExtended;
+        System.out.println("INTAKE FULLY EXTENDED? " + fullyExtended);
     }
 
     public void resetEncoders() {
@@ -254,17 +261,21 @@ public class Intake extends Subsystem {
     boolean prevToggleValue = false;
 
     public void testPeriodic() {
-        intakeMotor.set(intakeMotorOutputEntry.getDouble(0.2));
+        intakeMotor.set(intakeMotorOutputEntry.getDouble(0.0));
 
         if (toggleIntakeEntry.getBoolean(false) != prevToggleValue) {
             if (!extended) {
-                CommandScheduler.getInstance().schedule(new ExtendIntake(this));
+                this.enable();
+                this.extend();
             } else if (extended) {
-                CommandScheduler.getInstance().schedule(new RetractIntake(this, null));
+                this.enable();
+                this.retract();
             }
 
             System.out.println("Value Toggled");
             prevToggleValue = toggleIntakeEntry.getBoolean(false);
         }
+
+        this.periodic();
     }
 }

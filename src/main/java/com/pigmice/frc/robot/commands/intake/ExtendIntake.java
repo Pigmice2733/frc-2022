@@ -4,26 +4,41 @@
 
 package com.pigmice.frc.robot.commands.intake;
 
-import com.pigmice.frc.robot.Constants.IntakeConfig;
+import com.pigmice.frc.robot.Constants.IndexerConfig.IndexerMode;
+import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class ExtendIntake extends CommandBase {
   private final Intake intake;
+  private final Indexer indexer;
 
   public ExtendIntake(Intake intake) {
+    this(intake, null);
+  }
+
+  public ExtendIntake(Intake intake, Indexer indexer) {
     this.intake = intake;
+    this.indexer = indexer;
 
     addRequirements(intake);
   }
 
   @Override
   public void initialize() {
-    intake.setControllerSetpoints(IntakeConfig.maxExtendAngle);
-    // intake.resetEncoders();
     intake.enable();
     intake.extend();
+    if (indexer != null) {
+      indexer.enable();
+      int numBalls = indexer.getBallTracker().getSize();
+      System.out.println(numBalls + " BALLS IN INDEXER");
+      if (numBalls < 2) {
+        indexer.setMode(IndexerMode.FREE_SPIN);
+      } else {
+        indexer.setMode(IndexerMode.HOLD);
+      }
+    }
   }
 
   @Override
@@ -39,7 +54,6 @@ public class ExtendIntake extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    System.out.println(intake.leftExtendPID.getPositionError() + " | " + intake.rightExtendPID.getPositionError());
     return intake.leftAtSetpoint() && intake.rightAtSetpoint();
   }
 }

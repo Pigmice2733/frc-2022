@@ -15,8 +15,8 @@ public class DriveDistance extends ProfiledPIDCommand {
         super(
                 new ProfiledPIDController(1.5, 0.5, 0.3, new TrapezoidProfile.Constraints(1.0, 1.5)),
                 drivetrain::getDistanceFromStart,
-                distance,
-                (output, setpoint) -> drivetrain.tankDrive(output, output),
+                Math.abs(distance),
+                (output, setpoint) -> drivetrain.arcadeDrive(output * (distance < 0 ? -1 : 1), 0),
                 drivetrain);
 
         this.drivetrain = drivetrain;
