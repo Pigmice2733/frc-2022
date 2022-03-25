@@ -279,9 +279,9 @@ public final class Constants {
         public static final double rotationI = 0.0;
         public static final double rotationD = 8e-4;
 
-        public static final double rotationMinPower = 0.07;
-        public static final double rotationMinOutput = -0.15;
-        public static final double rotationMaxOutput = 0.15;
+        public static final double rotationMinPower = 0.035;
+        public static final double rotationMinOutput = -0.1125;
+        public static final double rotationMaxOutput = 0.1125;
 
         public static final double tolerableError = 0.1;
         public static final double tolerableEndVelocity = 0.1;

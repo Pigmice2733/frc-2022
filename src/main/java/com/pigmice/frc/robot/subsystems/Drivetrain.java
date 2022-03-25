@@ -224,8 +224,8 @@ public class Drivetrain extends Subsystem {
     }
 
     public void updateOutputs() {
-        leftDemand *= 0.5;
-        rightDemand *= 0.5;
+        leftDemand *= 0.75;
+        rightDemand *= 0.75;
 
         if (slow) {
             leftDemand *= DrivetrainConfig.slowMultiplier;
@@ -275,7 +275,9 @@ public class Drivetrain extends Subsystem {
                 "(" + initialPosition.getX() + ", " + currentPosition.getY() + ")");
         SmartDashboard.putNumber("Left Distance", encoderTicksToPosition(leftDrive.getEncoder().getPosition()));
         SmartDashboard.putNumber("Right Distance", encoderTicksToPosition(rightDrive.getEncoder().getPosition()));
-        return encoderTicksToPosition(currentPosition.subtract(initialPosition).magnitude());
+        double leftDistance = encoderTicksToPosition(leftDrive.getEncoder().getPosition());
+        double rightDistance = encoderTicksToPosition(rightDrive.getEncoder().getPosition());
+        return (leftDistance + rightDistance) / 2.0;
     }
 
     private double encoderTicksToPosition(double ticks) {

@@ -16,6 +16,7 @@ import com.pigmice.frc.robot.commands.climber.ClimbRung;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
 import com.pigmice.frc.robot.commands.drivetrain.Auto2BallTarmacCenter;
 import com.pigmice.frc.robot.commands.drivetrain.Auto2BallTarmacSide;
+import com.pigmice.frc.robot.commands.drivetrain.AutoShootAndDrive;
 import com.pigmice.frc.robot.commands.drivetrain.AutoShootFromFender;
 import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
@@ -119,7 +120,8 @@ public class RobotContainer {
 
 		List<Command> autoCommands = List.of(new Auto2BallTarmacCenter(indexer, shooter, intake, drivetrain),
 				new Auto2BallTarmacSide(indexer, shooter, intake, drivetrain),
-				new AutoShootFromFender(indexer, shooter, intake), new DriveDistance(drivetrain, -1.0));
+				new AutoShootFromFender(indexer, shooter, intake),
+				new AutoShootAndDrive(drivetrain, indexer, shooter, intake), new DriveDistance(drivetrain, 1.0));
 
 		autoChooser = new SendableChooser<>();
 
