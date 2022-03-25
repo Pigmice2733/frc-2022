@@ -29,7 +29,6 @@ public class VisionAlignCommand extends CommandBase {
     public void initialize() {
         Vision.startAligning();
         Vision.update();
-
         super.initialize();
     }
 

@@ -95,7 +95,6 @@ public class Indexer extends Subsystem {
 
   @Override
   public void periodic() {
-    System.out.println("MODE IS " + this.mode + " | ENABLED? " + this.enabled);
     boolean disabled = !enabled && !this.isTestMode();
     if (disabled) {
       this.setMotorOutput(0.0);

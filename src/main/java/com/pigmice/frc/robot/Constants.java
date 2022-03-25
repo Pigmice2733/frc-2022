@@ -131,8 +131,8 @@ public final class Constants {
         public static final double turnSpeed = 0.6;
         public static final SPI.Port navxPort = SPI.Port.kMXP;
 
-        public static final double wheelDiameterMeters = Units.inchesToMeters(4.125);
-        public static final double gearRatio = 7.56; // 3 motor rotations to 1 wheel rotation
+        public static final double wheelDiameterMeters = Units.inchesToMeters(4);
+        public static final double gearRatio = 7.5833; // 3 motor rotations to 1 wheel rotation
         public static final double rotationToDistanceConversion = (Math.PI * wheelDiameterMeters) / gearRatio; //
         // circumference
         // / gear ratio

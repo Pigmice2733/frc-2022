@@ -66,8 +66,8 @@ public class Drivetrain extends Subsystem {
 
         navxReport = testReportLayout.add("NavX", false).getEntry();
 
-        leftDrive.getEncoder().setPositionConversionFactor(DrivetrainConfig.rotationToDistanceConversion);
-        rightDrive.getEncoder().setPositionConversionFactor(DrivetrainConfig.rotationToDistanceConversion);
+        // leftDrive.getEncoder().setPositionConversionFactor(DrivetrainConfig.rotationToDistanceConversion);
+        // rightDrive.getEncoder().setPositionConversionFactor(DrivetrainConfig.rotationToDistanceConversion);
 
         setCoastMode(false);
 
@@ -103,6 +103,7 @@ public class Drivetrain extends Subsystem {
 
     @Override
     public void periodic() {
+        this.getDistanceFromStart();
         // from updateInputs
         leftPosition = leftDrive.getEncoder().getPosition();
         rightPosition = rightDrive.getEncoder().getPosition();
@@ -192,6 +193,8 @@ public class Drivetrain extends Subsystem {
         leftDemand = forwardSpeed + turnSpeed;
         rightDemand = forwardSpeed - turnSpeed;
 
+        System.out.printf("LEFT DEMAND: %f | RIGHT DEMAND: %f\n", leftDemand, rightDemand);
+
         updateOutputs();
     }
 
@@ -221,6 +224,9 @@ public class Drivetrain extends Subsystem {
     }
 
     public void updateOutputs() {
+        leftDemand *= 0.5;
+        rightDemand *= 0.5;
+
         if (slow) {
             leftDemand *= DrivetrainConfig.slowMultiplier;
             rightDemand *= DrivetrainConfig.slowMultiplier;
@@ -261,7 +267,19 @@ public class Drivetrain extends Subsystem {
 
     public double getDistanceFromStart() {
         Point currentPosition = new Point(this.getPose());
-        return currentPosition.subtract(initialPosition).magnitude();
+        SmartDashboard.putNumber("Left Position", leftDrive.getEncoder().getPosition());
+        SmartDashboard.putNumber("Right Rotation", rightDrive.getEncoder().getPosition());
+        SmartDashboard.putString("Current Position",
+                "(" + currentPosition.getX() + ", " + currentPosition.getY() + ")");
+        SmartDashboard.putString("INITIAL POSITION",
+                "(" + initialPosition.getX() + ", " + currentPosition.getY() + ")");
+        SmartDashboard.putNumber("Left Distance", encoderTicksToPosition(leftDrive.getEncoder().getPosition()));
+        SmartDashboard.putNumber("Right Distance", encoderTicksToPosition(rightDrive.getEncoder().getPosition()));
+        return encoderTicksToPosition(currentPosition.subtract(initialPosition).magnitude());
+    }
+
+    private double encoderTicksToPosition(double ticks) {
+        return ticks * DrivetrainConfig.wheelDiameterMeters * Math.PI / DrivetrainConfig.gearRatio;
     }
 
     public void zeroHeading() {

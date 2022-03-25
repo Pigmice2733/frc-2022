@@ -52,7 +52,7 @@ public class Robot extends TimedRobot {
      * Command-based framework to work.
      */
     CommandScheduler.getInstance().run();
-    Vision.update();
+    // Vision.update();
     robotContainer.updateShuffleboard();
   }
 

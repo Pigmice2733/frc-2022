@@ -58,13 +58,7 @@ public abstract class AbstractRotate extends Subsystem {
             return;
         }
         if (usePower.getAsBoolean()) {
-            double power = this.powerSupplier.getAsDouble();
-            if ((power > 0 && this.getRotateAngle() < ClimberConfig.maxRotateAngle)
-                    || (power < 0 && this.getRotateAngle() > ClimberConfig.minRotateAngle)) {
-                this.useOutput(this.powerSupplier.getAsDouble());
-            } else {
-                this.useOutput(0.0);
-            }
+            this.useOutput(this.powerSupplier.getAsDouble());
         } else {
             this.useOutput(controller.calculate(getRotateAngle(), setpoint.getAngle()));
         }

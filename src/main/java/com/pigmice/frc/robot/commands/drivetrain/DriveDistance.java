@@ -2,6 +2,7 @@ package com.pigmice.frc.robot.commands.drivetrain;
 
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,6 +20,7 @@ public class DriveDistance extends ProfiledPIDCommand {
                 Math.abs(distance),
                 (output, setpoint) -> {
                     SmartDashboard.putNumber("Distance", drivetrain.getDistanceFromStart());
+                    output = MathUtil.clamp(output, -0.40, 0.40);
                     drivetrain.arcadeDrive(output * (distance < 0 ? -1 : 1), 0);
                 },
                 drivetrain);
