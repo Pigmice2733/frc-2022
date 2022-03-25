@@ -221,10 +221,6 @@ public class Drivetrain extends Subsystem {
     }
 
     public void updateOutputs() {
-
-        leftDemand *= 0.5;
-        rightDemand *= 0.5;
-
         if (slow) {
             leftDemand *= DrivetrainConfig.slowMultiplier;
             rightDemand *= DrivetrainConfig.slowMultiplier;

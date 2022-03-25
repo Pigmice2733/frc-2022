@@ -34,7 +34,6 @@ public class SpinIndexerToAngle extends PIDCommand {
 
     @Override
     public void initialize() {
-        System.out.println("SPINNING INDEXER TO ANGLE");
         this.indexer.enable();
         this.indexer.setMode(IndexerMode.ANGLE);
         this.indexer.resetEncoder();

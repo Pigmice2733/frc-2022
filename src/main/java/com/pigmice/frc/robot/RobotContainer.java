@@ -14,7 +14,9 @@ import com.pigmice.frc.robot.commands.ShootBallCommand;
 import com.pigmice.frc.robot.commands.VisionAlignCommand;
 import com.pigmice.frc.robot.commands.climber.ClimbRung;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
-import com.pigmice.frc.robot.commands.drivetrain.Auto2BallTarmac;
+import com.pigmice.frc.robot.commands.drivetrain.Auto2BallTarmacCenter;
+import com.pigmice.frc.robot.commands.drivetrain.Auto2BallTarmacSide;
+import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
@@ -28,7 +30,6 @@ import com.pigmice.frc.robot.subsystems.climber.Lifty;
 import com.pigmice.frc.robot.subsystems.climber.Rotato;
 import com.pigmice.frc.robot.testmode.Testable;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
@@ -40,6 +41,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
@@ -75,6 +77,8 @@ public class RobotContainer {
 
 	private static final double liftPower = 0.30;
 	private static final double rotatePower = 0.50;
+
+	private SendableChooser<Command> autoChooser;
 
 	// private final ExampleCommand m_autoCommand = new
 	// ExampleCommand(m_exampleSubsystem);
@@ -112,9 +116,12 @@ public class RobotContainer {
 		drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
 				controls::getDriveSpeed, controls::getTurnSpeed));
 
-		List<Command> autoCommands = List.of(new Auto2BallTarmac(indexer, shooter, intake, drivetrain));
+		List<Command> autoCommands = List.of(new Auto2BallTarmacCenter(indexer, shooter, intake, drivetrain),
+				new Auto2BallTarmacSide(indexer, shooter, intake, drivetrain), new DriveDistance(drivetrain, 2.0));
 
-		SendableChooser<Command> autoChooser = new SendableChooser<>();
+		autoChooser = new SendableChooser<>();
+
+		autoChooser.addOption("None", new WaitCommand(1.0));
 
 		autoCommands.forEach(command -> {
 			autoChooser.addOption(command.getName(), command);
@@ -359,9 +366,8 @@ public class RobotContainer {
 	 * @return the command to run in autonomous
 	 */
 	public Command getAutonomousCommand() {
-		this.indexer.getBallTracker().newBallStored(DriverStation.getAlliance());
-		this.shooter.setMode(ShooterMode.INDEX);
-		return new Auto2BallTarmac(indexer, shooter, intake, drivetrain);
+
+		return autoChooser.getSelected();
 	}
 
 	public List<Testable> getTestables() {

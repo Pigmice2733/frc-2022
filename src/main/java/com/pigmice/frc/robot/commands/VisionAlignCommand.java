@@ -37,10 +37,14 @@ public class VisionAlignCommand extends CommandBase {
     public void execute() {
         // TODO maybe make it so that the command only outputs to the drivetrain when A
         // is pressed
+        System.out.println("VISION ALIGNMENT!");
         if (Vision.hasTarget()) {
             double output = Vision.getOutput();
-            if (Vision.getTargetYaw() == Double.NaN || output == Double.NaN)
+            double targetYaw = Vision.getTargetYaw();
+            if (targetYaw == Double.NaN || output == Double.NaN)
                 return;
+
+            System.out.println("WITH OUTPUT " + output + " | TARGET YAW: " + targetYaw);
             /*
              * if output is somehow Double.NaN, it might be unsigned and then will remain
              * positive when negated
