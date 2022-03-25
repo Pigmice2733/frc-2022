@@ -21,6 +21,7 @@ import com.pigmice.frc.robot.commands.drivetrain.AutoShootFromFender;
 import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.intake.ExtendIntake;
+import com.pigmice.frc.robot.commands.intake.MoveIntakeCommand;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.pigmice.frc.robot.commands.shooter.StartShooterCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
@@ -189,9 +190,14 @@ public class RobotContainer {
 				.whenInactive(
 						new RetractIntake(intake, indexer));
 
-		// new Trigger(() -> shootMode == true && new JoystickButton(operator,
-		// Button.kRightBumper.value).get())
-		// .whenPressed();
+		// [operator] manually apply power to move intake forwards
+		new Trigger(() -> shootMode == true && new JoystickButton(operator,
+				Button.kRightBumper.value).get())
+				.whenActive(new MoveIntakeCommand(intake, true));
+
+		// [operator] manually apply power to move intake backwards
+		new Trigger(() -> shootMode == true && new JoystickButton(operator, Button.kLeftBumper.value).get())
+				.whenActive(new MoveIntakeCommand(intake, false));
 
 		// [operator] manually eject all balls
 		new Trigger(() -> shootMode == true &&

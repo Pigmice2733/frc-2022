@@ -19,7 +19,7 @@ public class Intake extends Subsystem {
 
     private final CANSparkMax intakeMotor;
 
-    private boolean enabled, extended, backwards, fullyExtended;
+    private boolean enabled, extended, backwards, fullyExtended, overrideOutput;
 
     private final ShuffleboardTab intakeTab;
     private final NetworkTableEntry enabledEntry;
@@ -75,6 +75,7 @@ public class Intake extends Subsystem {
         this.extended = false;
         this.backwards = false;
         this.fullyExtended = false;
+        this.overrideOutput = false;
 
         // Shuffleboard Entries
         this.intakeTab = Shuffleboard.getTab("Intake");
@@ -126,6 +127,9 @@ public class Intake extends Subsystem {
         this.rightSetpointEntry.setDouble(rightExtendPID.getSetpoint());
 
         if (!enabled)
+            return;
+
+        if (overrideOutput)
             return;
 
         double leftAngle = this.getLeftExtendAngle();
@@ -251,6 +255,10 @@ public class Intake extends Subsystem {
     public void setFullyExtended(boolean fullyExtended) {
         this.fullyExtended = fullyExtended;
         System.out.println("INTAKE FULLY EXTENDED? " + fullyExtended);
+    }
+
+    public void setOverrideOutput(boolean overrideOutput) {
+        this.overrideOutput = overrideOutput;
     }
 
     public void resetEncoders() {
