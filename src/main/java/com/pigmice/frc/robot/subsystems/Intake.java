@@ -142,10 +142,11 @@ public class Intake extends Subsystem {
 
         this.setExtendMotorOutputs(leftOutput, rightOutput);
 
-        if (extended || this.isTestMode()) {
+        if (fullyExtended|| this.isTestMode()) {
             runIntakeMotor();
-        } else
+        } else {
             intakeMotor.set(0);
+        }
     }
 
     public void setEncoderPositions(double positions) {

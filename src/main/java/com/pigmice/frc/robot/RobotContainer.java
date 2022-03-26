@@ -185,16 +185,6 @@ public class RobotContainer {
 		new JoystickButton(operator, Button.kLeftStick.value)
 				.whenPressed(this::toggleShootMode);
 
-		// [operator] extend and retract intake
-		new Trigger(() -> shootMode == true &&
-				new JoystickButton(operator, Button.kA.value).get())
-				.whenActive(
-						new ExtendIntake(intake, indexer))
-				.whenInactive(
-						// new InstantCommand(() ->
-						// intake.setEncoderPositions(IntakeConfig.maxExtendAngle)),
-						new RetractIntake(intake, indexer));
-
 		// [operator] manually apply power to move intake forwards
 		final MoveIntakeCommand moveIntakeForwardCommand = new MoveIntakeCommand(intake, true);
 		new Trigger(() -> shootMode == true && new JoystickButton(operator,

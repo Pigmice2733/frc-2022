@@ -28,8 +28,11 @@ public class MoveIntakeCommand extends CommandBase {
         intake.enable();
         intake.extend();
         intake.setOverrideOutput(true);
-        double output = 0.30 * (this.forwards ? 1 : -1);
+        double output = 0.20 * (this.forwards ? 1 : -1);
         intake.setExtendMotorOutputs(output, output);
+        if (!forwards) {
+            intake.setFullyExtended(false);
+        }
     }
 
     @Override
@@ -40,8 +43,10 @@ public class MoveIntakeCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         intake.setExtendMotorOutputs(0, 0);
-        intake.setFullyExtended(true);
-        intake.setOverrideOutput(false);
+        intake.setFullyExtended(forwards);
+        if (!forwards) {
+            intake.setExtendMotorOutputs(-0.05, -0.05);
+        }
     }
 
     @Override
