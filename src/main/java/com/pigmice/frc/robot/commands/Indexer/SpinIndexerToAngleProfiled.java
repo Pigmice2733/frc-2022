@@ -27,8 +27,6 @@ public class SpinIndexerToAngleProfiled extends ProfiledPIDCommand {
                 angle,
                 (output, setpoint) -> {
                     indexer.setMotorOutput(output);
-
-                    System.out.println(output + " " + indexer.getRotateAngle());
                 },
                 indexer);
 
@@ -48,13 +46,6 @@ public class SpinIndexerToAngleProfiled extends ProfiledPIDCommand {
 
     @Override
     public boolean isFinished() {
-        /*
-         * System.out.println(
-         * "ROTATE | DISTANCE FROM SETPOINT: "
-         * + (getController().getSetpoint().position - indexer.getRotateAngle())
-         * + " SETPOINT: " + getController().getSetpoint().position + " | AT SETPOINT? "
-         * + getController().atGoal());
-         */
         return !this.infinite && getController().atGoal();
     }
 }

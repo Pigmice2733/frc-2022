@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
+import com.pigmice.frc.robot.Constants.IntakeConfig;
 import com.pigmice.frc.robot.Constants.IndexerConfig.IndexerMode;
 import com.pigmice.frc.robot.Constants.ShooterConfig.ShooterMode;
 import com.pigmice.frc.robot.commands.ShootBallCommand;
@@ -35,6 +36,7 @@ import com.pigmice.frc.robot.subsystems.climber.Rotato;
 import com.pigmice.frc.robot.testmode.Testable;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -189,16 +191,22 @@ public class RobotContainer {
 				.whenActive(
 						new ExtendIntake(intake, indexer))
 				.whenInactive(
+						// new InstantCommand(() ->
+						// intake.setEncoderPositions(IntakeConfig.maxExtendAngle)),
 						new RetractIntake(intake, indexer));
 
 		// [operator] manually apply power to move intake forwards
+		final MoveIntakeCommand moveIntakeForwardCommand = new MoveIntakeCommand(intake, true);
 		new Trigger(() -> shootMode == true && new JoystickButton(operator,
 				Button.kRightBumper.value).get())
-				.whenActive(new MoveIntakeCommand(intake, true));
+				.whenActive(moveIntakeForwardCommand)
+				.whenInactive(moveIntakeForwardCommand::cancel);
 
 		// [operator] manually apply power to move intake backwards
+		final MoveIntakeCommand moveIntakeBackwardCommand = new MoveIntakeCommand(intake, false);
 		new Trigger(() -> shootMode == true && new JoystickButton(operator, Button.kLeftBumper.value).get())
-				.whenActive(new MoveIntakeCommand(intake, false));
+				.whenActive(moveIntakeBackwardCommand)
+				.whenInactive(moveIntakeBackwardCommand::cancel);
 
 		// [operator] manually run intake
 		new Trigger(() -> shootMode == true && new JoystickButton(operator, Button.kB.value).get())

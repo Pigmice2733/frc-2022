@@ -28,11 +28,6 @@ public class TurnToAngle extends PIDCommand {
 
     @Override
     public boolean isFinished() {
-        System.out.println(
-                "SETPOINT: " + getController().getSetpoint() + " | HEADING: " + drivetrain.getHeading()
-                        + " | HEADING DIFFERENCE: "
-                        + (getController().getSetpoint() - this.drivetrain.getHeading())
-                        + " | IS AT SETPOINT? " + getController().atSetpoint());
         return getController().atSetpoint();
     }
 }

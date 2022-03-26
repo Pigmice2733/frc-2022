@@ -37,8 +37,8 @@ public class Indexer extends Subsystem {
 
   private final ShuffleboardTab indexerTab;
   private final NetworkTableEntry enabledEntry;
-  private final NetworkTableEntry motorOutputEntry;
-  private final NetworkTableEntry rotateAngleEntry;
+  // private final NetworkTableEntry motorOutputEntry;
+  // private final NetworkTableEntry rotateAngleEntry;
 
   private BallTracker ballTracker;
   private BallDetector ballDetector;
@@ -71,8 +71,8 @@ public class Indexer extends Subsystem {
 
     this.indexerTab = Shuffleboard.getTab("Indexer");
     this.enabledEntry = indexerTab.add("Enabled", enabled).getEntry();
-    this.motorOutputEntry = indexerTab.add("Motor Output", 0).getEntry();
-    this.rotateAngleEntry = indexerTab.add("Rotate Angle", 0).getEntry();
+    // this.motorOutputEntry = indexerTab.add("Motor Output", 0).getEntry();
+    // this.rotateAngleEntry = indexerTab.add("Rotate Angle", 0).getEntry();
     setBalls(false, false);
     SmartDashboard.putData("Reset Balls", new InstantCommand(() -> this.ballTracker.clear()));
 
@@ -108,7 +108,7 @@ public class Indexer extends Subsystem {
     // switch on mode
     switch (mode) {
       case SHUFFLEBOARD:
-        setMotorOutput(this.motorOutputEntry.getDouble(FREE_SPIN_POWER));
+        // setMotorOutput(this.motorOutputEntry.getDouble(FREE_SPIN_POWER));
         break;
       case HOLD:
         setMotorOutput(0.0);
@@ -173,13 +173,13 @@ public class Indexer extends Subsystem {
   public void setMotorOutput(double output) {
     if (!enabled && !this.isTestMode()) {
       motor.set(ControlMode.PercentOutput, 0);
-      motorOutputEntry.setDouble(0);
+      // motorOutputEntry.setDouble(0);
       return;
     }
     output = MathUtil.clamp(output, -0.50, 0.50);
     motor.set(ControlMode.PercentOutput, output);
-    if (!this.isTestMode())
-      motorOutputEntry.setDouble(output);
+    // if (!this.isTestMode())
+    // motorOutputEntry.setDouble(output);
   }
 
   @Override
@@ -201,7 +201,7 @@ public class Indexer extends Subsystem {
 
   public double getRotateAngle() {
     double rotateAngle = (this.getEncoderPosition() / 4096.0) * 360.0 * GEAR_RATIO;
-    rotateAngleEntry.setDouble(rotateAngle);
+    // rotateAngleEntry.setDouble(rotateAngle);
     return rotateAngle;
   }
 

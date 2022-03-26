@@ -148,6 +148,11 @@ public class Intake extends Subsystem {
             intakeMotor.set(0);
     }
 
+    public void setEncoderPositions(double positions) {
+        this.leftExtendMotor.setSelectedSensorPosition(positions);
+        this.rightExtendMotor.setSelectedSensorPosition(positions);
+    }
+
     @Override
     public void simulationPeriodic() {
         // This method will be called once per scheduler run during simulation
@@ -254,7 +259,6 @@ public class Intake extends Subsystem {
 
     public void setFullyExtended(boolean fullyExtended) {
         this.fullyExtended = fullyExtended;
-        System.out.println("INTAKE FULLY EXTENDED? " + fullyExtended);
     }
 
     public void setOverrideOutput(boolean overrideOutput) {
@@ -280,7 +284,6 @@ public class Intake extends Subsystem {
                 this.retract();
             }
 
-            System.out.println("Value Toggled");
             prevToggleValue = toggleIntakeEntry.getBoolean(false);
         }
 

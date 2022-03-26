@@ -13,8 +13,6 @@ public class StartShooterCommand extends CommandBase {
         this.shooter = shooter;
         this.mode = mode;
 
-        System.out.println("SETTING SHOOTER MODE TO " + mode);
-
         addRequirements(shooter);
     }
 

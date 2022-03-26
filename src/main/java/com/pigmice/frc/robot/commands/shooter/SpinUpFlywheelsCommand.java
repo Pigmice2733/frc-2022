@@ -34,7 +34,6 @@ public class SpinUpFlywheelsCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        System.out.println("IS AT TARGET VELOCITY? " + this.shooter.isAtTargetVelocity());
         return this.shooter.isAtTargetVelocity();
     }
 }

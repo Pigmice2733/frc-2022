@@ -39,10 +39,6 @@ public class DriveDistance extends ProfiledPIDCommand {
 
     @Override
     public boolean isFinished() {
-        System.out.println(
-                "DISTANCE FROM SETPOINT: "
-                        + (getController().getSetpoint().position - drivetrain.getDistanceFromStart())
-                        + " | AT SETPOINT? " + getController().atGoal());
         return getController().atGoal();
     }
 }

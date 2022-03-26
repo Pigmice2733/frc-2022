@@ -32,7 +32,6 @@ public class ExtendIntake extends CommandBase {
     if (indexer != null) {
       indexer.enable();
       int numBalls = indexer.getBallTracker().getSize();
-      System.out.println(numBalls + " BALLS IN INDEXER");
       if (numBalls < 2) {
         indexer.setMode(IndexerMode.FREE_SPIN);
       } else {

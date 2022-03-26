@@ -193,8 +193,6 @@ public class Drivetrain extends Subsystem {
         leftDemand = forwardSpeed + turnSpeed;
         rightDemand = forwardSpeed - turnSpeed;
 
-        System.out.printf("LEFT DEMAND: %f | RIGHT DEMAND: %f\n", leftDemand, rightDemand);
-
         updateOutputs();
     }
 

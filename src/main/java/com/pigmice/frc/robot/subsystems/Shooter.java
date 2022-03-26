@@ -152,10 +152,6 @@ public class Shooter extends Subsystem {
 		double topActualRPM = this.topEncoder.getVelocity();
 		double botActualRPM = this.botEncoder.getVelocity();
 
-		// System.out.println("MODE: " + this.mode + " | RPM: " + topActualRPM + " - " +
-		// botActualRPM + " | TARGET: "
-		// + topRPM + " - " + botRPM);
-
 		this.actualTopRPM.setDouble(topActualRPM);
 		this.actualBottomRPM.setDouble(botActualRPM);
 
