@@ -184,7 +184,9 @@ public class Indexer extends Subsystem {
 
   @Override
   public void updateShuffleboard() {
-    this.ballDetector.setColorEntries();
+    if (this.isTestMode()) {
+      this.ballDetector.setColorEntries();
+    }
   }
 
   public void stopMotor() {

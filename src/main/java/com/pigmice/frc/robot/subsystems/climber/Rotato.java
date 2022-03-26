@@ -20,11 +20,11 @@ public class Rotato {
 
         this.climberTab = Shuffleboard.getTab("Climber");
 
-        this.climberTab.addNumber("Left Angle", this.left::getRotateAngle);
-        this.climberTab.addNumber("Right Angle", this.right::getRotateAngle);
+        // this.climberTab.addNumber("Left Angle", this.left::getRotateAngle);
+        // this.climberTab.addNumber("Right Angle", this.right::getRotateAngle);
 
-        this.climberTab.addNumber("Left Rotate Output", this::getLeftOutput);
-        this.climberTab.addNumber("Right Rotate Output", this::getRightOutput);
+        // this.climberTab.addNumber("Left Rotate Output", this::getLeftOutput);
+        // this.climberTab.addNumber("Right Rotate Output", this::getRightOutput);
 
         setSetpoint(RotatoSetpoint.BACK);
     }

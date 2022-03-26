@@ -114,18 +114,22 @@ public class Intake extends Subsystem {
     }
 
     public void setEnabled(boolean enabled) {
-        enabledEntry.setBoolean(enabled);
         this.enabled = enabled;
+        if (this.isTestMode()) {
+            enabledEntry.setBoolean(enabled);
+        }
     }
 
     @Override
-    public void periodic() {
-        // write to Shuffleboard
+    public void updateShuffleboard() {
         this.leftRotateAngleEntry.setDouble(getLeftExtendAngle());
         this.rightRotateAngleEntry.setDouble(getRightExtendAngle());
         this.leftSetpointEntry.setDouble(leftExtendPID.getSetpoint());
         this.rightSetpointEntry.setDouble(rightExtendPID.getSetpoint());
+    }
 
+    @Override
+    public void periodic() {
         if (!enabled)
             return;
 
@@ -142,7 +146,7 @@ public class Intake extends Subsystem {
 
         this.setExtendMotorOutputs(leftOutput, rightOutput);
 
-        if (fullyExtended|| this.isTestMode()) {
+        if (fullyExtended || this.isTestMode()) {
             runIntakeMotor();
         } else {
             intakeMotor.set(0);
@@ -201,7 +205,9 @@ public class Intake extends Subsystem {
 
     public void setExtended(boolean extended) {
         this.extended = extended;
-        extendedEntry.setBoolean(extended);
+        if (this.isTestMode()) {
+            extendedEntry.setBoolean(extended);
+        }
     }
 
     // Feedforward values will automaticaly be added to speed, to stop motors set
@@ -217,9 +223,11 @@ public class Intake extends Subsystem {
         leftExtendMotor.set(ControlMode.PercentOutput, left);
         rightExtendMotor.set(ControlMode.PercentOutput, right);
 
-        // Update values on shuffleboard
-        leftMotorOutputEntry.setDouble(left);
-        rightMotorOutputEntry.setDouble(right);
+        if (this.isTestMode()) {
+            // Update values on shuffleboard
+            leftMotorOutputEntry.setDouble(left);
+            rightMotorOutputEntry.setDouble(right);
+        }
     }
 
     public void setControllerSetpoints(double setpoint) {
@@ -239,14 +247,18 @@ public class Intake extends Subsystem {
     public boolean leftAtSetpoint() {
         boolean atSetpoint = leftExtendPID.atSetpoint();
 
-        leftAtSetpointEntry.setBoolean(atSetpoint);
+        if (this.isTestMode()) {
+            leftAtSetpointEntry.setBoolean(atSetpoint);
+        }
         return atSetpoint;
     }
 
     public boolean rightAtSetpoint() {
         boolean atSetpoint = rightExtendPID.atSetpoint();
 
-        rightAtSetpointEntry.setBoolean(atSetpoint);
+        if (this.isTestMode()) {
+            rightAtSetpointEntry.setBoolean(atSetpoint);
+        }
         return atSetpoint;
     }
 

@@ -18,6 +18,9 @@ import edu.wpi.first.wpilibj.SPI;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+    public static boolean debugMode = false;
+
     public static class ClimberConfig {
         public static final int liftRightPort = 5;
         public static final int liftLeftPort = 6;

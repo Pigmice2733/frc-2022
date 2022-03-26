@@ -20,11 +20,11 @@ public class Lifty {
         this.right = new RightLift(() -> !isInAuto, () -> output);
 
         liftTab = Shuffleboard.getTab("Climber");
-        liftTab.addNumber("Left Lift", this.left::getEncoderValue);
-        liftTab.addNumber("Right Lift", this.right::getEncoderValue);
+        // liftTab.addNumber("Left Lift", this.left::getEncoderValue);
+        // liftTab.addNumber("Right Lift", this.right::getEncoderValue);
 
-        liftTab.addNumber("Left Lift Output", this::getLeftOutput);
-        liftTab.addNumber("Right Lift Output", this::getRightOutput);
+        // liftTab.addNumber("Left Lift Output", this::getLeftOutput);
+        // liftTab.addNumber("Right Lift Output", this::getRightOutput);
     }
 
     public void setDefaultCommand(Command command) {

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
-import com.pigmice.frc.robot.Constants.IntakeConfig;
 import com.pigmice.frc.robot.Constants.IndexerConfig.IndexerMode;
 import com.pigmice.frc.robot.Constants.ShooterConfig.ShooterMode;
 import com.pigmice.frc.robot.commands.ShootBallCommand;
@@ -21,9 +20,7 @@ import com.pigmice.frc.robot.commands.drivetrain.AutoShootAndDrive;
 import com.pigmice.frc.robot.commands.drivetrain.AutoShootFromFender;
 import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
-import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.MoveIntakeCommand;
-import com.pigmice.frc.robot.commands.intake.RetractIntake;
 import com.pigmice.frc.robot.commands.intake.RunIntakeMotor;
 import com.pigmice.frc.robot.commands.shooter.StartShooterCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
@@ -36,7 +33,6 @@ import com.pigmice.frc.robot.subsystems.climber.Rotato;
 import com.pigmice.frc.robot.testmode.Testable;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;

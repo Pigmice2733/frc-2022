@@ -48,12 +48,12 @@ public class Vision {
 
     public static void init() {
         SmartDashboard.putBoolean("Vision Initialized", true);
-        visionTab = Shuffleboard.getTab("Vision");
-        yawEntry = visionTab.add("Yaw Output", 0.0d).getEntry();
-        hasTargetEntry = visionTab.add("Has Target", false).getEntry();
-        directionEntry = visionTab.add("Direction", "N/A").getEntry();
-        distanceEntry = visionTab.add("Distance", -1.0).getEntry();
-        outputEntry = visionTab.add("Output", 0.0).getEntry();
+        // visionTab = Shuffleboard.getTab("Vision");
+        // yawEntry = visionTab.add("Yaw Output", 0.0d).getEntry();
+        // hasTargetEntry = visionTab.add("Has Target", false).getEntry();
+        // directionEntry = visionTab.add("Direction", "N/A").getEntry();
+        // distanceEntry = visionTab.add("Distance", -1.0).getEntry();
+        // outputEntry = visionTab.add("Output", 0.0).getEntry();
         currentlyAligning = false;
 
         gloworm = new PhotonCamera("gloworm");
@@ -67,22 +67,22 @@ public class Vision {
     public static void update() {
         boolean hasTarget = hasTarget();
 
-        hasTargetEntry.setBoolean(hasTarget);
+        // hasTargetEntry.setBoolean(hasTarget);
 
         if (!hasTarget)
             return;
 
-        distanceEntry.setDouble(getDistanceFromTarget(getBestTarget()));
+        // distanceEntry.setDouble(getDistanceFromTarget(getBestTarget()));
 
-        double yaw = getTargetYaw();
-        yawEntry.setDouble(yaw);
-        directionEntry.setString(yaw < 0 ? "LEFT" : yaw > 0 ? "RIGHT" : "STRAIGHT");
+        // double yaw = getTargetYaw();
+        // yawEntry.setDouble(yaw);
+        // directionEntry.setString(yaw < 0 ? "LEFT" : yaw > 0 ? "RIGHT" : "STRAIGHT");
     }
 
     public static double getOutput() {
         if (hasTarget()) {
             double output = rotationController.calculate(getTargetYaw());
-            outputEntry.setDouble(output);
+            // outputEntry.setDouble(output);
 
             if (output == Double.NaN) {
                 return 0.0;
