@@ -60,7 +60,8 @@ public abstract class AbstractRotate extends Subsystem {
         if (usePower.getAsBoolean()) {
             this.useOutput(this.powerSupplier.getAsDouble());
         } else {
-            this.useOutput(controller.calculate(getRotateAngle(), setpoint.getAngle()));
+            this.useOutput(0.10);
+            // this.useOutput(controller.calculate(getRotateAngle(), setpoint.getAngle()));
         }
     }
 

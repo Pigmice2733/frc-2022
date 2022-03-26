@@ -4,8 +4,6 @@
 
 package com.pigmice.frc.robot.commands.intake;
 
-import com.pigmice.frc.robot.Constants.IndexerConfig.IndexerMode;
-import com.pigmice.frc.robot.subsystems.Indexer;
 import com.pigmice.frc.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;

@@ -23,6 +23,7 @@ import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.intake.ExtendIntake;
 import com.pigmice.frc.robot.commands.intake.MoveIntakeCommand;
 import com.pigmice.frc.robot.commands.intake.RetractIntake;
+import com.pigmice.frc.robot.commands.intake.RunIntakeMotor;
 import com.pigmice.frc.robot.commands.shooter.StartShooterCommand;
 import com.pigmice.frc.robot.subsystems.Drivetrain;
 import com.pigmice.frc.robot.subsystems.Indexer;
@@ -199,6 +200,10 @@ public class RobotContainer {
 		new Trigger(() -> shootMode == true && new JoystickButton(operator, Button.kLeftBumper.value).get())
 				.whenActive(new MoveIntakeCommand(intake, false));
 
+		// [operator] manually run intake
+		new Trigger(() -> shootMode == true && new JoystickButton(operator, Button.kB.value).get())
+				.whenActive(new RunIntakeMotor(intake));
+
 		// [operator] manually eject all balls
 		new Trigger(() -> shootMode == true &&
 				new JoystickButton(operator, Button.kBack.value).get())
@@ -230,7 +235,7 @@ public class RobotContainer {
 				.whenInactive(() -> this.lifty.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
-				new JoystickButton(operator, Button.kA.value).get())
+				new JoystickButton(operator, Button.kX.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
 					this.rotato.setOutput(rotatePower);
@@ -238,7 +243,7 @@ public class RobotContainer {
 				.whenInactive(() -> this.rotato.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
-				new JoystickButton(operator, Button.kB.value).get())
+				new JoystickButton(operator, Button.kY.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
 					this.rotato.setOutput(-rotatePower);
@@ -246,7 +251,7 @@ public class RobotContainer {
 				.whenInactive(() -> this.rotato.setOutput(0.0));
 
 		new Trigger(() -> shootMode == false &&
-				new JoystickButton(operator, Button.kX.value).get())
+				new JoystickButton(operator, Button.kA.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
 					this.rotato.setOutput(rotatePower / 2.0);
@@ -256,7 +261,7 @@ public class RobotContainer {
 				});
 
 		new Trigger(() -> shootMode == false &&
-				new JoystickButton(operator, Button.kY.value).get())
+				new JoystickButton(operator, Button.kB.value).get())
 				.whenActive(() -> {
 					this.rotato.setInAuto(false);
 					this.rotato.setOutput(-rotatePower / 2.0);
