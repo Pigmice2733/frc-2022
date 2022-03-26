@@ -133,6 +133,12 @@ public class Intake extends Subsystem {
         if (!enabled)
             return;
 
+        if (fullyExtended || this.isTestMode()) {
+            runIntakeMotor();
+        } else {
+            intakeMotor.set(0);
+        }
+
         if (overrideOutput)
             return;
 
@@ -145,12 +151,6 @@ public class Intake extends Subsystem {
         double rightOutput = MathUtil.clamp(this.calculateRightPID(rightAngle), -limit, limit);
 
         this.setExtendMotorOutputs(leftOutput, rightOutput);
-
-        if (fullyExtended || this.isTestMode()) {
-            runIntakeMotor();
-        } else {
-            intakeMotor.set(0);
-        }
     }
 
     public void setEncoderPositions(double positions) {

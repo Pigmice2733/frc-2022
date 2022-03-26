@@ -51,6 +51,6 @@ public class MoveIntakeCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return intake.leftAtSetpoint() && intake.rightAtSetpoint();
+        return false;
     }
 }
