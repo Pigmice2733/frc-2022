@@ -14,8 +14,8 @@ import com.pigmice.frc.robot.commands.ShootBallCommand;
 import com.pigmice.frc.robot.commands.VisionAlignCommand;
 import com.pigmice.frc.robot.commands.climber.ClimbRung;
 import com.pigmice.frc.robot.commands.drivetrain.ArcadeDrive;
-import com.pigmice.frc.robot.commands.drivetrain.Auto2BallTarmacCenter;
 import com.pigmice.frc.robot.commands.drivetrain.Auto2BallTarmacSide;
+import com.pigmice.frc.robot.commands.drivetrain.Auto2BallTarmacCorner;
 import com.pigmice.frc.robot.commands.drivetrain.AutoShootAndDrive;
 import com.pigmice.frc.robot.commands.drivetrain.AutoShootFromFender;
 import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
@@ -118,10 +118,11 @@ public class RobotContainer {
 		drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,
 				controls::getDriveSpeed, controls::getTurnSpeed));
 
-		List<Command> autoCommands = List.of(new Auto2BallTarmacCenter(indexer, shooter, intake, drivetrain),
-				new Auto2BallTarmacSide(indexer, shooter, intake, drivetrain),
+		List<Command> autoCommands = List.of(new AutoShootAndDrive(drivetrain, indexer, shooter, intake),
 				new AutoShootFromFender(indexer, shooter, intake),
-				new AutoShootAndDrive(drivetrain, indexer, shooter, intake), new DriveDistance(drivetrain, 1.0));
+				new DriveDistance(drivetrain, 1.0),
+				new Auto2BallTarmacSide(indexer, shooter, intake, drivetrain),
+				new Auto2BallTarmacCorner(indexer, shooter, intake, drivetrain));
 
 		autoChooser = new SendableChooser<>();
 

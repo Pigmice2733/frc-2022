@@ -14,6 +14,6 @@ public class AutoShootAndDrive extends SequentialCommandGroup {
         super(new ShootBallWithModeCommand(indexer, shooter, intake, ShooterMode.FENDER_HIGH),
                 new DriveDistance(drivetrain, 3.0));
 
-        this.setName("Shoot and Drive");
+        this.setName("[1] Shoot and Drive");
     }
 }

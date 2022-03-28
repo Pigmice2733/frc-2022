@@ -12,6 +12,6 @@ public class AutoShootFromFender extends SequentialCommandGroup {
     public AutoShootFromFender(Indexer indexer, Shooter shooter, Intake intake) {
         super(new ShootBallWithModeCommand(indexer, shooter, intake, ShooterMode.FENDER_HIGH));
 
-        this.setName("Shoot From Fender");
+        this.setName("[2] Shoot From Fender");
     }
 }

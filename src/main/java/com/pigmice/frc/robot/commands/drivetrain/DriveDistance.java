@@ -27,7 +27,7 @@ public class DriveDistance extends ProfiledPIDCommand {
 
         this.drivetrain = drivetrain;
 
-        this.setName("Drive Distance");
+        this.setName("[3] Drive Distance");
 
         getController().setTolerance(maxError, maxVelocity);
     }
