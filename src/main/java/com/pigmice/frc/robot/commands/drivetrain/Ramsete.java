@@ -32,4 +32,9 @@ public class Ramsete extends RamseteCommand {
     public void end(boolean interrupted) {
         this.drivetrain.tankDriveVolts(0.0, 0.0);
     }
+
+    @Override
+    public void execute() {
+        super.execute();
+    }
 }
