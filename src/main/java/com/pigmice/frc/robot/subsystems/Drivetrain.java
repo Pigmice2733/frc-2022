@@ -3,15 +3,25 @@ package com.pigmice.frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import com.pigmice.frc.lib.utils.Odometry;
 import com.pigmice.frc.lib.utils.Odometry.Pose;
-import com.pigmice.frc.lib.utils.Point;
 import com.pigmice.frc.robot.Constants.DrivetrainConfig;
 import com.pigmice.frc.robot.Dashboard;
 import com.pigmice.frc.robot.Utils;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -36,7 +46,14 @@ public class Drivetrain extends Subsystem {
     private final NetworkTableEntry xDisplay, yDisplay, headingDisplay,
             leftEncoderDisplay, rightEncoderDisplay;
 
-    private Point initialPosition = Point.origin();
+    private Pose2d initialPosition = new Pose2d(0, 0, new Rotation2d(0));
+
+    public static final DifferentialDriveKinematics driveKinematics = new DifferentialDriveKinematics(
+            DrivetrainConfig.wheelBase);
+
+    private final DifferentialDrive drive;
+
+    private DifferentialDriveOdometry diffOdometry;
 
     public Drivetrain() {
         rightDrive = new CANSparkMax(DrivetrainConfig.frontLeftMotorPort,
@@ -47,6 +64,8 @@ public class Drivetrain extends Subsystem {
                 MotorType.kBrushless);
         leftFollower = new CANSparkMax(DrivetrainConfig.backRightMotorPort,
                 MotorType.kBrushless);
+
+        drive = new DifferentialDrive(leftDrive, rightDrive);
 
         rightDrive.restoreFactoryDefaults();
         rightFollower.restoreFactoryDefaults();
@@ -82,6 +101,7 @@ public class Drivetrain extends Subsystem {
         rightEncoderDisplay = odometryLayout.add("Right Encoder", 0).getEntry();
 
         odometry = new Odometry(new Pose(0.0, 0.0, 0.0));
+        diffOdometry = new DifferentialDriveOdometry(new Rotation2d(), new Pose2d());
 
         // Used to be in initialize()
         leftPosition = 0.0;
@@ -111,6 +131,7 @@ public class Drivetrain extends Subsystem {
         updateHeading();
 
         odometry.update(leftPosition, rightPosition, heading);
+        diffOdometry.update(navx.getRotation2d(), leftPosition, rightPosition);
 
         // from updateDashboard()
         Pose currentPose = odometry.getPose();
@@ -140,8 +161,8 @@ public class Drivetrain extends Subsystem {
         return heading;
     }
 
-    public Pose getPose() {
-        return odometry.getPose();
+    public Pose2d getPose() {
+        return diffOdometry.getPoseMeters();
     }
 
     public void boost() {
@@ -182,6 +203,28 @@ public class Drivetrain extends Subsystem {
         return this.navx.isCalibrating();
     }
 
+    public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+        return new DifferentialDriveWheelSpeeds(
+                leftDrive.getEncoder().getVelocity() * DrivetrainConfig.wheelDiameterMeters,
+                rightDrive.getEncoder().getVelocity() * DrivetrainConfig.wheelDiameterMeters);
+    }
+
+    public TrajectoryConfig generateTrajectoryConfig() {
+        return new TrajectoryConfig(DrivetrainConfig.kMaxSpeedMetersPerSecond,
+                        DrivetrainConfig.kMaxAccelerationMetersPerSecondSquared)
+                .setKinematics(Drivetrain.driveKinematics)
+                .addConstraint(new DifferentialDriveVoltageConstraint(new SimpleMotorFeedforward(DrivetrainConfig.ksVolts,
+                        DrivetrainConfig.kvVoltSecondsPerMeter,
+                        DrivetrainConfig.kaVoltSecondsSquaredPerMeter), driveKinematics, 10));
+    }
+
+    public void tankDriveVolts(double left, double right) {
+        System.out.println("Left Volts: " + left + " | Right Volts: " + right);
+        leftDrive.setVoltage(left);
+        rightDrive.setVoltage(right);
+        drive.feed();
+    }
+
     public void tankDrive(double leftSpeed, double rightSpeed) {
         leftDemand = leftSpeed;
         rightDemand = rightSpeed;
@@ -190,10 +233,7 @@ public class Drivetrain extends Subsystem {
     }
 
     public void arcadeDrive(double forwardSpeed, double turnSpeed) {
-        leftDemand = forwardSpeed + turnSpeed;
-        rightDemand = forwardSpeed - turnSpeed;
-
-        updateOutputs();
+        drive.arcadeDrive(forwardSpeed, turnSpeed);
     }
 
     public void curvatureDrive(double forwardSpeed, double curvature) {
@@ -214,6 +254,22 @@ public class Drivetrain extends Subsystem {
     }
 
     public void swerveDrive(double forward, double strafe, double rotation_x) {
+    }
+
+    public double getAverageEncoderDistance() {
+        return (leftDrive.getEncoder().getPosition() + rightDrive.getEncoder().getPosition()) / 2.0;
+    }
+
+    public RelativeEncoder getLeftEncoder() {
+        return leftDrive.getEncoder();
+    }
+
+    public RelativeEncoder getRightEncoder() {
+        return rightDrive.getEncoder();
+    }
+
+    public void setMaxOutput(double maxOutput) {
+        drive.setMaxOutput(maxOutput);
     }
 
     public void stop() {
@@ -260,26 +316,23 @@ public class Drivetrain extends Subsystem {
 
     public void resetPose() {
         // this.odometry.set(new Pose(0, 0, getPose().getHeading()), 0.0, 0.0);
-        initialPosition = new Point(this.getPose());
+        initialPosition = new Pose2d(0, 0, new Rotation2d(0));
+    }
+
+    public void resetOdometry(Pose2d pose) {
+        resetEncoders();
+        Rotation2d rotation = navx.getRotation2d();
+        diffOdometry.resetPosition(pose, rotation);
     }
 
     public double getDistanceFromStart() {
-        Point currentPosition = new Point(this.getPose());
-        SmartDashboard.putNumber("Left Position", leftDrive.getEncoder().getPosition());
-        SmartDashboard.putNumber("Right Rotation", rightDrive.getEncoder().getPosition());
-        SmartDashboard.putString("Current Position",
-                "(" + currentPosition.getX() + ", " + currentPosition.getY() + ")");
-        SmartDashboard.putString("INITIAL POSITION",
-                "(" + initialPosition.getX() + ", " + currentPosition.getY() + ")");
-        SmartDashboard.putNumber("Left Distance", encoderTicksToPosition(leftDrive.getEncoder().getPosition()));
-        SmartDashboard.putNumber("Right Distance", encoderTicksToPosition(rightDrive.getEncoder().getPosition()));
-        double leftDistance = encoderTicksToPosition(leftDrive.getEncoder().getPosition());
-        double rightDistance = encoderTicksToPosition(rightDrive.getEncoder().getPosition());
-        return (leftDistance + rightDistance) / 2.0;
+        Transform2d displacement = this.getPose().minus(new Pose2d(0, 0, new Rotation2d(0)));
+        return Math.sqrt(displacement.getX() * displacement.getX() + displacement.getY() * displacement.getY());
     }
 
-    private double encoderTicksToPosition(double ticks) {
-        return ticks * DrivetrainConfig.wheelDiameterMeters * Math.PI / DrivetrainConfig.gearRatio;
+    public void resetEncoders() {
+        leftDrive.getEncoder().setPosition(0);
+        rightDrive.getEncoder().setPosition(0);
     }
 
     public void zeroHeading() {

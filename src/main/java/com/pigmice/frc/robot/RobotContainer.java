@@ -4,6 +4,7 @@
 
 package com.pigmice.frc.robot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +19,11 @@ import com.pigmice.frc.robot.commands.drivetrain.Auto2BallTarmacSide;
 import com.pigmice.frc.robot.commands.drivetrain.Auto2BallTarmacCorner;
 import com.pigmice.frc.robot.commands.drivetrain.AutoShootAndDrive;
 import com.pigmice.frc.robot.commands.drivetrain.AutoShootFromFender;
+import com.pigmice.frc.robot.commands.drivetrain.Auto2BallFender;
+import com.pigmice.frc.robot.commands.drivetrain.Auto2BallShootFirst;
+import com.pigmice.frc.robot.commands.drivetrain.Ramsete;
+import com.pigmice.frc.robot.commands.drivetrain.routines.SPathCommand;
+import com.pigmice.frc.robot.commands.drivetrain.Auto2BallTarmac;
 import com.pigmice.frc.robot.commands.drivetrain.DriveDistance;
 import com.pigmice.frc.robot.commands.indexer.SpinIndexerToAngle;
 import com.pigmice.frc.robot.commands.intake.MoveIntakeCommand;
@@ -32,6 +38,10 @@ import com.pigmice.frc.robot.subsystems.climber.Lifty;
 import com.pigmice.frc.robot.subsystems.climber.Rotato;
 import com.pigmice.frc.robot.testmode.Testable;
 
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
@@ -76,6 +86,9 @@ public class RobotContainer {
 	private boolean shootMode;
 
 	private Trigger shootTarmac, shootLaunchpad, shootLow, shootFender, shootTrigger;
+
+	// String trajectoryJSON = "";
+	// Trajectory trajectory;
 
 	private static final double liftPower = 0.30;
 	private static final double rotatePower = 0.50;
@@ -122,7 +135,8 @@ public class RobotContainer {
 				new AutoShootFromFender(indexer, shooter, intake),
 				new DriveDistance(drivetrain, 1.0),
 				new Auto2BallTarmacSide(indexer, shooter, intake, drivetrain),
-				new Auto2BallTarmacCorner(indexer, shooter, intake, drivetrain));
+				new Auto2BallTarmacCorner(indexer, shooter, intake, drivetrain),
+				new SPathCommand(drivetrain));
 
 		autoChooser = new SendableChooser<>();
 
@@ -142,6 +156,16 @@ public class RobotContainer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		autoChooser = new SendableChooser<Command>();
+		autoChooser.addOption("2 balls, shoot first",
+			new Auto2BallShootFirst(indexer, shooter, intake, drivetrain));
+			autoChooser.addOption("2 balls, pick up first",
+			new Auto2BallFender(indexer, shooter, intake, drivetrain));
+		// autoCommands.addOption("1 ball, left position", "PathWeaver/Autos/oneBallLeft");
+		// autoCommands.addOption("2 balls, right position, shoot first", "PathWeaver/Autos/threeBallsRight");
+		// autoCommands.addOption("2 balls, right position, pick up first", "PathWeaver/Autos/twoBallsRight");
+		// trajectory = new Trajectory();
 	}
 
 	/**
@@ -380,8 +404,21 @@ public class RobotContainer {
 	 * @return the command to run in autonomous
 	 */
 	public Command getAutonomousCommand() {
+		// return new SPathCommand(this.drivetrain);
 
-		return autoChooser.getSelected();
+		/*
+		trajectoryJSON = autoTrajectories.getSelected();
+		try {
+			trajectory = TrajectoryUtil.fromPathweaverJson(
+				Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON));
+		} catch (IOException ex) {
+			DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+		}
+		return new Ramsete(this.drivetrain, trajectory); */
+
+		Command command = autoChooser.getSelected();
+		//if (command == null) System.out.println("AUTO COMMAND IS NULL");
+		return new SPathCommand(drivetrain);
 	}
 
 	public List<Testable> getTestables() {
