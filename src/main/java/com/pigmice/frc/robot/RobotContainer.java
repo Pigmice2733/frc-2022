@@ -38,6 +38,8 @@ import com.pigmice.frc.robot.subsystems.climber.Lifty;
 import com.pigmice.frc.robot.subsystems.climber.Rotato;
 import com.pigmice.frc.robot.testmode.Testable;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -342,6 +344,9 @@ public class RobotContainer {
 		this.indexer.enable();
 		this.intake.enable();
 		this.intake.resetEncoders();
+
+		this.drivetrain.resetEncoders();
+		this.drivetrain.resetOdometry(new Pose2d(0, 0, new Rotation2d(0)));
 	}
 
 	public void onDisable() {

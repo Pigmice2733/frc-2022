@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 
 public class Ramsete extends RamseteCommand {
     private Drivetrain drivetrain;
+    Trajectory m_trajectory;
 
     public Ramsete(Drivetrain drivetrain, Trajectory trajectory) {
         super(trajectory, drivetrain::getPose,
@@ -26,6 +27,9 @@ public class Ramsete extends RamseteCommand {
         drivetrain.resetOdometry(trajectory.getInitialPose());
 
         this.drivetrain = drivetrain;
+        addRequirements(drivetrain);
+
+        this.m_trajectory = trajectory;
     }
 
     @Override

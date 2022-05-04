@@ -149,12 +149,17 @@ public final class Constants {
 
         // auto drive constants
 
-        // TODO TUNE THESE! they have been copied from wpilib documentation
-        public static final double ksVolts = -0.025875;
-        public static final double kvVoltSecondsPerMeter = 2.9799;
-        public static final double kaVoltSecondsSquaredPerMeter = 2.3649;
+        //public static final double ksVolts = -0.025875;
+        //public static final double kvVoltSecondsPerMeter = 2.9799;
+        //public static final double kaVoltSecondsSquaredPerMeter = 2.3649;
 
-        public static final double kPDriveVel = 1.7678;
+        // public static final double kPDriveVel = 1.7678;
+
+        public static final double ksVolts = 0;
+        public static final double kvVoltSecondsPerMeter = 0;
+        public static final double kaVoltSecondsSquaredPerMeter = 0;
+
+        public static final double kPDriveVel = 0.03;
 
         // changes here need to be copied to PathWeaver/pathweaver.json
         public static final double kMaxSpeedMetersPerSecond = 3;

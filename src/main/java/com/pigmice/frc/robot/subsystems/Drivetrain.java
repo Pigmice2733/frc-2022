@@ -123,10 +123,11 @@ public class Drivetrain extends Subsystem {
 
     @Override
     public void periodic() {
-        this.getDistanceFromStart();
+        //this.getDistanceFromStart();
+        this.getPose();
         // from updateInputs
-        leftPosition = leftDrive.getEncoder().getPosition();
-        rightPosition = rightDrive.getEncoder().getPosition();
+        leftPosition = rotationsToDistance(leftDrive.getEncoder().getPosition());
+        rightPosition = rotationsToDistance(rightDrive.getEncoder().getPosition());
 
         updateHeading();
 
@@ -162,6 +163,7 @@ public class Drivetrain extends Subsystem {
     }
 
     public Pose2d getPose() {
+        System.out.println(diffOdometry.getPoseMeters());
         return diffOdometry.getPoseMeters();
     }
 
@@ -219,13 +221,15 @@ public class Drivetrain extends Subsystem {
     }
 
     public void tankDriveVolts(double left, double right) {
-        System.out.println("Left Volts: " + left + " | Right Volts: " + right);
+        //System.out.println("Left Volts: " + left + " | Right Volts: " + right);
         leftDrive.setVoltage(left);
         rightDrive.setVoltage(right);
         drive.feed();
     }
 
     public void tankDrive(double leftSpeed, double rightSpeed) {
+        //System.out.println("Left Speed: " + leftSpeed + " | Right Speed: " + rightSpeed);
+
         leftDemand = leftSpeed;
         rightDemand = rightSpeed;
 
@@ -327,7 +331,10 @@ public class Drivetrain extends Subsystem {
 
     public double getDistanceFromStart() {
         Transform2d displacement = this.getPose().minus(new Pose2d(0, 0, new Rotation2d(0)));
-        return Math.sqrt(displacement.getX() * displacement.getX() + displacement.getY() * displacement.getY());
+        double distance = Math.sqrt(displacement.getX() * displacement.getX() + displacement.getY() * displacement.getY());
+        
+        //System.out.println("Distance from start: " + distance);
+        return distance;
     }
 
     public void resetEncoders() {
@@ -342,5 +349,9 @@ public class Drivetrain extends Subsystem {
 
     public void testPeriodic() {
 
+    }
+
+    public double rotationsToDistance(double rotations) {
+        return rotations * Math.PI * DrivetrainConfig.wheelDiameterMeters / DrivetrainConfig.gearRatio;
     }
 }
