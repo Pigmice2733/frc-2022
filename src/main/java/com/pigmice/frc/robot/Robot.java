@@ -19,7 +19,6 @@ public class Robot extends TimedRobot {
   private Command autonomousCommand;
 
   private RobotContainer robotContainer;
-
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
@@ -55,6 +54,8 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     // Vision.update();
     robotContainer.updateShuffleboard();
+
+    //System.out.println(robotContainer.getAutonomousCommand());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -81,7 +82,9 @@ public class Robot extends TimedRobot {
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
       autonomousCommand.schedule();
+      System.out.println("Command scheduled");
     }
+    else System.out.println("Command NULL");
 
     this.robotContainer.nonTestInit();
   }

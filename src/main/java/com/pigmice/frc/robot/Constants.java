@@ -137,9 +137,9 @@ public final class Constants {
         public static final double wheelDiameterMeters = Units.inchesToMeters(4);
         public static final double gearRatio = 7.5833; // 3 motor rotations to 1 wheel rotation
         public static final double rotationToDistanceConversion = (Math.PI * wheelDiameterMeters) / gearRatio; //
-        // circumference
-        // / gear ratio
+        // circumference / gear ratio
         public static final double wheelBase = 0.69;
+        public static final double robotLength = 0.9398;
 
         public static final int navXRotationalOffsetDegrees = 0;
 
@@ -147,6 +147,26 @@ public final class Constants {
         public static final double boostMultiplier = 1.25;
         public static final double slowMultiplier = 0.5;
 
+        // auto drive constants
+
+        //public static final double ksVolts = -0.025875;
+        //public static final double kvVoltSecondsPerMeter = 2.9799;
+        //public static final double kaVoltSecondsSquaredPerMeter = 2.3649;
+
+        // public static final double kPDriveVel = 1.7678;
+
+        public static final double ksVolts = 0;
+        public static final double kvVoltSecondsPerMeter = 0;
+        public static final double kaVoltSecondsSquaredPerMeter = 0;
+
+        public static final double kPDriveVel = 0.03;
+
+        // changes here need to be copied to PathWeaver/pathweaver.json
+        public static final double kMaxSpeedMetersPerSecond = 3;
+        public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+
+        public static final double kRamseteB = 2;
+        public static final double kRamseteZeta = 0.7;
     }
 
     public static class IndexerConfig {
